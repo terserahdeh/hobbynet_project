@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hobby Net — Temukan Hobi Pertamamu</title>
+    <title>HobbyNet — Temukan Hobi Pertamamu</title>
     <meta name="description" content="Temukan hobi yang kamu suka, siapkan perlengkapannya, dan mulai proyek pertamamu satu langkah kecil demi satu langkah.">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -193,12 +193,52 @@
 
         /* ===== Responsive ===== */
         @media (max-width: 860px) {
-            .hero .container { grid-template-columns: 1fr; }
-            .hero-visual { height: 300px; max-width: 400px; }
+            .hero .container { 
+                grid-template-columns: 1fr !important; 
+                text-align: center; 
+                gap: 24px; 
+            }
+            .hero p {
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .hero-actions { 
+                justify-content: center; 
+            }
+
+            /* Kotak utama foto dikunci 280px agar selalu pas di tengah layar HP */
+            .hero-visual { 
+                position: relative !important;
+                width: 280px !important; 
+                height: 180px !important; 
+                margin: 0 auto !important; 
+            }
+
+            /* Posisi 3 foto di dalam kotak 280px */
+            .photo.p1 { 
+                width: 95px !important; 
+                height: 95px !important; 
+                left: 0px !important; 
+                top: 65px !important; 
+            }
+            .photo.p2 { 
+                width: 82px !important; 
+                height: 102px !important; 
+                left: 98px !important; 
+                top: 32px !important; 
+            }
+            .photo.p3 { 
+                width: 92px !important; 
+                height: 112px !important; 
+                left: 188px !important; 
+                top: 0px !important; 
+            }
+
             .steps, .paths-grid { grid-template-columns: 1fr; }
             .wins-grid { grid-template-columns: repeat(2, 1fr); }
             .nav-links a:first-child { display: none; }
         }
+
         @media (max-width: 480px) {
             .wins-grid { grid-template-columns: 1fr; }
             .footer-cols { gap: 28px; flex-wrap: wrap; }
@@ -210,7 +250,7 @@
     {{-- ================= NAVBAR ================= --}}
     <header class="navbar">
         <div class="container">
-            <a href="{{ url('/') }}" class="logo"><span class="logo-mark"></span> HobbyNet </a>
+            <a href="{{ url('/') }}" class="logo"><span class="logo-mark"></span> HobbyNet</a>
             <nav class="nav-links">
                 <a href="#paths">Explore Hobbies</a>
                 <a href="{{ $loginUrl }}">Log In</a>
