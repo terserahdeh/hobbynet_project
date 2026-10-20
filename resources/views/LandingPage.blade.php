@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hobby Enabler — Temukan Hobi Pertamamu</title>
+    <title>Hobby Net — Temukan Hobi Pertamamu</title>
     <meta name="description" content="Temukan hobi yang kamu suka, siapkan perlengkapannya, dan mulai proyek pertamamu satu langkah kecil demi satu langkah.">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,8 +12,8 @@
 
     @php
         // Fallback jika route bernama belum ada (mis. belum pasang Breeze/Fortify)
-        $loginUrl    = url('/login');
-        $registerUrl = url('/login');
+        $loginUrl    = route('login');
+        $registerUrl = route('onboarding.account');
     @endphp
 
     <style>
@@ -210,7 +210,7 @@
     {{-- ================= NAVBAR ================= --}}
     <header class="navbar">
         <div class="container">
-            <a href="{{ url('/') }}" class="logo"><span class="logo-mark"></span> Hobby Enabler</a>
+            <a href="{{ url('/') }}" class="logo"><span class="logo-mark"></span> HobbyNet </a>
             <nav class="nav-links">
                 <a href="#paths">Explore Hobbies</a>
                 <a href="{{ $loginUrl }}">Log In</a>
@@ -356,7 +356,7 @@
         <div class="container">
             <div class="footer-top">
                 <div class="footer-brand">
-                    <a href="{{ url('/') }}" class="logo"><span class="logo-mark"></span> Hobby Enabler</a>
+                    <a href="{{ url('/') }}" class="logo"><span class="logo-mark"></span> HobbyNet</a>
                     <p>Supporting your creative journey, one small project at a time. Designed for the curious heart.</p>
                 </div>
                 <div class="footer-cols">
@@ -382,7 +382,7 @@
                     </div>
                 </div>
             </div>
-            <p class="copyright">© {{ date('Y') }} Hobby Enabler. Crafted with love for creators everywhere.</p>
+            <p class="copyright">© {{ date('Y') }} HobbyNet. Crafted with love for creators everywhere.</p>
         </div>
     </footer>
 
