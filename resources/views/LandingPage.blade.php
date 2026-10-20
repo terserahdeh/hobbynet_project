@@ -193,9 +193,47 @@
 
         /* ===== Responsive ===== */
         @media (max-width: 860px) {
-            .hero .container { grid-template-columns: 1fr; text-align: center; gap: 28px; }
-            .hero-actions { justify-content: center; }
-            .hero-visual { height: 300px; max-width: 400px; margin: 0 auto; }
+            .hero .container { 
+                grid-template-columns: 1fr !important; 
+                text-align: center; 
+                gap: 24px; 
+            }
+            .hero p {
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .hero-actions { 
+                justify-content: center; 
+            }
+
+            /* Kotak utama foto dikunci 280px agar selalu pas di tengah layar HP */
+            .hero-visual { 
+                position: relative !important;
+                width: 280px !important; 
+                height: 180px !important; 
+                margin: 0 auto !important; 
+            }
+
+            /* Posisi 3 foto di dalam kotak 280px */
+            .photo.p1 { 
+                width: 95px !important; 
+                height: 95px !important; 
+                left: 0px !important; 
+                top: 65px !important; 
+            }
+            .photo.p2 { 
+                width: 82px !important; 
+                height: 102px !important; 
+                left: 98px !important; 
+                top: 32px !important; 
+            }
+            .photo.p3 { 
+                width: 92px !important; 
+                height: 112px !important; 
+                left: 188px !important; 
+                top: 0px !important; 
+            }
+
             .steps, .paths-grid { grid-template-columns: 1fr; }
             .wins-grid { grid-template-columns: repeat(2, 1fr); }
             .nav-links a:first-child { display: none; }
@@ -204,12 +242,6 @@
         @media (max-width: 480px) {
             .wins-grid { grid-template-columns: 1fr; }
             .footer-cols { gap: 28px; flex-wrap: wrap; }
-
-            /* Penyesuaian gambar hero agar tidak kepotong di HP */
-            .hero-visual { height: 210px; max-width: 310px; }
-            .photo.p1 { width: 110px; height: 108px; left: 0; top: 70px; }
-            .photo.p2 { width: 85px; height: 110px; left: 118px; top: 35px; }
-            .photo.p3 { width: 98px; height: 120px; left: 208px; top: 0; }
         }
     </style>
 </head>
