@@ -7,6 +7,8 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -22,6 +24,11 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'onboarding_step',
+        'experience_level', 
+        'tools', 
+        'budget', 
+        'daily_goal_minutes',
     ];
 
     /**
@@ -44,6 +51,32 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'tolls' => 'array',
         ];
+    }
+
+    public function hobbies(): BelongsToMany
+    {
+        return $this->belongsToMany(Hobby::class)->withTimestamps();
+    }
+    
+    public function projectProgress(): HasMany
+    {
+        return $this->hasMany(UserProject::class);
+    }
+
+    public function dailyActivities(): HasMany
+    {
+        return $this->hasMany(DailyActivity::class);
+    }
+
+    /** Rute langkah onboarding yang harus dikerjakan berikutnya. */
+    public function nextOnboardingRoute(): string
+    {
+        return match (true) {
+            $this->onboarding_step <= 2 => 'onboarding.personalize',
+            $this->onboarding_step === 3 => 'onboarding.hobbies',
+            default                      => 'home',
+        };
     }
 }

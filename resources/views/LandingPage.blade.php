@@ -12,8 +12,8 @@
 
     @php
         // Fallback jika route bernama belum ada (mis. belum pasang Breeze/Fortify)
-        $loginUrl    = url('/login');
-        $registerUrl = url('/login');
+        $loginUrl    = route('login');
+        $registerUrl = route('onboarding.account');
     @endphp
 
     <style>

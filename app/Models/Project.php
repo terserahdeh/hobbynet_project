@@ -1,0 +1,66 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class Project extends Model
+{
+    protected $fillable = [
+        'hobby_id', 'slug', 'title', 'category', 'summary', 'description', 'level',
+        'duration_minutes', 'learners_count', 'image', 'icon', 'color', 'is_starter', 'is_popular',
+    ];
+
+    protected $casts = [
+        'is_starter' => 'boolean',
+        'is_popular' => 'boolean',
+    ];
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    public function hobby(): BelongsTo
+    {
+        return $this->belongsTo(Hobby::class);
+    }
+
+    public function getLevelLabelAttribute(): string
+    {
+        return match ($this->level) {
+            'intermediate' => 'Menengah',
+            default        => 'Pemula',
+        };
+    }
+
+    public function getDurationLabelAttribute(): string
+    {
+        return static::humanDuration($this->duration_minutes);
+    }
+
+    public function getLearnersLabelAttribute(): string
+    {
+        $n = $this->learners_count;
+
+        if ($n >= 1000) {
+            return rtrim(rtrim(number_format($n / 1000, 1, ',', ''), '0'), ',') . ' rb peserta';
+        }
+
+        return $n . ' peserta';
+    }
+
+    public static function humanDuration(int $minutes): string
+    {
+        if ($minutes < 60) {
+            return $minutes . ' menit';
+        }
+
+        if ($minutes < 1440) {
+            return rtrim(rtrim(number_format($minutes / 60, 1, ',', ''), '0'), ',') . ' jam';
+        }
+
+        return round($minutes / 1440) . ' hari';
+    }
+}

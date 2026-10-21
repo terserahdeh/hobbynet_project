@@ -1,0 +1,72 @@
+/* Langkah 2: personalisasi */
+.persona { width: min(580px, 100%); margin: 0 auto; }
+.persona__head { text-align: center; margin-bottom: 36px; }
+.persona__head h1 { margin: 0 0 10px; font-size: clamp(24px, 3.4vw, 30px); line-height: 1.2; }
+.persona__head p { margin: 0; color: var(--cocoa-soft); font-size: 15px; }
+
+.q { border: 0; padding: 0; margin: 0 0 30px; min-width: 0; }
+.q legend {
+    display: flex; align-items: center; gap: 10px; padding: 0; margin-bottom: 14px;
+    font-weight: 700; font-size: 16px;
+}
+.q__num {
+    display: grid; place-items: center; min-width: 28px; height: 28px; padding: 0 6px;
+    border-radius: var(--radius-pill); background: #F6EBE6;
+    font-size: 11px; font-weight: 700; color: var(--cocoa-soft);
+}
+.q__opt { font-size: 12px; font-weight: 500; color: var(--cocoa-soft); }
+
+.opts { display: grid; gap: 12px; }
+.opts--3 { grid-template-columns: repeat(3, 1fr); }
+.opts--4 { grid-template-columns: repeat(4, 1fr); }
+
+.opt { position: relative; display: block; cursor: pointer; }
+.opt input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.opt__body {
+    position: relative; display: flex; height: 100%;
+    background: #fff; border: 1.5px solid transparent; border-radius: 20px;
+    box-shadow: 0 2px 10px rgba(112, 93, 86, .08);
+    transition: background .15s, border-color .15s, box-shadow .15s;
+}
+.opt:hover .opt__body { border-color: var(--pink); }
+.opt input:focus-visible + .opt__body { outline: 3px solid var(--peri); outline-offset: 2px; }
+.opt__title { font-weight: 700; font-size: 14px; color: var(--cocoa-deep); }
+
+/* Pengalaman */
+.opt--level .opt__body { flex-direction: column; gap: 6px; padding: 18px; min-height: 104px; }
+.opt__desc { font-size: 12.5px; line-height: 1.45; color: var(--cocoa-soft); }
+.opt__check {
+    position: absolute; top: 12px; right: 12px; display: grid; place-items: center;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: #fff; color: var(--cocoa-deep); opacity: 0; transform: scale(.8);
+    transition: opacity .15s, transform .15s;
+}
+.opt--level input:checked + .opt__body { background: var(--sage); border-color: var(--sage); }
+.opt--level input:checked + .opt__body .opt__desc { color: var(--cocoa-deep); }
+.opt--level input:checked + .opt__body .opt__check { opacity: 1; transform: scale(1); }
+
+/* Alat */
+.opt--tool .opt__body { align-items: center; gap: 10px; padding: 14px; border-radius: 16px; }
+.opt--tool .opt__title { font-weight: 500; font-size: 13px; }
+.opt__box {
+    display: grid; place-items: center; flex: none; width: 18px; height: 18px;
+    border: 1.5px solid #D9C7BF; border-radius: 6px; background: #fff; color: transparent;
+    transition: background .15s, border-color .15s, color .15s;
+}
+.opt--tool input:checked + .opt__body { background: #F3F6FE; border-color: #8EA2E8; }
+.opt--tool input:checked + .opt__body .opt__title { font-weight: 700; }
+.opt--tool input:checked + .opt__body .opt__box { background: var(--peri); border-color: #8EA2E8; color: var(--cocoa-deep); }
+
+/* Anggaran */
+.opt--budget .opt__body { align-items: center; justify-content: center; padding: 14px; border-radius: 16px; }
+.opt--budget .opt__title { font-weight: 500; }
+.opt--budget input:checked + .opt__body { background: #FBE9EB; border-color: var(--cocoa); }
+.opt--budget input:checked + .opt__body .opt__title { font-weight: 700; }
+
+.persona__actions { display: grid; justify-items: center; margin-top: 40px; }
+.persona__actions .btn { width: 256px; max-width: 100%; }
+
+@media (max-width: 640px) {
+    .opts--3 { grid-template-columns: 1fr; }
+    .opts--4 { grid-template-columns: repeat(2, 1fr); }
+}
