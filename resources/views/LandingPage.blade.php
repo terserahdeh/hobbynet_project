@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hobby Net — Temukan Hobi Pertamamu</title>
+    <title>HobbyNet — Temukan Hobi Pertamamu</title>
     <meta name="description" content="Temukan hobi yang kamu suka, siapkan perlengkapannya, dan mulai proyek pertamamu satu langkah kecil demi satu langkah.">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -210,7 +210,7 @@
     {{-- ================= NAVBAR ================= --}}
     <header class="navbar">
         <div class="container">
-            <a href="{{ url('/') }}" class="logo"><span class="logo-mark"></span> HobbyNet </a>
+            <a href="{{ url('/') }}" class="logo"><span class="logo-mark"></span> HobbyNet</a>
             <nav class="nav-links">
                 <a href="#paths">Explore Hobbies</a>
                 <a href="{{ $loginUrl }}">Log In</a>
