@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Facades\Hash;
 use Throwable;
 
 /**
@@ -39,7 +40,7 @@ class SocialAuthController extends Controller
             ['email' => $social->getEmail()],
             [
                 'name'              => $social->getName() ?: Str::before($social->getEmail(), '@'),
-                'password'          => Str::random(40), // dihash otomatis oleh cast 'hashed'
+                'password'          => Hash::make(Str::random(40)),
                 'email_verified_at' => now(),
                 'onboarding_step'   => 2,
             ]

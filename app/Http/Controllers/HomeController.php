@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Hobby;
 use App\Models\Project;
 use App\Models\User;
+use App\Services\RoadmapService;
 use App\Support\TipOfTheDay;
+use Database\Seeders\ProjectSeeder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -14,7 +17,7 @@ use Illuminate\View\View;
 
 class HomeController extends Controller
 {
-    public function __invoke(Request $request): View|RedirectResponse
+    public function __invoke(Request $request, RoadmapService $roadmaps): View|RedirectResponse
     {
         $user = $request->user();
 
@@ -23,106 +26,98 @@ class HomeController extends Controller
             return redirect()->route($user->nextOnboardingRoute());
         }
 
-        $hobbies = $user->hobbies()
-            ->with(['projects' => fn ($q) => $q->where('is_starter', true)->orderBy('id')])
-            ->orderBy('sort')
+        // Jaring pengaman: isi katalog proyek jika seeder belum dijalankan.
+        if (! Project::exists()) {
+            (new ProjectSeeder)->run();
+        }
+
+        $roadmaps->ensureDefault($user);
+
+        $hobbies  = $user->hobbies()->orderBy('sort')->get();
+        $chosen   = $hobbies->pluck('id');
+        $level    = $roadmaps->levelFor($user);
+
+        $rows = $user->projectProgress()
+            ->with('project.hobby')
+            ->orderByDesc('is_roadmap')
+            ->orderByDesc('updated_at')
             ->get();
 
-        $progress = $user->projectProgress()->with('project')->get()->keyBy('project_id');
+        // Data lama tanpa roadmap utama: jadikan proyek terbaru sebagai roadmap.
+        $active = $rows->firstWhere('is_roadmap', true);
+        if (! $active && $rows->isNotEmpty()) {
+            $active = $rows->first();
+            $roadmaps->activate($user, $active->project);
+            $active->is_roadmap = true;
+        }
+
+        $inList = $rows->pluck('project_id');
 
         return view('home', [
-            'firstName'  => Str::before($user->name, ' '),
-            'hobbies'    => $hobbies,
-            'current'    => $this->currentProject($hobbies, $progress),
-            'hobbyCards' => $this->hobbyCards($hobbies, $progress),
-            'popular'    => $this->popularProjects($hobbies),
-            'nextBadge'  => $this->nextBadge($progress),
-            'tip'        => TipOfTheDay::for($hobbies),
-            'goal'       => $this->dailyGoal($user),
+            'firstName'    => Str::before($user->name, ' '),
+            'hobbies'      => $hobbies,
+            'levelLabel'   => Project::levelLabel($level),
+            'roadmap'      => $active ? $roadmaps->present($user, $active) : null,
+            'todo'         => $rows,
+            'popular'      => $popular = $this->popular($chosen, $inList, $level),
+            'more'         => $this->more($chosen, $inList->merge($popular->pluck('id'))),
+            'otherHobbies' => Hobby::withCount('projects')->whereNotIn('id', $chosen)->orderBy('sort')->get(),
+            'nextBadge'    => $this->nextBadge($rows),
+            'tip'          => TipOfTheDay::for($hobbies),
+            'goal'         => $this->dailyGoal($user, Str::before($user->name, ' ')),
         ]);
     }
 
-    /** Proyek yang paling pantas dilanjutkan, atau proyek pertama dari hobi terpilih. */
-    private function currentProject(Collection $hobbies, Collection $progress): ?array
+    /** Populer: sebagian besar dari hobi yang dipilih, level pengguna lebih dulu, sisanya dari hobi lain. */
+    private function popular(Collection $chosen, Collection $inList, string $level): Collection
     {
-        $row = $progress
-            ->filter(fn ($p) => $p->progress_percent >= 1 && $p->progress_percent < 100)
-            ->sortByDesc(fn ($p) => optional($p->last_worked_at)->timestamp ?? 0)
-            ->first()
-            ?? $progress->first(fn ($p) => $p->progress_percent === 0);
+        $base = Project::with('hobby')->where('is_popular', true)->whereNotIn('id', $inList);
 
-        if ($row) {
-            return $this->present($row->project, $row->progress_percent);
+        $mine = (clone $base)
+            ->whereIn('hobby_id', $chosen)
+            ->orderByRaw('CASE WHEN level = ? THEN 0 ELSE 1 END', [$level])
+            ->orderByDesc('learners_count')
+            ->limit(6)
+            ->get();
+
+        if ($mine->count() >= 6) {
+            return $mine;
         }
 
-        $project = $hobbies->first()?->projects->first();
+        $rest = (clone $base)
+            ->whereNotIn('id', $mine->pluck('id'))
+            ->where(fn ($q) => $q->whereNull('hobby_id')->orWhereNotIn('hobby_id', $chosen))
+            ->orderByDesc('learners_count')
+            ->limit(6 - $mine->count())
+            ->get();
 
-        return $project ? $this->present($project, 0) : null;
+        return $mine->concat($rest)->values();
     }
 
-    private function present(Project $project, int $percent): array
+    /** Konten tambahan di bagian bawah: tutorial dan proyek dari hobi lain atau umum. */
+    private function more(Collection $chosen, Collection $exclude): Collection
     {
-        $left = (int) max(5, round($project->duration_minutes * (100 - $percent) / 100 / 5) * 5);
-
-        return [
-            'project'      => $project,
-            'percent'      => $percent,
-            'time_left'    => Project::humanDuration($left),
-        ];
-    }
-
-    /** Satu kartu per hobi terpilih: proyek pertama + statusnya. */
-    private function hobbyCards(Collection $hobbies, Collection $progress): Collection
-    {
-        return $hobbies
-            ->map(function ($hobby) use ($progress) {
-                $project = $hobby->projects->first();
-
-                if (! $project) {
-                    return null;
-                }
-
-                $row = $progress->get($project->id);
-
-                [$status, $label] = match (true) {
-                    $row === null                   => ['none', 'Belum dimulai'],
-                    $row->progress_percent >= 100   => ['done', 'Selesai'],
-                    $row->progress_percent >= 30    => ['doing', 'Sedang dikerjakan'],
-                    default                         => ['new', 'Baru dimulai'],
-                };
-
-                return compact('hobby', 'project', 'status', 'label');
-            })
-            ->filter()
-            ->values();
-    }
-
-    /** Proyek populer dari hobi lain, terpisah jelas dari rekomendasi personal. */
-    private function popularProjects(Collection $hobbies): Collection
-    {
-        $ids = $hobbies->pluck('id');
-
-        return Project::query()
-            ->where('is_popular', true)
-            ->where(fn ($q) => $q->whereNull('hobby_id')->orWhereNotIn('hobby_id', $ids))
+        return Project::with('hobby')
+            ->whereNotIn('id', $exclude)
+            ->where(fn ($q) => $q->whereNull('hobby_id')->orWhereNotIn('hobby_id', $chosen))
             ->orderByDesc('learners_count')
             ->limit(6)
             ->get();
     }
 
-    private function nextBadge(Collection $progress): ?array
+    private function nextBadge(Collection $rows): ?array
     {
-        $tried = $progress
-            ->filter(fn ($p) => $p->progress_percent >= 1 && $p->project?->hobby_id)
+        $tried = $rows
+            ->filter(fn ($r) => $r->steps_done >= 1 && $r->project?->hobby_id)
             ->pluck('project.hobby_id')
             ->unique()
             ->count();
 
-        $completed = $progress->filter(fn ($p) => $p->progress_percent >= 100)->count();
+        $completed = $rows->filter(fn ($r) => $r->steps_done >= RoadmapService::TOTAL)->count();
 
         $badges = [
-            ['name' => 'Penjelajah Penasaran', 'hint' => 'Coba 2 hobi',          'value' => $tried,     'target' => 2],
-            ['name' => 'Pembuat Pertama',      'hint' => 'Selesaikan 1 proyek',  'value' => $completed, 'target' => 1],
+            ['name' => 'Penjelajah Penasaran', 'hint' => 'Coba 2 hobi', 'value' => $tried, 'target' => 2, 'unit' => 'hobi'],
+            ['name' => 'Pembuat Pertama', 'hint' => 'Selesaikan 1 proyek', 'value' => $completed, 'target' => 1, 'unit' => 'proyek'],
         ];
 
         foreach ($badges as $badge) {
@@ -134,10 +129,10 @@ class HomeController extends Controller
         return null;
     }
 
-    private function dailyGoal(User $user): array
+    private function dailyGoal(User $user, string $firstName): array
     {
         $goal    = max(1, (int) ($user->daily_goal_minutes ?: 45));
-        $minutes = (int) $user->dailyActivities()->whereDate('date', today())->value('minutes');
+        $minutes = (int) $user->dailyActivities()->where('date', today()->toDateString())->value('minutes');
 
         $dates = $user->dailyActivities()
             ->where('minutes', '>', 0)
@@ -157,9 +152,9 @@ class HomeController extends Controller
         $remaining = max(0, $goal - $minutes);
 
         $message = match (true) {
-            $remaining === 0 => "Target hari ini tercapai. Kamu sudah berkarya {$streak} hari berturut-turut.",
-            $streak > 0      => "Tinggal {$remaining} menit lagi untuk menjaga rangkaian {$streak} harimu.",
-            default          => "Satu langkah kecil sudah cukup. Coba berkarya {$remaining} menit hari ini.",
+            $remaining === 0 => "Target hari ini tercapai, {$firstName}. Kamu sudah berkarya {$streak} hari berturut-turut.",
+            $streak > 0      => "Terus melangkah, {$firstName}! Tinggal {$remaining} menit lagi untuk menjaga rangkaian {$streak} harimu.",
+            default          => "Satu langkah kecil sudah cukup, {$firstName}. Coba berkarya {$remaining} menit hari ini.",
         };
 
         return [
