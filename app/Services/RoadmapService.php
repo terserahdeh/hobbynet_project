@@ -2,34 +2,17 @@
 
 namespace App\Services;
 
-//use App\Models\DailyActivity;
-use App\Models\Project;
-use App\Models\User;
-use App\Models\UserProject;
-// use App\Support\StepBlueprints;
 use App\Models\Badge;
 use App\Models\Hobby;
+use App\Models\Project;
 use App\Models\RoadmapStep;
+use App\Models\User;
 use App\Models\UserStepProgress;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class RoadmapService
 {
-    /** Jawaban personalisasi -> level proyek. */
-    private const LEVELS = [
-        'beginner'  => 'beginner',
-        'some'      => 'intermediate',
-        'returning' => 'advanced',
-    ];
-
-    private const LEVEL_ORDER = ['beginner' => 0, 'intermediate' => 1, 'advanced' => 2];
-
-    public function levelFor(User $user): string
-    {
-        return self::LEVELS[$user->experience_level] ?? 'beginner';
-    }
-  
     public function __construct(private BadgeService $badges)
     {
     }

@@ -6,6 +6,9 @@ use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Onboarding\HobbyController;
 use App\Http\Controllers\Onboarding\PersonalizeController;
+use App\Http\Controllers\Roadmap\RoadmapController;
+use App\Http\Controllers\Roadmap\RoadmapStepController;
+use App\Http\Controllers\Roadmap\RoadmapSubmissionController;
 use App\Models\Project;
 use Illuminate\Support\Facades\Route;
 
