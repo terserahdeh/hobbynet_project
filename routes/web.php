@@ -6,10 +6,6 @@ use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Onboarding\HobbyController;
 use App\Http\Controllers\Onboarding\PersonalizeController;
-use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\Roadmap\RoadmapController;
-use App\Http\Controllers\Roadmap\RoadmapStepController;
-use App\Http\Controllers\Roadmap\RoadmapSubmissionController;
 use App\Models\Project;
 use Illuminate\Support\Facades\Route;
 
@@ -30,11 +26,11 @@ Route::middleware('guest')->group(function () {
         ->middleware('throttle:10,1')
         ->name('login.store');
 
-    // Login sosial (Google), butuh laravel/socialite
+    // Login sosial (Google / Apple), butuh laravel/socialite
     Route::get('/auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])
-        ->whereIn('provider', ['google'])->name('social.redirect');
+        ->whereIn('provider', ['google', 'apple'])->name('social.redirect');
     Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'])
-        ->whereIn('provider', ['google'])->name('social.callback');
+        ->whereIn('provider', ['google', 'apple'])->name('social.callback');
 });
 
 // Pengguna sudah login
@@ -44,7 +40,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/onboarding/personalize', [PersonalizeController::class, 'store'])->name('onboarding.personalize.store');
     Route::post('/onboarding/personalize/skip', [PersonalizeController::class, 'skip'])->name('onboarding.personalize.skip');
 
-    // Langkah 3: pemilih hobi (hanya sekali). Langkah 4 = redirect ke beranda.
+    // Langkah 3: pemilih hobi (Langkah 4 = redirect ke beranda)
     Route::get('/onboarding/hobbies', [HobbyController::class, 'create'])->name('onboarding.hobbies');
     Route::post('/onboarding/hobbies', [HobbyController::class, 'store'])->name('onboarding.hobbies.store');
     Route::post('/onboarding/hobbies/skip', [HobbyController::class, 'skip'])->name('onboarding.hobbies.skip');
@@ -52,24 +48,12 @@ Route::middleware('auth')->group(function () {
     // Beranda
     Route::get('/home', HomeController::class)->name('home');
 
-    // Jelajahi hobi (hobi baru hanya bisa ditambah, tidak diganti)
-    Route::get('/explore', [HobbyController::class, 'index'])->name('explore');
-    Route::get('/hobbies/{hobby:slug}', [HobbyController::class, 'show'])->name('hobbies.show');
-    Route::post('/hobbies/{hobby:slug}/add', [HobbyController::class, 'add'])->name('hobbies.add');
-
-    // Proyek: detail, daftar (to-do), dan langkah roadmap
-    Route::get('/projects/{project:slug}', [ProjectController::class, 'show'])->name('projects.show');
-    Route::post('/projects/{project:slug}/add', [ProjectController::class, 'add'])->name('projects.add');
-    Route::post('/projects/{project:slug}/roadmap', [ProjectController::class, 'makeRoadmap'])->name('projects.roadmap');
-    Route::delete('/projects/{project:slug}', [ProjectController::class, 'destroy'])->name('projects.destroy');
-    Route::get('/projects/{project:slug}/steps/{position}', [ProjectController::class, 'step'])
-        ->whereNumber('position')->name('projects.step');
-    Route::post('/projects/{project:slug}/steps/{position}/complete', [ProjectController::class, 'completeStep'])
-        ->whereNumber('position')->name('projects.step.complete');
-
     // Halaman yang belum dibuat (placeholder)
+    Route::view('/explore', 'soon', ['title' => 'Jelajahi'])->name('explore');
     Route::view('/bookmarks', 'soon', ['title' => 'Tersimpan'])->name('bookmarks');
     Route::view('/search', 'soon', ['title' => 'Pencarian'])->name('search');
+    Route::get('/projects/{project:slug}', fn (Project $project) => view('soon', ['title' => $project->title]))
+        ->name('projects.show');
 
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
 });
