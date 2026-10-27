@@ -10,7 +10,7 @@ use App\Models\UserProject;
 use Illuminate\Database\Seeder;
 
 /**
- * Opsional, HANYA untuk database lokal: isi data contoh agar beranda terlihat seperti desain.
+ * Opsional: isi data contoh agar beranda terlihat seperti desain.
  * Dipakai untuk user dengan email DEMO_EMAIL (.env), atau user terakhir.
  *   php artisan db:seed --class=DemoProgressSeeder
  */
@@ -27,19 +27,21 @@ class DemoProgressSeeder extends Seeder
 
         $this->call([HobbySeeder::class, ProjectSeeder::class]);
 
-        $user->hobbies()->syncWithoutDetaching(Hobby::where('slug', 'crochet')->pluck('id'));
-        $user->forceFill([
-            'onboarding_step'            => 4,
-            'experience_level'           => $user->experience_level ?? 'beginner',
-            'default_roadmap_created_at' => now(),
-        ])->save();
+        $user->hobbies()->syncWithoutDetaching(
+            Hobby::whereIn('slug', ['crochet', 'photography'])->pluck('id')
+        );
+        $user->update(['onboarding_step' => 4]);
 
-        $coaster = Project::where('slug', 'alas-gelas-rajut-katun')->first();
+        $crochet = Project::where('slug', 'alas-gelas-rajut-katun')->first();
+        $photo   = Project::where('slug', 'cerita-foto-sehari-hari')->first();
 
-        UserProject::where('user_id', $user->id)->update(['is_roadmap' => false]);
         UserProject::updateOrCreate(
-            ['user_id' => $user->id, 'project_id' => $coaster->id],
-            ['steps_done' => 2, 'progress_percent' => 33, 'is_roadmap' => true, 'last_worked_at' => now()]
+            ['user_id' => $user->id, 'project_id' => $crochet->id],
+            ['progress_percent' => 60, 'last_worked_at' => now()]
+        );
+        UserProject::updateOrCreate(
+            ['user_id' => $user->id, 'project_id' => $photo->id],
+            ['progress_percent' => 0, 'last_worked_at' => now()->subDays(2)]
         );
 
         foreach ([0 => 30, 1 => 20, 2 => 25, 3 => 15] as $daysAgo => $minutes) {

@@ -12,7 +12,6 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->redirectUsersTo(fn () => route('home'));
-        $middleware->redirectGuestsTo(fn () => route('landing')); 
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

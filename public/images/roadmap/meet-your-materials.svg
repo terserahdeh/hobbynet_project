@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" role="img">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FCE3D6"/><stop offset="1" stop-color="#DDE8CF"/></linearGradient>
+  <linearGradient id="hook" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#F58A5B"/><stop offset="1" stop-color="#E8683A"/></linearGradient>
+  <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <filter id="sh" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#705D56" flood-opacity=".22"/></filter>
+</defs>
+<rect width="480" height="480" fill="url(#bg)"/>
+<circle cx="240" cy="230" r="210" fill="url(#glow)"/>
+<ellipse cx="240" cy="418" rx="170" ry="16" fill="#705D56" opacity=".10"/>
+<g filter="url(#sh)"><circle cx="170" cy="270" r="92" fill="#9DB57F"/></g><path d="M88 204 Q170 170 252 204" fill="none" stroke="#7E9A60" stroke-width="5" stroke-linecap="round" opacity=".85"/><path d="M88 226 Q170 192 252 226" fill="none" stroke="#7E9A60" stroke-width="5" stroke-linecap="round" opacity=".85"/><path d="M88 248 Q170 214 252 248" fill="none" stroke="#7E9A60" stroke-width="5" stroke-linecap="round" opacity=".85"/><path d="M88 270 Q170 236 252 270" fill="none" stroke="#7E9A60" stroke-width="5" stroke-linecap="round" opacity=".85"/><path d="M88 292 Q170 258 252 292" fill="none" stroke="#7E9A60" stroke-width="5" stroke-linecap="round" opacity=".85"/><path d="M88 314 Q170 280 252 314" fill="none" stroke="#7E9A60" stroke-width="5" stroke-linecap="round" opacity=".85"/><path d="M88 336 Q170 302 252 336" fill="none" stroke="#7E9A60" stroke-width="5" stroke-linecap="round" opacity=".85"/><path d="M110 186 Q146 270 110 354" fill="none" stroke="#B7CA9C" stroke-width="4" stroke-linecap="round" opacity=".8"/><path d="M140 186 Q176 270 140 354" fill="none" stroke="#B7CA9C" stroke-width="4" stroke-linecap="round" opacity=".8"/><path d="M170 186 Q206 270 170 354" fill="none" stroke="#B7CA9C" stroke-width="4" stroke-linecap="round" opacity=".8"/><path d="M200 186 Q236 270 200 354" fill="none" stroke="#B7CA9C" stroke-width="4" stroke-linecap="round" opacity=".8"/><path d="M230 186 Q266 270 230 354" fill="none" stroke="#B7CA9C" stroke-width="4" stroke-linecap="round" opacity=".8"/><path d="M242 320 C 300 380, 300 360, 330 370" fill="none" stroke="#9DB57F" stroke-width="7" stroke-linecap="round"/><g transform="translate(250 330) rotate(-32)" filter="url(#sh)">
+  <rect x="0" y="-8.0" width="220" height="16" rx="8.0" fill="url(#hook)"/>
+  <rect x="127.6" y="-11.0" width="88.0" height="22" rx="11.0" fill="#F7A07A" opacity=".55"/>
+  <path d="M0 -8.0 q-14 -4 -14 10 q0 4 5 4 q4 0 4 -4" fill="url(#hook)" stroke="none"/>
+  <circle cx="-6" cy="-1" r="2.2" fill="#fff" opacity=".0"/>
+</g><g transform="translate(330 150) rotate(28)" filter="url(#sh)">
+  <path d="M0 0 L90 -14 L90 -2 Z" fill="#C9CFD6"/><path d="M0 0 L90 14 L90 2 Z" fill="#B3BAC2"/>
+  <circle cx="-14" cy="-16" r="15" fill="none" stroke="#CE858F" stroke-width="8"/><circle cx="-14" cy="16" r="15" fill="none" stroke="#CE858F" stroke-width="8"/>
+</g><g transform="translate(60 70)"><rect width="87.8" height="30" rx="15" fill="#fff" opacity=".92"/><text x="43.9" y="20" text-anchor="middle" font-family="Nunito,Arial,sans-serif" font-size="13" font-weight="700" fill="#705D56">Hook 4 mm</text></g><g transform="translate(300 70)"><rect width="104.19999999999999" height="30" rx="15" fill="#fff" opacity=".92"/><text x="52.099999999999994" y="20" text-anchor="middle" font-family="Nunito,Arial,sans-serif" font-size="13" font-weight="700" fill="#705D56">Medium yarn</text></g>
+</svg>

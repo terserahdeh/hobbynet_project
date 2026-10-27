@@ -24,7 +24,7 @@ class TipOfTheDay
         ],
     ];
 
-    /** @return array{body: string, more: array<int, string>} */
+    /** @return array{body: string} */
     public static function for(Collection $hobbies): array
     {
         $pool = [];
@@ -39,9 +39,6 @@ class TipOfTheDay
             $pool = self::TIPS['general'];
         }
 
-        $index = now()->dayOfYear % count($pool);
-        $more  = array_values(array_filter($pool, fn ($key) => $key !== $index, ARRAY_FILTER_USE_KEY));
-
-        return ['body' => $pool[$index], 'more' => array_slice($more, 0, 2)];
+        return ['body' => $pool[now()->dayOfYear % count($pool)]];
     }
 }
