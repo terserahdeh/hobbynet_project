@@ -3,6 +3,11 @@
 @section('title', 'Beranda · HobbyNet')
 
 @section('content')
+@php
+    $go = fn ($p) => $p->is_starter
+        ? route('roadmap.project', $p->slug)
+        : route('projects.show', $p);
+@endphp
 <div class="dash">
 
     {{-- Sapaan + lencana berikutnya --}}
@@ -83,7 +88,7 @@
                                 <span style="width: {{ $current['percent'] }}%"></span>
                             </div>
 
-                            <a class="btn btn--primary" href="{{ route('projects.show', $project) }}">
+                            <a class="btn btn--primary" href="{{ $go($project) }}">
                                 {{ $current['percent'] > 0 ? 'Lanjutkan proyek' : 'Mulai proyek' }}
                             </a>
                         </div>
@@ -106,11 +111,11 @@
                     <div class="hgrid">
                         @foreach ($hobbyCards as $card)
                             <article class="hcard">
-                                <a class="hcard__media" href="{{ route('projects.show', $card['project']) }}" tabindex="-1" aria-hidden="true">
+                                <a class="hcard__media" href="{{ $go($card['project']) }}" tabindex="-1" aria-hidden="true">
                                     @include('onboarding.partials.project-thumb', ['project' => $card['project']])
                                 </a>
                                 <h3 class="hcard__title">
-                                    <a href="{{ route('projects.show', $card['project']) }}">{{ $card['project']->title }}</a>
+                                    <a href="{{ $go($card['project']) }}">{{ $card['project']->title }}</a>
                                 </h3>
                                 <p class="hcard__desc">{{ $card['project']->summary }}</p>
                                 <div class="hcard__foot">
@@ -118,7 +123,7 @@
                                     <details class="more">
                                         <summary aria-label="Opsi untuk {{ $card['project']->title }}">…</summary>
                                         <div class="more__menu">
-                                            <a href="{{ route('projects.show', $card['project']) }}">Buka proyek</a>
+                                            <a href="{{ $go($card['project']) }}">Buka proyek</a>
                                         </div>
                                     </details>
                                 </div>
