@@ -7,7 +7,7 @@
     $go = fn ($p) => route('roadmap.show', $p->hobby->slug);
 @endphp
 <div class="dash">
-
+    
     {{-- Sapaan + lencana berikutnya --}}
     <section class="dash__head">
         <div>
@@ -98,8 +98,6 @@
                     </div>
                 @endif
             </section>
-        </div>
-
             <section aria-labelledby="h-hobi">
                 <div class="section-head">
                     <h2 class="section-title" id="h-hobi">Hobimu</h2>
@@ -139,7 +137,7 @@
         </div>
 
         {{-- Kolom samping: populer & dorongan kecil --}}
-        <aside class="dash__side">
+        <div class="dash__side">
 
             <section aria-labelledby="h-populer" data-carousel>
                 <div class="section-head">
@@ -189,7 +187,7 @@
                 </div>
                 <p>{{ $goal['message'] }}</p>
             </section>
-        </aside>
+        </div>
     </div>
 </div>
 @endsection
