@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers\Onboarding;
-
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreHobbiesRequest;
 use App\Models\Hobby;

@@ -25,7 +25,7 @@ class RoadmapSubmissionController extends Controller
     public function show(Request $request, Hobby $hobby): View|RedirectResponse
     {
         $user = $request->user();
-        $project = $this->roadmap->starterProject($hobby);
+        $project = $this->roadmap->starterProject($hobby, $request->user());
         $summary = $this->roadmap->summary($user, $project);
         $shareStep = $this->roadmap->shareStep($summary['steps']);
 
@@ -62,7 +62,7 @@ class RoadmapSubmissionController extends Controller
     public function store(SubmissionRequest $request, Hobby $hobby): RedirectResponse
     {        
         $user = $request->user();
-        $project = $this->roadmap->starterProject($hobby);
+        $project = $this->roadmap->starterProject($hobby, $request->user());
         $summary = $this->roadmap->summary($user, $project);
         $shareStep = $this->roadmap->shareStep($summary['steps']);
 
@@ -103,7 +103,7 @@ class RoadmapSubmissionController extends Controller
     public function celebration(Request $request, Hobby $hobby): View|RedirectResponse
     {
         $user = $request->user();
-        $project = $this->roadmap->starterProject($hobby);
+        $project = $this->roadmap->starterProject($hobby, $request->user());
 
         $submission = ProjectSubmission::with('photos')
             ->where('user_id', $user->id)

@@ -31,7 +31,7 @@ class HomeController extends Controller
             (new ProjectSeeder)->run();
         }
 
-        $roadmaps->ensureDefault($user);
+        // $roadmaps->ensureDefault($user);
 
         $hobbies  = $user->hobbies()->orderBy('sort')->get();
         $chosen   = $hobbies->pluck('id');
