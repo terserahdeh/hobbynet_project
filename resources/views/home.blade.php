@@ -4,7 +4,7 @@
 
 @section('content')
 @php
-    $go = fn ($p) => route('roadmap.show', $p->hobby->slug);
+    $go = fn ($p) => route('roadmap.project', $p);
 @endphp
 <div class="dash">
 
@@ -110,11 +110,11 @@
                     <div class="hgrid">
                         @foreach ($hobbyCards as $card)
                             <article class="hcard">
-                                <a class="hcard__media" href="{{ route('projects.show', $card['project']) }}" tabindex="-1" aria-hidden="true">
+                                <a class="hcard__media" href="{{ route('roadmap.project', $card['project']) }}" tabindex="-1" aria-hidden="true">
                                     @include('onboarding.partials.project-thumb', ['project' => $card['project']])
                                 </a>
                                 <h3 class="hcard__title">
-                                    <a href="{{ route('projects.show', $card['project']) }}">{{ $card['project']->title }}</a>
+                                    <a href="{{ route('roadmap.project', $card['project']) }}">{{ $card['project']->title }}</a>
                                 </h3>
                                 <p class="hcard__desc">{{ $card['project']->summary }}</p>
                                 <div class="hcard__foot">
@@ -122,7 +122,7 @@
                                     <details class="more">
                                         <summary aria-label="Opsi untuk {{ $card['project']->title }}">…</summary>
                                         <div class="more__menu">
-                                            <a href="{{ route('projects.show', $card['project']) }}">Buka proyek</a>
+                                            <a href="{{ route('roadmap.project', $card['project']) }}">Buka proyek</a>
                                         </div>
                                     </details>
                                 </div>

@@ -21,7 +21,7 @@
     @include('roadmap.partials.flash')
 
     <nav class="rm-crumbs" aria-label="Breadcrumb">
-        <a href="{{ url('/') }}">Home</a> &nbsp;/&nbsp; <span>My Roadmap</span>
+        <a href="{{ route('home') }}">Home</a> &nbsp;/&nbsp; <span>My Roadmap</span>
     </nav>
 
     <div class="rm-head">
@@ -123,9 +123,9 @@
         <p class="rm-done-note">You finished every checkpoint. Curious about something new?
             <a href="{{ route('roadmap.celebration', $hobby->slug) }}"><strong>See your celebration</strong></a>
         </p>
-    @elseif (Route::has('profile.show'))
+    @else
         <div class="rm-pills">
-            <a href="{{ route('profile.show') }}" class="rm-pill-link">@include('roadmap.partials.icon', ['name' => 'star']) View All Milestones</a>
+            <a href="{{ route('profile') }}" class="rm-pill-link">@include('roadmap.partials.icon', ['name' => 'star']) View All Milestones</a>
         </div>
     @endif
 </div>

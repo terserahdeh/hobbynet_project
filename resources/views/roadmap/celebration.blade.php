@@ -51,7 +51,7 @@
                 @if ($badge)
                     <article class="rm-card rm-badge">
                         <div class="rm-badge__wrap">
-                            <div class="rm-badge__ring">@include('roadmap.partials.icon', ['name' => 'compass'])</div>
+                            <div class="rm-badge__ring">@include('roadmap.partials.icon', ['name' => in_array($badge->icon, ['compass','star','check','heart','yarn']) ? $badge->icon : ($badge->icon === 'sparkle' ? 'heart' : 'star')])</div>
                             <span class="rm-badge__label">Badge</span>
                         </div>
                         <h2>{{ $badge->name }}</h2>
@@ -59,11 +59,9 @@
                     </article>
                 @endif
 
-                @if (Route::has('profile.show'))
-                    <a href="{{ route('profile.show') }}" class="rm-btn rm-btn--soft-green">View My Achievement @include('roadmap.partials.icon', ['name' => 'chev-right'])</a>
-                @endif
+                <a href="{{ route('profile') }}" class="rm-btn rm-btn--soft-green">View My Achievement @include('roadmap.partials.icon', ['name' => 'chev-right'])</a>
 
-                @if ($nextProject && Route::has('projects.show'))
+                @if ($nextProject)
                     <a href="{{ route('projects.show', $nextProject->slug) }}" class="rm-btn rm-btn--soft-pink">Explore My Next Project @include('roadmap.partials.icon', ['name' => 'bulb'])</a>
                 @endif
             </div>
@@ -74,7 +72,7 @@
                 <span class="is-green">@include('roadmap.partials.icon', ['name' => 'image']) Shared to gallery</span>
                 <i class="rm-after__dot" aria-hidden="true"></i>
             @endif
-            <a href="{{ url('/') }}">@include('roadmap.partials.icon', ['name' => 'chev-right']) Back to dashboard</a>
+            <a href="{{ route('home') }}">@include('roadmap.partials.icon', ['name' => 'chev-right']) Back to dashboard</a>
         </p>
     </div>
     </div>

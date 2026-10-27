@@ -51,7 +51,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'tolls' => 'array',
+            'tools' => 'array',
         ];
     }
 
@@ -63,6 +63,20 @@ class User extends Authenticatable
     public function projectProgress(): HasMany
     {
         return $this->hasMany(UserProject::class);
+    }
+
+    /** Lencana yang sudah diraih (tabel badge_user). */
+    public function badges(): BelongsToMany
+    {
+        return $this->belongsToMany(Badge::class, 'badge_user')
+            ->withPivot(['project_id', 'earned_at'])
+            ->withTimestamps();
+    }
+
+    /** Hasil karya yang dibagikan lewat roadmap. */
+    public function submissions(): HasMany
+    {
+        return $this->hasMany(ProjectSubmission::class);
     }
 
     public function dailyActivities(): HasMany

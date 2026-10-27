@@ -24,19 +24,22 @@
             </form>
         </nav>
 
-        <div class="pk-next">
-            <p class="pk-next__label">Lencana berikutnya</p>
-            <div class="pk-next__row">
-                <span class="pk-badge__icon pk-badge__icon--blue">@include('packs._icon', ['name' => 'compass'])</span>
-                <div>
-                    <h3>Penjelajah Penasaran</h3>
-                    <p>Coba 2 hobi (0/2)</p>
+        @if ($nextBadge)
+            @php $nextPercent = (int) round(min(1, $nextBadge['value'] / max(1, $nextBadge['target'])) * 100); @endphp
+            <div class="pk-next">
+                <p class="pk-next__label">Lencana berikutnya</p>
+                <div class="pk-next__row">
+                    <span class="pk-badge__icon pk-badge__icon--{{ $nextBadge['badge']->color === 'pink' ? 'pink' : ($nextBadge['badge']->color === 'blue' ? 'blue' : 'sage') }}">@include('packs._icon', ['name' => $nextBadge['badge']->icon])</span>
+                    <div>
+                        <h3>{{ $nextBadge['badge']->name }}</h3>
+                        <p>Selesaikan &ldquo;{{ $nextBadge['title'] }}&rdquo; ({{ $nextBadge['value'] }}/{{ $nextBadge['target'] }})</p>
+                    </div>
+                </div>
+                <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ $nextPercent }}" aria-label="Kemajuan lencana">
+                    <span style="width: {{ $nextPercent }}%"></span>
                 </div>
             </div>
-            <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Kemajuan lencana">
-                <span style="width: 0%"></span>
-            </div>
-        </div>
+        @endif
     </aside>
 
     {{-- ===== Isi ===== --}}
@@ -69,7 +72,7 @@
         </section>
 
         <section class="pk-block">
-            <h2 class="pk-h2">Lencana</h2>
+            <h2 class="pk-h2">Lencana <span class="pk-muted">({{ $earnedCount }}/{{ $badges->count() }})</span></h2>
             <div class="pk-badges">
                 @foreach ($badges as $badge)
                     <div class="pk-badge {{ $badge['earned'] ? '' : 'is-locked' }}">
@@ -79,6 +82,9 @@
                         <div>
                             <h3>{{ $badge['name'] }}</h3>
                             <p>{{ $badge['desc'] }}</p>
+                            @if ($badge['earned'] && $badge['earned_at'])
+                                <p class="pk-badge__date">Diraih {{ \Illuminate\Support\Carbon::parse($badge['earned_at'])->locale('id')->translatedFormat('j F Y') }}</p>
+                            @endif
                         </div>
                     </div>
                 @endforeach
@@ -95,10 +101,31 @@
 
         <section class="pk-block">
             <h2 class="pk-h2">Proyek Selesai</h2>
-            <div class="empty">
-                <p>Belum ada proyek yang selesai. Saat kamu menyelesaikan proyek pertamamu, hasilnya akan muncul di sini.</p>
-                <a class="btn btn--primary" href="{{ route('explore') }}">Mulai dari Jelajahi</a>
-            </div>
+            @if ($completed->isNotEmpty())
+                <div class="pk-done">
+                    @foreach ($completed as $sub)
+                        <article class="pk-done__card">
+                            <div class="pk-done__media">
+                                @if ($sub->photos->isNotEmpty())
+                                    <img src="{{ $sub->photos->first()->url }}" alt="{{ $sub->title ?: $sub->project->title }}" loading="lazy">
+                                @endif
+                            </div>
+                            <div class="pk-done__body">
+                                <h3>{{ $sub->title ?: $sub->project->title }}</h3>
+                                <p>{{ $sub->project->title }}</p>
+                                @if ($sub->submitted_at)
+                                    <p class="pk-muted">Selesai {{ $sub->submitted_at->locale('id')->translatedFormat('j F Y') }}</p>
+                                @endif
+                            </div>
+                        </article>
+                    @endforeach
+                </div>
+            @else
+                <div class="empty">
+                    <p>Belum ada proyek yang selesai. Saat kamu menyelesaikan proyek pertamamu, hasilnya akan muncul di sini.</p>
+                    <a class="btn btn--primary" href="{{ route('roadmap.index') }}">Mulai dari peta belajarmu</a>
+                </div>
+            @endif
         </section>
     </div>
 </div>

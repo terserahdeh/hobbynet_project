@@ -204,13 +204,11 @@ class RoadmapService
     {
         $today = today()->toDateString();
 
+        // increment() portabel (LEAST() tidak ada di SQLite).
         $updated = DB::table('daily_activities')
             ->where('user_id', $user->id)
             ->where('date', $today)
-            ->update([
-                'minutes' => DB::raw('LEAST(minutes + ' . (int) $minutes . ', 65535)'),
-                'updated_at' => now(),
-            ]);
+            ->increment('minutes', (int) $minutes, ['updated_at' => now()]);
 
         if (! $updated) {
             DB::table('daily_activities')->insertOrIgnore([
