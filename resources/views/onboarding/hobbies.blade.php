@@ -20,7 +20,7 @@
                                @checked(in_array($hobby->id, $selected, true))>
                         <span class="hobby__body">
                             <span class="hobby__icon" aria-hidden="true">
-                                @include('onboarding.partials.hobby-icon', ['slug' => $hobby->slug])
+                                @include('partials.hobby-icon', ['slug' => $hobby->slug])
                             </span>
                             <span class="hobby__name">{{ $hobby->name }}</span>
                             <span class="hobby__tagline">{{ $hobby->tagline }}</span>

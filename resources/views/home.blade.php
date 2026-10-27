@@ -4,31 +4,49 @@
 @section('title', 'Beranda · HobbyNet')
 
 @section('content')
-@php
-    $go = fn ($p) => $p->is_starter
-        ? route('roadmap.project', $p->slug)
-        : route('projects.show', $p);
-@endphp
-<div class="dash">
+<div class="home">
 
-    {{-- Sapaan + lencana berikutnya --}}
-    <section class="dash__head">
-        <div>
-            <h1 class="dash__title">Siap membuat sesuatu hari ini, {{ $firstName }}?</h1>
-            <div class="interests">
-                <span class="interests__label" id="minat-label">Minatmu saat ini:</span>
-                <ul class="chips" aria-labelledby="minat-label">
-                    @forelse ($hobbies as $hobby)
-                        <li class="chip chip--{{ $hobby->color }}">
-                            <span class="chip__icon" aria-hidden="true">@include('onboarding.partials.hobby-icon', ['slug' => $hobby->slug])</span>
-                            {{ $hobby->short_name }}
-                        </li>
-                    @empty
-                        <li class="chip chip--none">Belum ada</li>
-                    @endforelse
-                </ul>
-                <a class="chip-add" href="{{ route('onboarding.hobbies') }}" aria-label="Tambah atau ubah minat">+</a>
-            </div>
+    @if (session('status'))
+        <p class="flash" role="status">{{ session('status') }}</p>
+    @endif
+
+    {{-- ===== Hero: roadmap ===== --}}
+    <section class="hero" aria-labelledby="h-hero">
+        <div class="hero__main">
+            <h1 class="hero__title" id="h-hero">Siap membuat sesuatu milikmu sendiri, {{ $firstName }}?</h1>
+            <p class="hero__lead">Ikuti jalur belajarmu, ambil langkah kecil, dan ubah rasa penasaran menjadi karya nyata.</p>
+
+            @if ($roadmap)
+                @include('partials.roadmap-stepper', ['steps' => $roadmap['steps']])
+
+                <div class="hero__actions">
+                    @if ($roadmap['complete'])
+                        <a class="btn btn--primary" href="#populer">Pilih Proyek Berikutnya</a>
+                    @else
+                        <a class="btn btn--primary"
+                           href="{{ route('projects.step', ['project' => $roadmap['project'], 'position' => $roadmap['current']['position']]) }}">
+                            {{ $roadmap['done'] === 0 ? 'Mulai Roadmap-ku' : 'Lanjutkan Roadmap-ku' }}
+                        </a>
+                    @endif
+                    <div class="hero__progress">
+                        <span class="eyebrow">Progres roadmap: {{ $roadmap['done'] }} dari {{ $roadmap['total'] }} selesai</span>
+                        <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"
+                             aria-valuenow="{{ $roadmap['percent'] }}" aria-label="Progres roadmap">
+                            <span style="width: {{ $roadmap['percent'] }}%"></span>
+                        </div>
+                    </div>
+                </div>
+            @else
+                <div class="hero__empty">
+                    @if ($hobbies->isEmpty())
+                        <p>Kamu belum memilih hobi. Jelajahi hobi yang tersedia, tambahkan satu, dan kami siapkan roadmap pertamamu.</p>
+                        <a class="btn btn--primary" href="{{ route('explore') }}">Jelajahi hobi</a>
+                    @else
+                        <p>Belum ada roadmap yang aktif. Pilih satu proyek dari hobimu, tambahkan ke daftar, lalu jadikan roadmap utama.</p>
+                        <a class="btn btn--primary" href="#populer">Lihat pilihan proyek</a>
+                    @endif
+                </div>
+            @endif
         </div>
 
         @if ($nextBadge)
@@ -136,7 +154,6 @@
                                  aria-valuenow="{{ $current['percent'] }}" aria-label="Kemajuan proyek">
                                 <span style="width: {{ $current['percent'] }}%"></span>
                             </div>
-
                             <a class="btn btn--primary" href="{{ $go($project) }}">
                                 {{ $current['percent'] > 0 ? 'Lanjutkan proyek' : 'Mulai proyek' }}
                             </a>
@@ -166,23 +183,28 @@
                     <a class="link-quiet" href="{{ route('explore') }}">Lihat semua</a>
                 </div>
 
-                @if ($hobbyCards->isNotEmpty())
-                    <div class="hgrid">
-                        @foreach ($hobbyCards as $card)
-                            <article class="hcard">
-                                <a class="hcard__media" href="{{ $go($card['project']) }}" tabindex="-1" aria-hidden="true">
-                                    @include('onboarding.partials.project-thumb', ['project' => $card['project']])
+                @if ($todo->isEmpty())
+                    <div class="empty">
+                        <p>Daftarmu masih kosong. Buka salah satu proyek di bawah, lalu tekan <strong>Tambah ke daftarku</strong>.</p>
+                    </div>
+                @else
+                    <ul class="todos">
+                        @foreach ($todo as $row)
+                            @php($tp = $row->project)
+                            <li class="todo">
+                                <a class="todo__thumb" href="{{ route('projects.show', $tp) }}" tabindex="-1" aria-hidden="true">
+                                    @include('partials.project-thumb', ['project' => $tp])
                                 </a>
-                                <h3 class="hcard__title">
-                                    <a href="{{ $go($card['project']) }}">{{ $card['project']->title }}</a>
-                                </h3>
-                                <p class="hcard__desc">{{ $card['project']->summary }}</p>
-                                <div class="hcard__foot">
-                                    <span class="status status--{{ $card['status'] }}">{{ $card['label'] }}</span>
-                                    <details class="more">
-                                        <summary aria-label="Opsi untuk {{ $card['project']->title }}">…</summary>
-                                        <div class="more__menu">
-                                            <a href="{{ $go($card['project']) }}">Buka proyek</a>
+                                <div class="todo__body">
+                                    <a class="todo__title" href="{{ route('projects.show', $tp) }}">{{ $tp->title }}</a>
+                                    <span class="todo__meta">
+                                        {{ $tp->category }} • {{ $tp->level_label }}
+                                        @if ($row->is_roadmap) <span class="pill">Roadmap utama</span> @endif
+                                    </span>
+                                    <div class="todo__bar">
+                                        <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="6"
+                                             aria-valuenow="{{ $row->steps_done }}" aria-label="Langkah selesai">
+                                            <span style="width: {{ round($row->steps_done / 6 * 100) }}%"></span>
                                         </div>
                                     </details>
                                     </details>
@@ -226,6 +248,7 @@
                         </button>
                     </div>
                 </div>
+                <p class="section-sub">Pilihan untuk levelmu ({{ $levelLabel }}), terutama dari hobi yang kamu pilih.</p>
 
                 <ul class="plist">
                     @foreach ($popular as $item)
@@ -260,6 +283,7 @@
 
                 <a class="dashed" href="{{ route('explore') }}">Jelajahi semua kategori</a>
             </section>
+        </div>
 
             <section class="tip" aria-labelledby="h-tip">
                 <h2 class="section-title" id="h-tip">Tips Hari Ini</h2>
@@ -282,7 +306,61 @@
                 </div>
                 <p>{{ $goal['message'] }}</p>
             </section>
+
+            <section class="tip" aria-labelledby="h-tip">
+                <h2 class="section-title" id="h-tip">Tips Hari Ini</h2>
+                <p>“{{ $tip['body'] }}”</p>
+                @if (! empty($tip['more']))
+                    <details class="tip__more">
+                        <summary>Baca tips lainnya →</summary>
+                        @foreach ($tip['more'] as $extra)
+                            <p>“{{ $extra }}”</p>
+                        @endforeach
+                    </details>
+                @endif
+            </section>
+
+            @if ($nextBadge)
+                @php($ratio = min(1, $nextBadge['value'] / $nextBadge['target']))
+                <section class="badge-card" aria-label="Pencapaian berikutnya">
+                    <svg class="ring" viewBox="0 0 36 36" width="52" height="52" role="img"
+                         aria-label="{{ $nextBadge['value'] }} dari {{ $nextBadge['target'] }}">
+                        <circle cx="18" cy="18" r="15" fill="none" stroke="#EFE3DD" stroke-width="3"/>
+                        <circle cx="18" cy="18" r="15" fill="none" stroke="#7E9A6B" stroke-width="3" stroke-linecap="round"
+                                stroke-dasharray="{{ round($ratio * 94.25, 2) }} 94.25" transform="rotate(-90 18 18)"/>
+                        <circle cx="18" cy="18" r="5" fill="none" stroke="#7E9A6B" stroke-width="1.6"/>
+                        <path d="m20.5 15.5-1.4 3.6-3.6 1.4 1.4-3.6z" fill="#7E9A6B"/>
+                    </svg>
+                    <div class="badge-card__text">
+                        <span class="eyebrow">Pencapaian berikutnya</span>
+                        <strong>{{ $nextBadge['name'] }}</strong>
+                        <span class="badge-card__hint">{{ $nextBadge['hint'] }} ({{ $nextBadge['value'] }}/{{ $nextBadge['target'] }} selesai)</span>
+                    </div>
+                </section>
+            @endif
         </aside>
+    </div>
+
+    {{-- ===== Tutorial dan proyek lainnya ===== --}}
+    @if ($more->isNotEmpty())
+        <section class="more" aria-labelledby="h-more">
+            <div class="section-head">
+                <h2 class="section-title" id="h-more">Tutorial dan Proyek Lainnya</h2>
+            </div>
+            <p class="section-sub">Ingin mencoba hal di luar hobimu? Mulai dari proyek kecil ini.</p>
+            <ul class="tiles tiles--grid">
+                @foreach ($more as $item)
+                    <li>@include('partials.project-tile', ['project' => $item])</li>
+                @endforeach
+            </ul>
+        </section>
+    @endif
+
+    <div class="home__cta">
+        <a class="btn-explore" href="{{ route('explore') }}">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="8" cy="11" r="1"/><circle cx="12" cy="7.5" r="1"/><circle cx="16" cy="11" r="1"/><path d="M13 21a2 2 0 0 1 0-4h1.5a2 2 0 0 0 0-4"/></svg>
+            Jelajahi semua kategori
+        </a>
     </div>
 </div>
 @endsection
