@@ -7,8 +7,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Project extends Model
 {
+    public const LEVELS = ['beginner', 'intermediate', 'advanced'];
+
     protected $fillable = [
-        'hobby_id', 'slug', 'title', 'category', 'summary', 'description', 'level',
+        'hobby_id', 'slug', 'title', 'category', 'summary', 'skill', 'description', 'level',
         'duration_minutes', 'learners_count', 'image', 'icon', 'color', 'is_starter', 'is_popular',
     ];
 
@@ -27,12 +29,25 @@ class Project extends Model
         return $this->belongsTo(Hobby::class);
     }
 
-    public function getLevelLabelAttribute(): string
+    public static function levelLabel(string $level): string
     {
-        return match ($this->level) {
+        return match ($level) {
             'intermediate' => 'Menengah',
+            'advanced'     => 'Mahir',
             default        => 'Pemula',
         };
+    }
+
+    public static function levelRank(string $level): int
+    {
+        $rank = array_search($level, self::LEVELS, true);
+
+        return $rank === false ? 0 : $rank;
+    }
+
+    public function getLevelLabelAttribute(): string
+    {
+        return static::levelLabel($this->level);
     }
 
     public function getDurationLabelAttribute(): string

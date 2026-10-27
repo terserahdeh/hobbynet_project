@@ -1,6 +1,6 @@
 @extends('layouts.onboarding', ['step' => 2])
 
-@section('title', 'Personalisasi · Hobby Enabler')
+@section('title', 'Personalisasi · HobbyNet')
 
 @push('head')
     <link rel="stylesheet" href="{{ asset('css/personalize.css') }}">
@@ -9,7 +9,7 @@
 @section('content')
 <div class="persona">
     <header class="persona__head">
-        <h1>Mari sesuaikan Hobby Enabler dengan tempomu.</h1>
+        <h1>Mari sesuaikan HobbyNet dengan tempomu.</h1>
         <p>Ceritakan sedikit latar belakangmu supaya kami bisa merekomendasikan titik awal terbaik.</p>
     </header>
 

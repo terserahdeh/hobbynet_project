@@ -11,6 +11,11 @@ class Hobby extends Model
 {
     protected $fillable = ['slug', 'name', 'tagline', 'first_project', 'color', 'sort'];
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class)->withTimestamps();
@@ -21,7 +26,7 @@ class Hobby extends Model
         return $this->hasMany(Project::class);
     }
 
-    /** "Merajut (Crochet)" menjadi "Merajut", untuk chip di beranda. */
+    /** "Merajut (Crochet)" menjadi "Merajut". */
     public function getShortNameAttribute(): string
     {
         return Str::before($this->name, ' (');
