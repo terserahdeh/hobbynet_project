@@ -18,18 +18,11 @@ class RoadmapService
     }
 
     /** The beginner project that powers a hobby's roadmap. */
-    public function starterProject(Hobby $hobby, ?User $user = null): Project
+    public function starterProject(Hobby $hobby): Project
     {
-        $level    = $user ? $this->levelFor($user) : 'beginner';
-        $starters = Project::where('hobby_id', $hobby->id)->where('is_starter', true)->get();
-
-        abort_if($starters->isEmpty(), 404);
-
-        return $starters
-            ->sortBy(fn (Project $p) => abs(
-                (self::LEVEL_ORDER[$p->level] ?? 0) - self::LEVEL_ORDER[$level]
-            ) * 100000 + $p->id)
-            ->first();
+        return Project::where('hobby_id', $hobby->id)
+            ->where('is_starter', true)
+            ->firstOrFail();
     }
 
     /** Hobbies the user picked during onboarding (for "Switch Hobby"). */
@@ -228,31 +221,5 @@ class RoadmapService
                 'updated_at' => now(),
             ]);
         }
-    }
-    public function addToList(User $user, Project $project): void
-    {
-        $this->begin($user, $project);
-    }
-
-    /** Hapus proyek dari daftar beserta progres langkah dan centangnya. */
-    public function removeFromList(User $user, Project $project): void
-    {
-        DB::transaction(function () use ($user, $project) {
-            $stepIds = RoadmapStep::where('project_id', $project->id)->pluck('id');
-
-            UserStepProgress::where('user_id', $user->id)->whereIn('roadmap_step_id', $stepIds)->delete();
-
-            DB::table('checklist_item_user')
-                ->where('user_id', $user->id)
-                ->whereIn('step_checklist_item_id', function ($q) use ($stepIds) {
-                    $q->select('id')->from('step_checklist_items')->whereIn('roadmap_step_id', $stepIds);
-                })
-                ->delete();
-
-            DB::table('user_projects')
-                ->where('user_id', $user->id)
-                ->where('project_id', $project->id)
-                ->delete();
-        });
     }
 }
