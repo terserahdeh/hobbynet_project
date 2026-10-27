@@ -106,6 +106,9 @@
                                     sekitar {{ \App\Models\Project::humanDuration($cp['minutes']) }}
                                 </span>
                             </div>
+                            <a class="btn btn--primary" href="{{ $go($project) }}">
+                                {{ $current['percent'] > 0 ? 'Lanjutkan proyek' : 'Mulai proyek' }}
+                            </a>
                         </div>
                     </article>
                 </section>

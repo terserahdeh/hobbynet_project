@@ -2,17 +2,20 @@
 
 namespace App\Services;
 
-use App\Models\DailyActivity;
+//use App\Models\DailyActivity;
 use App\Models\Project;
 use App\Models\User;
 use App\Models\UserProject;
-use App\Support\StepBlueprints;
+// use App\Support\StepBlueprints;
+use App\Models\Badge;
+use App\Models\Hobby;
+use App\Models\RoadmapStep;
+use App\Models\UserStepProgress;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class RoadmapService
 {
-    public const TOTAL = 6;
-
     /** Jawaban personalisasi -> level proyek. */
     private const LEVELS = [
         'beginner'  => 'beginner',
@@ -20,155 +23,220 @@ class RoadmapService
         'returning' => 'advanced',
     ];
 
+    private const LEVEL_ORDER = ['beginner' => 0, 'intermediate' => 1, 'advanced' => 2];
+
     public function levelFor(User $user): string
     {
         return self::LEVELS[$user->experience_level] ?? 'beginner';
     }
-
-    /** Proyek awal: hobi pertama pengguna, pada levelnya. */
-    public function defaultProject(User $user): ?Project
+  
+    public function __construct(private BadgeService $badges)
     {
-        $level = $this->levelFor($user);
+    }
 
-        foreach ($user->hobbies()->orderBy('sort')->get() as $hobby) {
-            $project = Project::where('hobby_id', $hobby->id)->where('level', $level)
-                    ->orderByDesc('is_starter')->orderBy('id')->first()
-                ?? Project::where('hobby_id', $hobby->id)
-                    ->orderByDesc('is_starter')->orderBy('id')->first();
+    /** The beginner project that powers a hobby's roadmap. */
+    public function starterProject(Hobby $hobby): Project
+    {
+        return Project::where('hobby_id', $hobby->id)
+            ->where('is_starter', true)
+            ->firstOrFail();
+    }
 
-            if ($project) {
-                return $project;
+    /** Hobbies the user picked during onboarding (for "Switch Hobby"). */
+    public function userHobbies(User $user): Collection
+    {
+        return Hobby::whereIn('id', function ($q) use ($user) {
+            $q->select('hobby_id')->from('hobby_user')->where('user_id', $user->id);
+        })->orderBy('sort')->get();
+    }
+
+    /** Hobby to open when the user visits /roadmap: last worked on, else first selected. */
+    public function defaultHobby(User $user): ?Hobby
+    {
+        $hobbyId = DB::table('user_projects')
+            ->join('projects', 'projects.id', '=', 'user_projects.project_id')
+            ->where('user_projects.user_id', $user->id)
+            ->where('projects.is_starter', true)
+            ->whereNotNull('projects.hobby_id')
+            ->orderByDesc('user_projects.last_worked_at')
+            ->value('projects.hobby_id');
+
+        if ($hobbyId && ($hobby = Hobby::find($hobbyId))) {
+            return $hobby;
+        }
+
+        return $this->userHobbies($user)->first() ?? Hobby::orderBy('sort')->first();
+    }
+
+    /** Make sure a user_projects row exists as soon as the user opens a roadmap. */
+    public function begin(User $user, Project $project): void
+    {
+        DB::table('user_projects')->insertOrIgnore([
+            'user_id' => $user->id,
+            'project_id' => $project->id,
+            'progress_percent' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    }
+
+    /**
+     * Every step in order, each tagged with state (completed | active | locked).
+     * Steps unlock one at a time: the first unfinished step is "active".
+     */
+    public function steps(User $user, Project $project): Collection
+    {
+        $steps = RoadmapStep::where('project_id', $project->id)
+            ->with('badge')
+            ->orderBy('position')
+            ->get();
+
+        $done = UserStepProgress::where('user_id', $user->id)
+            ->whereIn('roadmap_step_id', $steps->pluck('id'))
+            ->get()
+            ->keyBy('roadmap_step_id');
+
+        $activeAssigned = false;
+
+        return $steps->map(function (RoadmapStep $step) use ($done, &$activeAssigned) {
+            if ($done->has($step->id)) {
+                $step->setAttribute('state', 'completed');
+                $step->setAttribute('completed_at', $done[$step->id]->completed_at);
+            } elseif (! $activeAssigned) {
+                $step->setAttribute('state', 'active');
+                $activeAssigned = true;
+            } else {
+                $step->setAttribute('state', 'locked');
             }
-        }
 
-        return null;
-    }
-
-    /** Buat roadmap bawaan sekali saja (setelah hobi dipilih). */
-    public function ensureDefault(User $user): void
-    {
-        if ($user->default_roadmap_created_at) {
-            return;
-        }
-
-        $project = $this->defaultProject($user);
-
-        if (! $project) {
-            return;
-        }
-
-        $this->activate($user, $project);
-        $user->forceFill(['default_roadmap_created_at' => now()])->save();
-    }
-
-    /** Jadikan proyek ini roadmap utama (otomatis masuk daftar). */
-    public function activate(User $user, Project $project): UserProject
-    {
-        return DB::transaction(function () use ($user, $project) {
-            UserProject::where('user_id', $user->id)->update(['is_roadmap' => false]);
-
-            return UserProject::updateOrCreate(
-                ['user_id' => $user->id, 'project_id' => $project->id],
-                ['is_roadmap' => true]
-            );
+            return $step;
         });
     }
 
-    public function addToList(User $user, Project $project): UserProject
+    /** Numbers for the progress header on the overview and step pages. */
+    public function summary(User $user, Project $project): array
     {
-        $row = UserProject::firstOrCreate(['user_id' => $user->id, 'project_id' => $project->id]);
-
-        $hasRoadmap = UserProject::where('user_id', $user->id)->where('is_roadmap', true)->exists();
-
-        if (! $hasRoadmap) {
-            $row->update(['is_roadmap' => true]);
-        }
-
-        return $row;
-    }
-
-    /** Hapus dari daftar. Jika itu roadmap utama, jadikan proyek lain di daftar sebagai penggantinya. */
-    public function remove(User $user, Project $project): void
-    {
-        $row = UserProject::where('user_id', $user->id)->where('project_id', $project->id)->first();
-
-        if (! $row) {
-            return;
-        }
-
-        $wasRoadmap = $row->is_roadmap;
-        $row->delete();
-
-        if ($wasRoadmap) {
-            $next = UserProject::where('user_id', $user->id)->where('steps_done', '<', self::TOTAL)->latest('updated_at')->first()
-                ?? UserProject::where('user_id', $user->id)->latest('updated_at')->first();
-
-            $next?->update(['is_roadmap' => true]);
-        }
-    }
-
-    /** Enam langkah dengan status (done / current / todo) untuk pengguna ini. */
-    public function steps(User $user, Project $project, ?UserProject $row): array
-    {
-        $done = $row?->steps_done ?? 0;
-
-        return array_map(function (array $step) use ($row, $done) {
-            $step['status'] = match (true) {
-                ! $row                          => 'todo',
-                $step['position'] <= $done      => 'done',
-                $step['position'] === $done + 1 => 'current',
-                default                         => 'todo',
-            };
-
-            return $step;
-        }, StepBlueprints::build($project, $user));
-    }
-
-    public function present(User $user, UserProject $row): array
-    {
-        $project = $row->project;
-        $steps   = $this->steps($user, $project, $row);
+        $steps = $this->steps($user, $project);
+        $total = $steps->count();
+        $completed = $steps->where('state', 'completed')->count();
 
         return [
-            'row'          => $row,
-            'project'      => $project,
-            'steps'        => $steps,
-            'done'         => $row->steps_done,
-            'total'        => self::TOTAL,
-            'percent'      => (int) round($row->steps_done / self::TOTAL * 100),
-            'current'      => collect($steps)->firstWhere('status', 'current'),
-            'complete'     => $row->steps_done >= self::TOTAL,
-            'minutes_left' => collect($steps)->where('status', '!=', 'done')->sum('minutes'),
+            'steps' => $steps,
+            'total' => $total,
+            'completed' => $completed,
+            'percent' => $total > 0 ? (int) round($completed / $total * 100) : 0,
+            'total_minutes' => (int) $steps->sum('estimated_minutes'),
+            'remaining_minutes' => (int) $steps->where('state', '!=', 'completed')->sum('estimated_minutes'),
+            'active' => $steps->firstWhere('state', 'active'),
+            'is_complete' => $total > 0 && $completed === $total,
         ];
     }
 
-    /** Selesaikan langkah berikutnya. Mengembalikan false jika urutannya tidak sesuai. */
-    public function completeStep(User $user, UserProject $row, int $position): bool
+    public function shareStep(Collection $steps): ?RoadmapStep
     {
-        if ($row->steps_done >= self::TOTAL || $position !== $row->steps_done + 1) {
-            return false;
-        }
+        return $steps->firstWhere('type', RoadmapStep::TYPE_SHARE);
+    }
 
-        $step    = collect(StepBlueprints::build($row->project, $user))->firstWhere('position', $position);
-        $minutes = min(120, (int) ($step['minutes'] ?? 0));
+    /** IDs of checklist items the user has ticked for a step. */
+    public function checkedItemIds(User $user, RoadmapStep $step): array
+    {
+        return DB::table('checklist_item_user')
+            ->where('user_id', $user->id)
+            ->whereIn('step_checklist_item_id', function ($q) use ($step) {
+                $q->select('id')->from('step_checklist_items')->where('roadmap_step_id', $step->id);
+            })
+            ->pluck('step_checklist_item_id')
+            ->all();
+    }
 
-        DB::transaction(function () use ($user, $row, $minutes) {
-            $done = $row->steps_done + 1;
+    /**
+     * Mark a step done. Safe to call twice.
+     *
+     * @return Collection<int, Badge> badges earned by this call (empty if none)
+     */
+    public function completeStep(User $user, RoadmapStep $step): Collection
+    {
+        return DB::transaction(function () use ($user, $step) {
+            $earned = collect();
 
-            $row->update([
-                'steps_done'       => $done,
-                'progress_percent' => (int) round($done / self::TOTAL * 100),
-                'last_worked_at'   => now(),
-                'completed_at'     => $done >= self::TOTAL ? now() : null,
+            $progress = UserStepProgress::firstOrCreate(
+                ['user_id' => $user->id, 'roadmap_step_id' => $step->id],
+                ['completed_at' => now()],
+            );
+
+            if (! $progress->wasRecentlyCreated) {
+                return $earned;
+            }
+
+            $this->logMinutes($user, $step->estimated_minutes);
+
+            if ($step->badge_id && ($badge = $step->badge ?? Badge::find($step->badge_id))
+                && $this->badges->award($user, $badge, $step->project_id)) {
+                $earned->push($badge);
+            }
+
+            $percent = $this->syncProgress($user, $step->project_id);
+
+            if ($percent === 100) {
+                $final = $this->badges->awardBySlug($user, 'course-completer', $step->project_id);
+                if ($final) {
+                    $earned->push($final);
+                }
+            }
+
+            return $earned;
+        });
+    }
+
+    /** Recalculate user_projects.progress_percent; returns the new percent. */
+    private function syncProgress(User $user, int $projectId): int
+    {
+        $stepIds = RoadmapStep::where('project_id', $projectId)->pluck('id');
+        $total = $stepIds->count();
+        $done = UserStepProgress::where('user_id', $user->id)->whereIn('roadmap_step_id', $stepIds)->count();
+        $percent = $total > 0 ? (int) round($done / $total * 100) : 0;
+
+        DB::table('user_projects')->insertOrIgnore([
+            'user_id' => $user->id,
+            'project_id' => $projectId,
+            'progress_percent' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        DB::table('user_projects')
+            ->where('user_id', $user->id)
+            ->where('project_id', $projectId)
+            ->update([
+                'progress_percent' => $percent,
+                'last_worked_at' => now(),
+                'updated_at' => now(),
             ]);
 
-            $activity = DailyActivity::firstOrCreate(
-                ['user_id' => $user->id, 'date' => today()->toDateString()],
-                ['minutes' => 0]
-            );
-            $activity->increment('minutes', $minutes);
-        });
+        return $percent;
+    }
 
-        return true;
+    /** Add minutes to today's total (feeds the "Daily Goal" card). */
+    private function logMinutes(User $user, int $minutes): void
+    {
+        $today = today()->toDateString();
+
+        $updated = DB::table('daily_activities')
+            ->where('user_id', $user->id)
+            ->where('date', $today)
+            ->update([
+                'minutes' => DB::raw('LEAST(minutes + ' . (int) $minutes . ', 65535)'),
+                'updated_at' => now(),
+            ]);
+
+        if (! $updated) {
+            DB::table('daily_activities')->insertOrIgnore([
+                'user_id' => $user->id,
+                'date' => $today,
+                'minutes' => min($minutes, 65535),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
     }
 }
