@@ -12,7 +12,28 @@
     $firstName = \Illuminate\Support\Str::before(auth()->user()->name, ' ');
     $items = $step->checklistItems;
     $allChecked = $items->every(fn ($i) => in_array($i->id, $checkedIds));
-    $hero = $step->instructions->first(fn ($i) => filled($i->image));
+
+    // Every step shows a demonstration picture. Order of preference:
+    //   1. an image saved on one of the step's instructions
+    //   2. public/images/roadmap/{step-slug}.(jpg|jpeg|png|webp|svg)
+    //   3. a generic placeholder
+    $heroSrc = null;
+    $heroCaption = null;
+    $withImage = $step->instructions->first(fn ($i) => filled($i->image));
+
+    if ($withImage) {
+        $heroSrc = asset($withImage->image);
+        $heroCaption = $withImage->image_caption;
+    } else {
+        foreach (['jpg', 'jpeg', 'png', 'webp', 'svg'] as $ext) {
+            $rel = "images/roadmap/{$step->slug}.{$ext}";
+            if (file_exists(public_path($rel))) {
+                $heroSrc = asset($rel);
+                break;
+            }
+        }
+    }
+    $heroCaption = $heroCaption ?: 'Visual Guide: ' . $step->title;
 @endphp
 
 <div class="rm-page">
@@ -101,7 +122,7 @@
                         </ul>
                     @endif
 
-                    <div class="rm-split {{ $hero ? '' : 'rm-split--single' }}">
+                    <div class="rm-split">
                         <ol class="rm-instr">
                             @foreach ($step->instructions as $ins)
                                 <li>
@@ -111,12 +132,24 @@
                             @endforeach
                         </ol>
 
-                        @if ($hero)
-                            <figure class="rm-visual">
-                                <img src="{{ asset($hero->image) }}" alt="{{ $hero->image_caption ?? $step->title }}">
-                                @if ($hero->image_caption) <figcaption>{{ $hero->image_caption }}</figcaption> @endif
-                            </figure>
-                        @endif
+                        {{-- Demo picture: step_instructions.image, else public/images/roadmap/{slug}.*, else the drawing below --}}
+                        <figure class="rm-visual {{ $heroSrc ? '' : 'rm-visual--empty' }}">
+                            @if ($heroSrc)
+                                <img src="{{ $heroSrc }}" alt="{{ $heroCaption }}" loading="lazy">
+                            @else
+                                <span class="rm-visual__art" role="img" aria-label="Illustration for {{ $step->title }}">
+                                    <svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <circle cx="52" cy="72" r="24"/>
+                                        <path d="M30 66c14 8 30 8 44 0"/>
+                                        <path d="M32 80c12 7 26 7 40 0"/>
+                                        <path d="M44 50c-3 14 0 36 8 46"/>
+                                        <path d="M70 58 100 28"/>
+                                        <path d="M96 24c4-2 9 3 6 7"/>
+                                    </svg>
+                                </span>
+                            @endif
+                            <figcaption>{{ $heroCaption }}</figcaption>
+                        </figure>
                     </div>
 
                     @if ($items->isNotEmpty())
