@@ -251,7 +251,7 @@
     {{-- ================= NAVBAR ================= --}}
     <header class="navbar">
         <div class="container">
-            <a href="{{ url('/') }}" class="logo"><span class="logo-mark"></span> HobbyNet</a>
+            <a href="{{ url('/') }}" class="logo"><span class="logo-mark"></span> HobbyNet </a>
             <nav class="nav-links">
                 <a href="#paths">Explore Hobbies</a>
                 <a href="{{ $loginUrl }}">Log In</a>
