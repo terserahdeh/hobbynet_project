@@ -3,6 +3,9 @@
 @section('title', 'Beranda · HobbyNet')
 
 @section('content')
+@php
+    $go = fn ($p) => route('roadmap.show', $p->hobby->slug);
+@endphp
 <div class="dash">
 
     {{-- Sapaan + lencana berikutnya --}}
@@ -83,7 +86,7 @@
                                 <span style="width: {{ $current['percent'] }}%"></span>
                             </div>
 
-                            <a class="btn btn--primary" href="{{ route('projects.show', $project) }}">
+                            <a class="btn btn--primary" href="{{ $go($project) }}">
                                 {{ $current['percent'] > 0 ? 'Lanjutkan proyek' : 'Mulai proyek' }}
                             </a>
                         </div>
