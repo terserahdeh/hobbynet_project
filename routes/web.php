@@ -3,12 +3,15 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\BookmarkController;          // BARU
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Onboarding\HobbyController;
 use App\Http\Controllers\Onboarding\PersonalizeController;
 use App\Http\Controllers\Roadmap\RoadmapController;
 use App\Http\Controllers\Roadmap\RoadmapStepController;
 use App\Http\Controllers\Roadmap\RoadmapSubmissionController;
+use App\Http\Controllers\ProfileController;           // BARU
+use App\Http\Controllers\StarterPackController;       // BARU
 use App\Models\Project;
 use Illuminate\Support\Facades\Route;
 
@@ -51,10 +54,19 @@ Route::middleware('auth')->group(function () {
     // Beranda
     Route::get('/home', HomeController::class)->name('home');
 
-    // Halaman yang belum dibuat (placeholder)
-    Route::view('/explore', 'soon', ['title' => 'Jelajahi'])->name('explore');
-    Route::view('/bookmarks', 'soon', ['title' => 'Tersimpan'])->name('bookmarks');
-    Route::view('/search', 'soon', ['title' => 'Pencarian'])->name('search');
+    // Jelajahi + pencarian + detail starter pack  (MENGGANTIKAN placeholder 'explore' dan 'search')
+    Route::get('/explore', [StarterPackController::class, 'index'])->name('explore');
+    Route::get('/search', [StarterPackController::class, 'index'])->name('search');
+    Route::get('/explore/{starterPack}', [StarterPackController::class, 'show'])->name('packs.show');
+
+    // Tersimpan  (MENGGANTIKAN placeholder 'bookmarks')
+    Route::get('/bookmarks', [BookmarkController::class, 'index'])->name('bookmarks');
+    Route::post('/bookmarks/{starterPack}', [BookmarkController::class, 'toggle'])->name('bookmarks.toggle');
+
+    // Profil
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
+
+    // Halaman proyek (masih placeholder)
     Route::get('/projects/{project:slug}', fn (Project $project) => view('soon', ['title' => $project->title]))
         ->name('projects.show');
 

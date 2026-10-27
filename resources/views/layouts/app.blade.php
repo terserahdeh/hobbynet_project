@@ -9,6 +9,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/home.css') }}">
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+    {{-- Tautan "Profil saya" di menu akun --}}
+    <style>
+        .account__link { display: block; margin: 10px 0 2px; padding: 9px 12px; border-radius: 12px; font-weight: 600; font-size: .9rem; color: inherit; text-decoration: none; }
+        .account__link:hover, .account__link:focus-visible { background: rgba(87, 66, 58, .08); }
+    </style>
     @stack('head')
 </head>
 <body>
@@ -25,7 +30,8 @@
 
             <nav class="nav__links" aria-label="Navigasi utama">
                 <a href="{{ route('home') }}" @class(['is-active' => request()->routeIs('home')]) @if (request()->routeIs('home')) aria-current="page" @endif>Beranda</a>
-                <a href="{{ route('explore') }}" @class(['is-active' => request()->routeIs('explore')]) @if (request()->routeIs('explore')) aria-current="page" @endif>Jelajahi</a>
+                {{-- Jelajahi tetap menyala saat membuka detail paket --}}
+                <a href="{{ route('explore') }}" @class(['is-active' => request()->routeIs('explore', 'search', 'packs.*')]) @if (request()->routeIs('explore', 'search', 'packs.*')) aria-current="page" @endif>Jelajahi</a>
                 <a href="{{ route('bookmarks') }}" @class(['is-active' => request()->routeIs('bookmarks')]) @if (request()->routeIs('bookmarks')) aria-current="page" @endif>Tersimpan</a>
             </nav>
 
@@ -40,6 +46,7 @@
                 <div class="account__menu">
                     <p class="account__name">{{ auth()->user()->name }}</p>
                     <p class="account__mail">{{ auth()->user()->email }}</p>
+                    <a class="account__link" href="{{ route('profile') }}">Profil saya</a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" class="account__out">Keluar</button>
