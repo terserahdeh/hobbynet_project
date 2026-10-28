@@ -88,6 +88,7 @@ class RoadmapSeeder extends Seeder
             'stitch-master' => ['Stitch Master', 'For learning the single crochet stitch.', 'stitch', 'blue'],
             'first-creation' => ['First Creation', 'For finishing and sharing your very first project.', 'sparkle', 'pink'],
             'course-completer' => ['Course Completer', 'For finishing every checkpoint on a roadmap.', 'check', 'green'],
+            'plus-member' => ['Plus Member', 'Mendukung HobbyNet dengan paket Plus.', 'star', 'pink'],
         ];
 
         $badges = [];

@@ -13,7 +13,9 @@ use Illuminate\Support\Collection;
  */
 class StarterPack extends Model
 {
-    protected $fillable = ['slug', 'project_id', 'prep_minutes', 'tip'];
+    protected $fillable = ['slug', 'project_id', 'prep_minutes', 'tip', 'is_premium'];
+
+    protected $casts = ['is_premium' => 'boolean'];
 
     public function getRouteKeyName(): string
     {

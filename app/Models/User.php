@@ -22,6 +22,8 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'nickname',
+        'avatar_path',
         'email',
         'password',
         'onboarding_step',
@@ -29,6 +31,8 @@ class User extends Authenticatable
         'tools', 
         'budget', 
         'daily_goal_minutes',
+        'plan',
+        'plus_until',
     ];
 
     /**
@@ -50,6 +54,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'plus_until' => 'datetime',
             'password' => 'hashed',
             'tools' => 'array',
         ];
@@ -82,6 +87,17 @@ class User extends Authenticatable
     public function dailyActivities(): HasMany
     {
         return $this->hasMany(DailyActivity::class);
+    }
+
+    /** Paket HobbyNet Plus aktif? (berlangganan dan belum kedaluwarsa) */
+    public function isPlus(): bool
+    {
+        return $this->plus_until !== null && $this->plus_until->isFuture();
+    }
+
+    public function aiMessages(): HasMany
+    {
+        return $this->hasMany(AiMessage::class);
     }
 
     /** Rute langkah onboarding yang harus dikerjakan berikutnya. */

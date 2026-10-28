@@ -7,11 +7,41 @@ use App\Models\ProjectSubmission;
 use App\Services\BadgeService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Request;
 
 class ProfileController extends Controller
 {
     public function __construct(private BadgeService $badgeService)
     {
+    }
+
+    public function edit()
+    {
+        return view('profile.edit', ['user' => Auth::user()]);
+    }
+
+    public function update(Request $request)
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'min:2', 'max:100'],
+            'nickname' => ['nullable', 'string', 'min:2', 'max:40', 'regex:/^[\pL\pN_. -]+$/u'],
+            'avatar' => ['nullable', 'image', 'mimes:jpeg,png,webp', 'max:2048'],
+            'remove_avatar' => ['nullable', 'boolean'],
+        ]);
+        $user = $request->user();
+        unset($data['avatar'], $data['remove_avatar']);
+        if ($request->boolean('remove_avatar') && $user->avatar_path) {
+            Storage::disk('public')->delete($user->avatar_path);
+            $data['avatar_path'] = null;
+        }
+        if ($request->hasFile('avatar')) {
+            $newPath = $request->file('avatar')->store('avatars', 'public');
+            if ($user->avatar_path) Storage::disk('public')->delete($user->avatar_path);
+            $data['avatar_path'] = $newPath;
+        }
+        $user->update($data);
+        return redirect()->route('profile')->with('status', 'Profil berhasil diperbarui.');
     }
 
     public function show()
@@ -36,15 +66,47 @@ class ProfileController extends Controller
             'earned_at' => $earned->get($badge->id)?->pivot->earned_at,
         ])->sortByDesc('earned')->values();
 
-        $completed = ProjectSubmission::with(['project', 'photos'])
+        $submissions = ProjectSubmission::with(['project', 'photos'])
             ->where('user_id', $user->id)
-            ->where('status', ProjectSubmission::STATUS_SUBMITTED)
-            ->orderByDesc('submitted_at')
+            ->orderByDesc('updated_at')
             ->get()
             ->filter(fn ($s) => $s->project)
             ->values();
 
+        $courseWorks = \App\Models\CourseSubmission::with('starterPack.project')
+            ->where('user_id', $user->id)->where('status', 'submitted')->latest('submitted_at')->get();
+
+        // Unified presentation collection: keep existing tables intact.
+        $works = $submissions->where('status', ProjectSubmission::STATUS_SUBMITTED)
+            ->map(function ($sub) {
+                return [
+                    'title' => $sub->title ?: $sub->project->title,
+                    'course' => $sub->project->title,
+                    'description' => $sub->reflection,
+                    'cover' => $sub->photos->first()?->url,
+                    'photo_count' => $sub->photos->count(),
+                    'date' => $sub->submitted_at,
+                    'url' => route('roadmap.work.show', $sub),
+                ];
+            })
+            ->concat($courseWorks->map(function ($work) {
+                $photos = $work->photos ?? [];
+                return [
+                    'title' => $work->title,
+                    'course' => $work->starterPack?->project?->title ?? 'Course Jelajah',
+                    'description' => $work->reflection,
+                    'cover' => count($photos)? Storage::url($photos[0]): null,
+                    'photo_count' => count($photos),
+                    'date' => $work->submitted_at,
+                    'url' => route('courses.work.show', $work),
+                ];
+            }))
+            ->sortByDesc(fn ($work) => $work['date']?->timestamp ?? 0)
+            ->values();
+
         return view('profile.show', [
+            'works' => $works,
+            'courseWorks' => $courseWorks,
             'user'       => $user,
             'initial'    => mb_strtoupper(mb_substr(trim((string) $user->name), 0, 1)) ?: '?',
             'hobbies'    => $hobbies,
@@ -53,7 +115,8 @@ class ProfileController extends Controller
             'badges'     => $badges,
             'earnedCount' => $earned->count(),
             'nextBadge'  => $this->badgeService->nextFor($user),
-            'completed'  => $completed,
+            'completed'  => $submissions->where('status', ProjectSubmission::STATUS_SUBMITTED)->values(),
+            'drafts'     => $submissions->where('status', ProjectSubmission::STATUS_DRAFT)->values(),
         ]);
     }
 }

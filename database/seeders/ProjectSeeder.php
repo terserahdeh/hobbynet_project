@@ -73,10 +73,23 @@ class ProjectSeeder extends Seeder
             ],
         ];
 
+        // Gunakan aset ilustrasi yang sudah tersedia di public/images.
+        $images = [
+            'alas-gelas-rajut-katun' => 'images/landing/hero-3.png',
+            'kartu-pos-cat-air' => 'images/landing/hero-1.png',
+            'cerita-foto-sehari-hari' => 'images/landing/hero-2.png',
+            'cat-air-botani-zen' => 'images/landing/path-2.png',
+            'roti-sourdough-pemula' => 'images/landing/how-2.png',
+            'jurnal-kulit-klasik' => 'images/landing/how-1.png',
+            'bordir-lingkaran-pemula' => 'images/landing/path-1.png',
+            'pembatas-buku-bunga-kering' => 'images/landing/how-3.png',
+            'cetak-linocut-sederhana' => 'images/landing/win-4.png',
+        ];
+
         foreach ($projects as $data) {
             Project::updateOrCreate(
                 ['slug' => $data['slug']],
-                $data + ['image' => 'images/projects/' . $data['slug'] . '.jpg']
+                array_merge($data, ['image' => $images[$data['slug']] ?? null])
             );
         }
     }

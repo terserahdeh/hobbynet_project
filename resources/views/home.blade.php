@@ -29,7 +29,9 @@
         </div>
 
         @if ($nextBadge)
-            @php $ratio = min(1, $nextBadge['value'] / $nextBadge['target']); @endphp
+            @php
+            $ratio = min(1, $nextBadge['value'] / $nextBadge['target']);
+            @endphp
             <aside class="badge-card" aria-label="Lencana berikutnya">
                 <svg class="ring" viewBox="0 0 36 36" width="44" height="44" role="img"
                      aria-label="{{ $nextBadge['value'] }} dari {{ $nextBadge['target'] }}">
@@ -57,7 +59,9 @@
                 <h2 class="section-title" id="h-lanjut">Lanjutkan berkarya</h2>
 
                 @if ($current)
-                    @php($project = $current['project'])
+                    @php
+                    $project = $current['project'];
+                    @endphp
                     <article class="continue">
                         <div class="continue__media">
                             @include('onboarding.partials.project-thumb', ['project' => $project])
@@ -138,6 +142,7 @@
 
         {{-- Kolom samping: populer & dorongan kecil --}}
         <div class="dash__side">
+
 
             <section aria-labelledby="h-populer" data-carousel>
                 <div class="section-head">

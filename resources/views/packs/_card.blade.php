@@ -18,6 +18,7 @@
 
     <div class="pk-card__body">
         <span class="pk-tag pk-tag--{{ $project->color }}">{{ $project->category }} • {{ $project->level_label }}</span>
+        @if($pack->is_premium)<span style="display:inline-block;background:#f4d99a;color:#664813;border-radius:30px;padding:4px 10px;font-size:12px;font-weight:bold;margin-top:8px">★ Plus · Premium</span>@else<span style="display:inline-block;background:#e4f0e8;color:#345941;border-radius:30px;padding:4px 10px;font-size:12px;margin-top:8px">Gratis</span>@endif
         <h3 class="pk-card__title"><a href="{{ route('packs.show', $pack) }}">{{ $project->title }}</a></h3>
         <p class="pk-card__sum">{{ \Illuminate\Support\Str::limit($project->summary ?? $project->description, 110) }}</p>
 

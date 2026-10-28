@@ -52,7 +52,7 @@ class StarterPackSeeder extends Seeder
                     'starter_pack_id' => $pack->id,
                     'position'        => $position,
                     // Taruh foto di public/images/packs/{slug}/item-{urutan}.jpg
-                    'image'           => "images/packs/{$pack->slug}/item-{$position}.jpg",
+                    'image'           => null,
                     // Tautan pencarian toko online. Ganti dengan tautan produk pilihanmu jika perlu.
                     'shop_url'        => $item['price'] > 0
                         ? 'https://shopee.co.id/search?keyword=' . rawurlencode($item['name'])

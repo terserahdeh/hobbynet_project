@@ -28,6 +28,7 @@
             <div class="pk-hero__tags">
                 <span class="pk-tag pk-tag--{{ $project->color }}">Paket awal proyek</span>
                 <span>• Tingkat: {{ $project->level_label }}</span>
+                <span>• {{ $pack->is_premium ? '★ Course Plus' : 'Course Gratis' }}</span>
             </div>
             <h1 class="pk-title">{{ $project->title }}</h1>
             <p class="pk-lead">{{ $project->description ?? $project->summary }}</p>
@@ -55,7 +56,7 @@
             @if ($essentials->isEmpty() && $optionals->isEmpty())
                 <div class="empty">
                     <p>Daftar perlengkapan untuk proyek ini sedang disiapkan.</p>
-                    <a class="btn btn--primary" href="{{ route('projects.show', $project) }}">Lihat proyek</a>
+                    <a class="btn btn--primary" href="{{ route('courses.show', $pack) }}">Lihat proyek</a>
                 </div>
             @endif
 
@@ -64,7 +65,7 @@
                     <h2 class="pk-h2">Perlengkapan Utama</h2>
                     <span>{{ $essentials->count() }} item dibutuhkan</span>
                 </div>
-                <p class="pk-hint">Centang yang sudah kamu punya. Anggaran akan dihitung ulang otomatis.</p>
+                <p class="pk-hint">Centang bahan yang sudah kamu miliki. Ini hanya checklist persiapan, bukan pembayaran atau transaksi.</p>
 
                 <ul class="pk-items">
                     @foreach ($essentials as $item)
@@ -117,8 +118,8 @@
                     </div>
                 </dl>
 
-                <a href="{{ route('projects.show', $project) }}" class="btn btn--primary">
-                    Aku Siap — Mulai Proyek @include('packs._icon', ['name' => 'arrow-right'])
+                <a href="{{ route('courses.show', $pack) }}" class="btn btn--primary">
+                    {{ $pack->is_premium && !auth()->user()->isPlus() ? '★ Buka dengan Plus' : 'Aku Siap — Mulai Course' }} @include('packs._icon', ['name' => 'arrow-right'])
                 </a>
 
                 <form method="POST" action="{{ route('bookmarks.toggle', $pack) }}">
@@ -137,6 +138,7 @@
                 </section>
             @endif
 
+            <section class="pk-tip" style="margin-bottom:18px"><h2 class="pk-h3">Belanja bahan (opsional)</h2><p>Harga hanya estimasi. Jika suatu produk punya tautan toko, kamu bisa melihatnya di marketplace. Pembelian dilakukan langsung di toko, bukan melalui HobbyNet.</p><p style="font-size:12px">Info transparansi: tautan produk saat ini belum terverifikasi sebagai affiliate. Komisi baru dapat diterima setelah bergabung dengan program affiliate dan memakai tautan tracking resmi.</p></section>
             <div class="pk-share">
                 <span>Bagikan paket</span>
                 <button type="button" class="pk-round" data-copy aria-label="Salin tautan paket">

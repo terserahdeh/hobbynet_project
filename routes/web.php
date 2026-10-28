@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\AiCoachController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\BookmarkController;          // BARU
+use App\Http\Controllers\PremiumController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Onboarding\HobbyController;
 use App\Http\Controllers\Onboarding\PersonalizeController;
@@ -11,13 +13,18 @@ use App\Http\Controllers\Roadmap\RoadmapController;
 use App\Http\Controllers\Roadmap\RoadmapStepController;
 use App\Http\Controllers\Roadmap\RoadmapSubmissionController;
 use App\Http\Controllers\ProfileController;           // BARU
+use App\Http\Controllers\CourseController;
+use App\Http\Controllers\WorkController;
 use App\Http\Controllers\StarterPackController;       // BARU
 use App\Models\Project;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', fn () => auth()->check()
-    ? redirect()->route('home')
-    : view('LandingPage'))->name('landing');
+// Selalu mulai dari landing page, termasuk untuk pengguna yang sudah login
+// (di landing mereka melihat tombol "Buka Beranda").
+Route::get('/', fn () => view('LandingPage'))->name('landing');
+
+// Halaman publik: harga HobbyNet Plus
+Route::get('/plus', [PremiumController::class, 'index'])->name('plus');
 
 // Tamu (belum login)
 Route::middleware('guest')->group(function () {
@@ -65,6 +72,22 @@ Route::middleware('auth')->group(function () {
 
     // Profil
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/explore/{starterPack}/learn', [CourseController::class, 'show'])->name('courses.show');
+    Route::post('/explore/{starterPack}/learn/{lesson}/complete', [CourseController::class, 'complete'])->name('courses.complete');
+
+    Route::get('/explore/{starterPack}/submit', [CourseController::class, 'submission'])->name('courses.submission');
+    Route::post('/explore/{starterPack}/submit', [CourseController::class, 'saveSubmission'])->name('courses.submission.save');
+    Route::get('/my-works/course/{submission}', [CourseController::class, 'work'])->name('courses.work.show');
+    Route::get('/my-works/course/{submission}/photos/{index}',[CourseController::class, 'photo'])->whereNumber('index')->name('courses.work.photo');
+    Route::get('/my-works/roadmap/{submission}', [WorkController::class, 'show'])->name('roadmap.work.show');
+
+    // Coach AI + langganan Plus
+    Route::post('/plus/subscribe', [PremiumController::class, 'subscribe'])->name('plus.subscribe');
+    Route::post('/plus/cancel', [PremiumController::class, 'cancel'])->name('plus.cancel');
+    // HobbyNet Plus
+
 
     // Halaman proyek (masih placeholder)
     Route::get('/projects/{project:slug}', fn (Project $project) => view('soon', ['title' => $project->title]))

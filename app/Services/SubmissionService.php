@@ -14,7 +14,7 @@ use Illuminate\Validation\ValidationException;
 
 class SubmissionService
 {
-    public const MAX_PHOTOS = 5;
+    public const MAX_PHOTOS = 1;
 
     public function __construct(private RoadmapService $roadmap)
     {
@@ -56,32 +56,27 @@ class SubmissionService
             }
             $submission->save();
 
-            $toRemove = $submission->photos()->whereIn('id', $removePhotoIds)->get();
-            $remaining = $submission->photos()->count() - $toRemove->count();
-
-            if ($remaining + count($newPhotos) > self::MAX_PHOTOS) {
-                throw ValidationException::withMessages([
-                    'photos' => 'You can add up to ' . self::MAX_PHOTOS . ' photos.',
-                ]);
+            $oldPhotos = $submission->photos()->get();
+            $newFile = $newPhotos[0] ?? null;
+            if (count($newPhotos) > 1) {
+                throw ValidationException::withMessages(['photos' => 'Maksimal satu foto untuk setiap karya.']);
             }
-
-            if ($submit && $remaining + count($newPhotos) < 1) {
-                throw ValidationException::withMessages([
-                    'photos' => 'Add at least one photo of what you made.',
-                ]);
+            if ($submit && ! $newFile && $oldPhotos->isEmpty()) {
+                throw ValidationException::withMessages(['photos' => 'Unggah satu foto hasil karya.']);
             }
-
-            foreach ($toRemove as $photo) {
-                Storage::disk('public')->delete($photo->path);
-                $photo->delete();
-            }
-
-            $position = (int) $submission->photos()->max('position');
-            foreach ($newPhotos as $file) {
-                $submission->photos()->create([
-                    'path' => $file->store("submissions/{$user->id}/{$project->id}", 'public'),
-                    'position' => ++$position,
-                ]);
+            if ($newFile) {
+                $newPath = $newFile->store("submissions/{$user->id}/{$project->id}", 'public');
+                try {
+                    // Ganti foto pada data lebih dulu, lalu bersihkan file lama setelah transaksi.
+                    $submission->photos()->delete();
+                    $submission->photos()->create(['path' => $newPath, 'position' => 1]);
+                    DB::afterCommit(function () use ($oldPhotos) {
+                        foreach ($oldPhotos as $oldPhoto) Storage::disk('public')->delete($oldPhoto->path);
+                    });
+                } catch (\Throwable $e) {
+                    Storage::disk('public')->delete($newPath);
+                    throw $e;
+                }
             }
 
             $badges = collect();
