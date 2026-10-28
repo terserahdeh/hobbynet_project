@@ -96,6 +96,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
 });
 
+// Submission photos
+Route::middleware('auth')->get(
+    '/submission-photos/{photo}',
+    [RoadmapSubmissionController::class, 'showPhoto']
+)->name('submission-photos.show');
+
 // guided roadmap
 Route::middleware('auth')->prefix('roadmap')->name('roadmap.')->group(function () {
     Route::get('/', [RoadmapController::class, 'index'])->name('index');

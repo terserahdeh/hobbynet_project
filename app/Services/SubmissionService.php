@@ -65,18 +65,20 @@ class SubmissionService
                 throw ValidationException::withMessages(['photos' => 'Unggah satu foto hasil karya.']);
             }
             if ($newFile) {
-                $newPath = $newFile->store("submissions/{$user->id}/{$project->id}", 'public');
-                try {
-                    // Ganti foto pada data lebih dulu, lalu bersihkan file lama setelah transaksi.
-                    $submission->photos()->delete();
-                    $submission->photos()->create(['path' => $newPath, 'position' => 1]);
-                    DB::afterCommit(function () use ($oldPhotos) {
-                        foreach ($oldPhotos as $oldPhoto) Storage::disk('public')->delete($oldPhoto->path);
-                    });
-                } catch (\Throwable $e) {
-                    Storage::disk('public')->delete($newPath);
-                    throw $e;
+                $imageData = file_get_contents($newFile->getRealPath());
+
+                if ($imageData === false) {
+                    throw new \RuntimeException('Gagal membaca file gambar.');
                 }
+
+                $submission->photos()->delete();
+
+                $submission->photos()->create([
+                    'path' => '',
+                    'position' => 1,
+                    'image_data' => $imageData,
+                    'mime_type' => $newFile->getMimeType(),
+                ]);
             }
 
             $badges = collect();
