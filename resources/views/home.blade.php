@@ -102,6 +102,7 @@
                     </div>
                 @endif
             </section>
+
             <section aria-labelledby="h-hobi">
                 <div class="section-head">
                     <h2 class="section-title" id="h-hobi">Hobimu</h2>
@@ -112,11 +113,11 @@
                     <div class="hgrid">
                         @foreach ($hobbyCards as $card)
                             <article class="hcard">
-                                <a class="hcard__media" href="{{ route('roadmap.project', $card['project']) }}" tabindex="-1" aria-hidden="true">
+                                <a class="hcard__media" href="{{ $go($card['project']) }}" tabindex="-1" aria-hidden="true">
                                     @include('onboarding.partials.project-thumb', ['project' => $card['project']])
                                 </a>
                                 <h3 class="hcard__title">
-                                    <a href="{{ route('roadmap.project', $card['project']) }}">{{ $card['project']->title }}</a>
+                                    <a href="{{ $go($card['project']) }}">{{ $card['project']->title }}</a>
                                 </h3>
                                 <p class="hcard__desc">{{ $card['project']->summary }}</p>
                                 <div class="hcard__foot">
@@ -124,7 +125,7 @@
                                     <details class="more">
                                         <summary aria-label="Opsi untuk {{ $card['project']->title }}">…</summary>
                                         <div class="more__menu">
-                                            <a href="{{ route('roadmap.project', $card['project']) }}">Buka proyek</a>
+                                            <a href="{{ $go($card['project']) }}">Buka proyek</a>
                                         </div>
                                     </details>
                                 </div>
@@ -138,12 +139,11 @@
                     </div>
                 @endif
             </section>
+            @include('partials.other-hobbies')
         </div>
 
         {{-- Kolom samping: populer & dorongan kecil --}}
-        <div class="dash__side">
-
-
+        <aside class="dash__side">
             <section aria-labelledby="h-populer" data-carousel>
                 <div class="section-head">
                     <h2 class="section-title" id="h-populer">Proyek Populer</h2>
@@ -192,6 +192,7 @@
                 </div>
                 <p>{{ $goal['message'] }}</p>
             </section>
+        </aside>
         </div>
     </div>
 </div>
