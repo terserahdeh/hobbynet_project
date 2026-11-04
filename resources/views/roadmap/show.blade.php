@@ -91,7 +91,7 @@
 
                 @elseif ($s->state === 'completed')
                     <a href="{{ $stepUrl($s) }}" class="rm-node rm-node--completed {{ $isFinal ? 'rm-node--final' : '' }}">
-                        <span class="rm-thumb" aria-hidden="true">@include('roadmap.partials.icon', ['name' => 'yarn'])</span>
+                        <span class="rm-thumb" aria-hidden="true">@include('roadmap.partials.icon', ['name' => $hobby->slug === 'painting' ? 'brush' : ($hobby->slug === 'photography' ? 'camera' : 'yarn')])</span>
                         <span>
                             <h2>{{ $s->title }}</h2>
                             <p class="rm-node__sub">Completed &bull; {{ $s->completed_at?->format('M j') }}</p>

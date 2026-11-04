@@ -18,11 +18,43 @@ class RoadmapService
     }
 
     /** The beginner project that powers a hobby's roadmap. */
-    public function starterProject(Hobby $hobby): Project
+    private const LEVELS = [
+        'beginner'  => 'beginner',
+        'some'      => 'intermediate',
+        'returning' => 'advanced',
+    ];
+
+    private const LEVEL_ORDER = ['beginner' => 0, 'intermediate' => 1, 'advanced' => 2];
+
+    public function levelFor(User $user): string
     {
-        return Project::where('hobby_id', $hobby->id)
-            ->where('is_starter', true)
-            ->firstOrFail();
+        return self::LEVELS[$user->experience_level] ?? 'beginner';
+    }
+
+    /** Starter yang punya langkah roadmap, level terdekat dengan pengguna. Null jika hobi belum punya starter. */
+    public function findStarter(Hobby $hobby, ?User $user = null): ?Project
+    {
+        $level    = $user ? $this->levelFor($user) : 'beginner';
+        $starters = Project::where('hobby_id', $hobby->id)->where('is_starter', true)->get();
+
+        $withSteps = RoadmapStep::whereIn('project_id', $starters->pluck('id'))->pluck('project_id')->unique();
+        $pool      = $starters->whereIn('id', $withSteps);
+
+        if ($pool->isEmpty()) {
+            $pool = $starters;
+        }
+
+        return $pool
+            ->sortBy(fn (Project $p) => abs(
+                (self::LEVEL_ORDER[$p->level] ?? 0) - self::LEVEL_ORDER[$level]
+            ) * 100000 + $p->id)
+            ->first();
+    }
+
+    /** The starter project that powers a hobby's roadmap. */
+    public function starterProject(Hobby $hobby, ?User $user = null): Project
+    {
+        return $this->findStarter($hobby, $user) ?? abort(404);
     }
 
     /** Hobbies the user picked during onboarding (for "Switch Hobby"). */
