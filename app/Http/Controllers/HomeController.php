@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Models\User;
+use App\Services\BadgeService;
 use App\Support\TipOfTheDay;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,6 +15,10 @@ use Illuminate\View\View;
 
 class HomeController extends Controller
 {
+    public function __construct(private BadgeService $badges)
+    {
+    }
+
     public function __invoke(Request $request): View|RedirectResponse
     {
         $user = $request->user();
@@ -36,7 +41,7 @@ class HomeController extends Controller
             'current'    => $this->currentProject($hobbies, $progress),
             'hobbyCards' => $this->hobbyCards($hobbies, $progress),
             'popular'    => $this->popularProjects($hobbies),
-            'nextBadge'  => $this->nextBadge($progress),
+            'nextBadge'  => $this->nextBadge($user),
             'tip'        => TipOfTheDay::for($hobbies),
             'goal'       => $this->dailyGoal($user),
         ]);
@@ -110,28 +115,17 @@ class HomeController extends Controller
             ->get();
     }
 
-    private function nextBadge(Collection $progress): ?array
+    /** Lencana berikutnya dari roadmap (data nyata dari tabel badges / badge_user). */
+    private function nextBadge(User $user): ?array
     {
-        $tried = $progress
-            ->filter(fn ($p) => $p->progress_percent >= 1 && $p->project?->hobby_id)
-            ->pluck('project.hobby_id')
-            ->unique()
-            ->count();
+        $next = $this->badges->nextFor($user);
 
-        $completed = $progress->filter(fn ($p) => $p->progress_percent >= 100)->count();
-
-        $badges = [
-            ['name' => 'Penjelajah Penasaran', 'hint' => 'Coba 2 hobi',          'value' => $tried,     'target' => 2],
-            ['name' => 'Pembuat Pertama',      'hint' => 'Selesaikan 1 proyek',  'value' => $completed, 'target' => 1],
-        ];
-
-        foreach ($badges as $badge) {
-            if ($badge['value'] < $badge['target']) {
-                return $badge;
-            }
-        }
-
-        return null;
+        return $next ? [
+            'name'   => $next['badge']->name,
+            'hint'   => 'Selesaikan "' . $next['title'] . '"',
+            'value'  => $next['value'],
+            'target' => $next['target'],
+        ] : null;
     }
 
     private function dailyGoal(User $user): array

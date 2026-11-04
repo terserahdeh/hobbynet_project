@@ -115,6 +115,7 @@ class RoadmapSeeder extends Seeder
             'light-spotter' => ['Light Spotter', 'For learning to see and use the light around you.', 'camera', 'blue'],
             'first-creation' => ['First Creation', 'For finishing and sharing your very first project.', 'sparkle', 'pink'],
             'course-completer' => ['Course Completer', 'For finishing every checkpoint on a roadmap.', 'check', 'green'],
+            'plus-member' => ['Plus Member', 'Mendukung HobbyNet dengan paket Plus.', 'star', 'pink'],
         ];
 
         $badges = [];

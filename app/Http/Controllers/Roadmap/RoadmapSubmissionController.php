@@ -25,7 +25,7 @@ class RoadmapSubmissionController extends Controller
     public function show(Request $request, Hobby $hobby): View|RedirectResponse
     {
         $user = $request->user();
-        $project = $this->roadmap->starterProject($hobby, $request->user());
+        $project = $this->roadmap->starterProject($hobby);
         $summary = $this->roadmap->summary($user, $project);
         $shareStep = $this->roadmap->shareStep($summary['steps']);
 
@@ -62,7 +62,7 @@ class RoadmapSubmissionController extends Controller
     public function store(SubmissionRequest $request, Hobby $hobby): RedirectResponse
     {        
         $user = $request->user();
-        $project = $this->roadmap->starterProject($hobby, $request->user());
+        $project = $this->roadmap->starterProject($hobby);
         $summary = $this->roadmap->summary($user, $project);
         $shareStep = $this->roadmap->shareStep($summary['steps']);
 
@@ -103,7 +103,7 @@ class RoadmapSubmissionController extends Controller
     public function celebration(Request $request, Hobby $hobby): View|RedirectResponse
     {
         $user = $request->user();
-        $project = $this->roadmap->starterProject($hobby, $request->user());
+        $project = $this->roadmap->starterProject($hobby);
 
         $submission = ProjectSubmission::with('photos')
             ->where('user_id', $user->id)
@@ -136,6 +136,28 @@ class RoadmapSubmissionController extends Controller
             ->orderByRaw('hobby_id = ? desc', [$current->hobby_id])
             ->orderByDesc('learners_count')
             ->first();
+    }
+
+    public function showPhoto(
+        \App\Models\SubmissionPhoto $photo
+    ): \Illuminate\Http\Response {
+        abort_if(
+            $photo->image_data === null || $photo->mime_type === null,
+            404
+        );
+
+        // Pastikan pengguna hanya bisa melihat foto miliknya.
+        abort_unless(
+            $photo->submission()->where('user_id', auth()->id())->exists(),
+            403
+        );
+
+        return response($photo->image_data, 200, [
+            'Content-Type' => $photo->mime_type,
+            'Content-Disposition' => 'inline',
+            'Cache-Control' => 'private, no-store',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
     }
 
     private function lockedRedirect(Hobby $hobby): RedirectResponse

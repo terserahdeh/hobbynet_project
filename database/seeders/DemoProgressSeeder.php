@@ -6,7 +6,9 @@ use App\Models\DailyActivity;
 use App\Models\Hobby;
 use App\Models\Project;
 use App\Models\User;
+use App\Models\RoadmapStep;
 use App\Models\UserProject;
+use App\Services\RoadmapService;
 use Illuminate\Database\Seeder;
 
 /**
@@ -25,7 +27,7 @@ class DemoProgressSeeder extends Seeder
             return;
         }
 
-        $this->call([HobbySeeder::class, ProjectSeeder::class]);
+        $this->call([HobbySeeder::class, ProjectSeeder::class, RoadmapSeeder::class]);
 
         $user->hobbies()->syncWithoutDetaching(
             Hobby::whereIn('slug', ['crochet', 'photography'])->pluck('id')
@@ -35,10 +37,12 @@ class DemoProgressSeeder extends Seeder
         $crochet = Project::where('slug', 'alas-gelas-rajut-katun')->first();
         $photo   = Project::where('slug', 'cerita-foto-sehari-hari')->first();
 
-        UserProject::updateOrCreate(
-            ['user_id' => $user->id, 'project_id' => $crochet->id],
-            ['progress_percent' => 60, 'last_worked_at' => now()]
-        );
+        // Selesaikan 3 langkah pertama lewat RoadmapService supaya progres, lencana,
+        // dan menit harian terisi dari satu sumber yang sama dengan penggunaan asli.
+        $roadmap = app(RoadmapService::class);
+        $roadmap->begin($user, $crochet);
+        RoadmapStep::where('project_id', $crochet->id)->orderBy('position')->take(3)->get()
+            ->each(fn ($step) => $roadmap->completeStep($user, $step));
         UserProject::updateOrCreate(
             ['user_id' => $user->id, 'project_id' => $photo->id],
             ['progress_percent' => 0, 'last_worked_at' => now()->subDays(2)]

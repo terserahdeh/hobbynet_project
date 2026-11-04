@@ -8,6 +8,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/home.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/polish.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/plus.css') }}">
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
     {{-- Tautan "Profil saya" di menu akun --}}
     <style>
@@ -21,25 +23,38 @@
 
     <header class="nav">
         <div class="nav__inner">
-            <a href="{{ route('home') }}" class="brand" aria-label="HobbyNet, beranda">
+            <a href="{{ auth()->check() ? route('home') : route('landing') }}" class="brand" aria-label="HobbyNet, beranda">
                 <span class="brand__mark" aria-hidden="true">
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="8" cy="11" r="1"/><circle cx="12" cy="7.5" r="1"/><circle cx="16" cy="11" r="1"/><path d="M13 21a2 2 0 0 1 0-4h1.5a2 2 0 0 0 0-4"/></svg>
                 </span>
                 <span class="brand__name">HobbyNet</span>
             </a>
 
+            @auth
             <nav class="nav__links" aria-label="Navigasi utama">
                 <a href="{{ route('home') }}" @class(['is-active' => request()->routeIs('home')]) @if (request()->routeIs('home')) aria-current="page" @endif>Beranda</a>
                 {{-- Jelajahi tetap menyala saat membuka detail paket --}}
                 <a href="{{ route('explore') }}" @class(['is-active' => request()->routeIs('explore', 'search', 'packs.*')]) @if (request()->routeIs('explore', 'search', 'packs.*')) aria-current="page" @endif>Jelajahi</a>
                 <a href="{{ route('bookmarks') }}" @class(['is-active' => request()->routeIs('bookmarks')]) @if (request()->routeIs('bookmarks')) aria-current="page" @endif>Tersimpan</a>
             </nav>
+            @else
+            <nav class="nav__links" aria-label="Navigasi utama">
+                <a href="{{ route('plus') }}" @class(['is-active' => request()->routeIs('plus')])>Harga</a>
+            </nav>
+            @endauth
 
+            @auth
             <form class="nav__search" role="search" action="{{ route('search') }}" method="GET">
                 <label class="sr-only" for="q">Cari proyek</label>
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
                 <input id="q" name="q" type="search" placeholder="Cari proyek…" value="{{ request('q') }}">
             </form>
+            @else
+            <span class="nav__search-gap" style="margin-left:auto"></span>
+            @endauth
+
+            @auth
+            <a href="{{ route('plus') }}" class="nav__plus @if (auth()->user()->isPlus()) is-on @endif">{{ auth()->user()->isPlus() ? 'Plus ✦' : 'Upgrade' }}</a>
 
             <details class="account">
                 <summary aria-label="Menu akun">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr(auth()->user()->name, 0, 1)) }}</summary>
@@ -47,12 +62,17 @@
                     <p class="account__name">{{ auth()->user()->name }}</p>
                     <p class="account__mail">{{ auth()->user()->email }}</p>
                     <a class="account__link" href="{{ route('profile') }}">Profil saya</a>
+                    <a class="account__link" href="{{ route('plus') }}">{{ auth()->user()->isPlus() ? 'Paket Plus aktif' : 'HobbyNet Plus' }}</a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" class="account__out">Keluar</button>
                     </form>
                 </div>
             </details>
+            @else
+            <a class="btn btn--ghost btn--sm" href="{{ route('login') }}">Masuk</a>
+            <a class="btn btn--primary btn--sm" href="{{ route('onboarding.account') }}">Daftar</a>
+            @endauth
         </div>
     </header>
 
@@ -60,6 +80,8 @@
         @yield('content')
     </main>
 
+
+    <script src="{{ asset('js/polish.js') }}" defer></script>
     @stack('scripts')
 </body>
 </html>

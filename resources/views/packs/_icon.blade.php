@@ -10,9 +10,13 @@
         'compass'     => '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
         'lock'        => '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
         'link'        => '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+        'stitch'      => '<path d="M5 8l4 4-4 4"/><path d="M12 8l4 4-4 4"/><path d="M19 8v8"/>',
+        'sparkle'     => '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17v4M17 19h4"/>',
+        'star'        => '<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.9z"/>',
+        'default'     => '<circle cx="12" cy="12" r="8"/>',
         'user'        => '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',
         'arrow-left'  => '<path d="M19 12H5"/><path d="M11 6l-6 6 6 6"/>',
         'arrow-right' => '<path d="M5 12h14"/><path d="M13 6l6 6-6 6"/>',
     ];
 @endphp
-<svg class="pk-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{!! $iconPaths[$name] ?? '' !!}</svg>
+<svg class="pk-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{!! $iconPaths[$name] ?? $iconPaths['default'] !!}</svg>

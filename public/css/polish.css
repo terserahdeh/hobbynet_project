@@ -1,0 +1,165 @@
+/* =========================================================
+   HobbyNet — lapisan polesan UI (tambahan, tidak mengubah bentuk kartu)
+   Dimuat SETELAH css lain, jadi hanya menambah efek: transisi, bayangan
+   lembut berwarna (bukan hitam), dan keadaan "terpilih" yang lebih terang.
+   ========================================================= */
+
+:root {
+    --hn-cocoa: #4F3F39;
+    --hn-rose: 232, 160, 170;      /* glow pink untuk tombol gelap */
+    --hn-sage: 126, 154, 107;      /* glow hijau */
+    --hn-peri: 127, 147, 214;      /* glow biru lavender */
+    --hn-honey: 232, 184, 106;     /* aksen Plus */
+    --hn-ease: cubic-bezier(.2, .8, .2, 1);
+}
+
+/* Latar yang sedikit lebih hidup, tanpa mengubah layout */
+body { background-image: radial-gradient(1100px 420px at 85% -80px, rgba(241, 198, 202, .32), transparent 70%),
+                          radial-gradient(900px 360px at -5% 0, rgba(198, 211, 245, .28), transparent 70%);
+       background-repeat: no-repeat; }
+
+/* ---------- Tombol: hover terangkat, ditekan = bayangan lembut berwarna ---------- */
+.btn, .rm-btn, .btn-pink, .btn-dark, .btn-outline, .account__out, .nav__plus, .ai-fab,
+.pk-filter, .arrow, .chip-add, .pl-btn {
+    position: relative; overflow: hidden;
+    transition: transform .18s var(--hn-ease), box-shadow .22s ease, background-color .2s ease,
+                border-color .2s ease, filter .2s ease, opacity .2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+.btn:hover, .rm-btn:not(:disabled):hover, .btn-pink:hover, .btn-dark:hover, .btn-outline:hover,
+.account__out:hover, .pk-filter:hover, .arrow:hover, .pl-btn:hover { transform: translateY(-2px); }
+
+/* Tombol gelap (cocoa) */
+.btn--primary, .btn-dark, .pl-btn--dark {
+    background-image: linear-gradient(135deg, #5C4A43 0%, #3E312C 100%);
+}
+.btn--primary:hover, .btn-dark:hover, .pl-btn--dark:hover {
+    box-shadow: 0 10px 22px rgba(var(--hn-rose), .38), 0 2px 6px rgba(79, 63, 57, .12);
+}
+.btn--primary:active, .btn-dark:active, .pl-btn--dark:active {
+    transform: translateY(1px) scale(.985);
+    box-shadow: 0 0 0 5px rgba(var(--hn-rose), .30), inset 0 2px 10px rgba(var(--hn-rose), .45);
+    filter: brightness(1.12);
+}
+
+/* Tombol terang / garis */
+.btn--ghost, .btn-outline, .rm-btn--ghost, .account__out {
+    transition-property: transform, box-shadow, background-color, border-color;
+}
+.btn--ghost:hover, .btn-outline:hover, .rm-btn--ghost:hover { box-shadow: 0 8px 18px rgba(var(--hn-rose), .28); border-color: #E8A0AA; }
+.btn--ghost:active, .btn-outline:active, .rm-btn--ghost:active, .account__out:active {
+    transform: translateY(1px) scale(.985);
+    background-color: #FFF1F2;
+    box-shadow: 0 0 0 4px rgba(var(--hn-rose), .25), inset 0 2px 8px rgba(var(--hn-rose), .30);
+}
+
+/* Tombol pink landing */
+.btn-pink:hover { box-shadow: 0 10px 22px rgba(var(--hn-rose), .45); }
+.btn-pink:active { transform: translateY(1px) scale(.985); box-shadow: 0 0 0 5px rgba(var(--hn-rose), .30), inset 0 2px 10px rgba(255, 255, 255, .55); filter: brightness(1.04); }
+
+/* Tombol roadmap berwarna */
+.rm-btn--primary:not(:disabled):active, .rm-btn--soft-green:active {
+    transform: translateY(1px) scale(.985);
+    box-shadow: 0 0 0 5px rgba(var(--hn-sage), .28), inset 0 2px 10px rgba(255, 255, 255, .35);
+    filter: brightness(1.06);
+}
+.rm-btn--blue:active { transform: translateY(1px) scale(.985); box-shadow: 0 0 0 5px rgba(var(--hn-peri), .28), inset 0 2px 10px rgba(255, 255, 255, .35); filter: brightness(1.06); }
+.rm-btn--soft-pink:active { transform: translateY(1px) scale(.985); box-shadow: 0 0 0 5px rgba(var(--hn-rose), .30), inset 0 2px 10px rgba(255, 255, 255, .4); }
+.rm-btn--blue:hover { box-shadow: 0 10px 22px rgba(var(--hn-peri), .45); }
+
+.btn--sm { height: 38px; padding: 0 16px; font-size: 13px; }
+
+/* Riak halus saat ditekan (dibuat oleh polish.js) */
+.hn-ripple {
+    position: absolute; border-radius: 50%; pointer-events: none; transform: scale(0);
+    background: rgba(255, 255, 255, .45); animation: hn-ripple .55s ease-out forwards;
+}
+.btn--ghost .hn-ripple, .btn-outline .hn-ripple, .rm-btn--ghost .hn-ripple, .account__out .hn-ripple { background: rgba(var(--hn-rose), .28); }
+@keyframes hn-ripple { to { transform: scale(3.2); opacity: 0; } }
+
+/* ---------- Checklist roadmap: terang saat dicentang ---------- */
+.rm-check { transition: border-color .2s ease, background .25s ease, box-shadow .25s ease, transform .15s ease; }
+.rm-check:hover { box-shadow: 0 6px 16px rgba(var(--hn-sage), .16); }
+.rm-check:active { transform: scale(.995); }
+.rm-check span { transition: color .2s ease; }
+.rm-check:not(:has(input:checked)) span { color: rgba(79, 63, 57, .78); }
+
+.rm-check input { transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease; }
+.rm-check input:checked {
+    background-color: #6FA050; border-color: #6FA050;
+    box-shadow: 0 0 0 5px rgba(var(--hn-sage), .22), 0 2px 8px rgba(var(--hn-sage), .5);
+    animation: hn-pop .32s var(--hn-ease);
+}
+.rm-check:has(input:checked) {
+    background: linear-gradient(135deg, #F6FBEF 0%, #EEF7E3 100%);
+    border-color: #8FB870;
+    box-shadow: 0 8px 22px rgba(var(--hn-sage), .22);
+}
+.rm-check:has(input:checked) span { color: #3F5A2E; font-weight: 600; }
+@keyframes hn-pop { 0% { transform: scale(.7); } 60% { transform: scale(1.22); } 100% { transform: scale(1); } }
+
+/* Kemajuan checklist (disisipkan polish.js) */
+.hn-checkprog { display: flex; align-items: center; gap: 12px; margin: 14px 0 0; font-size: 13px; font-weight: 700; color: rgba(79, 63, 57, .7); }
+.hn-checkprog__bar { flex: 1; height: 8px; border-radius: 99px; background: #F0EBE6; overflow: hidden; }
+.hn-checkprog__bar span { display: block; height: 100%; width: 0; border-radius: inherit;
+    background: linear-gradient(90deg, #A6CC8A, #6FA050); transition: width .35s var(--hn-ease); }
+.hn-checkprog.is-done { color: #3F5A2E; }
+.hn-checkprog.is-done .hn-checkprog__bar span { box-shadow: 0 0 12px rgba(var(--hn-sage), .8); }
+
+/* "Mark as Complete" menyala begitu semua item tercentang (tombol tidak lagi disabled) */
+.rm-btn--primary:disabled { background: #C9D4BE; box-shadow: none; opacity: .7; filter: saturate(.6); }
+.rm-btn--primary:not(:disabled) {
+    background-image: linear-gradient(135deg, #9CCB7C 0%, #6FA050 100%);
+    animation: hn-glow 2.2s ease-in-out infinite;
+}
+@keyframes hn-glow {
+    0%, 100% { box-shadow: 0 8px 20px rgba(var(--hn-sage), .35), 0 0 0 0 rgba(var(--hn-sage), .0); }
+    50%      { box-shadow: 0 10px 26px rgba(var(--hn-sage), .55), 0 0 0 7px rgba(var(--hn-sage), .16); }
+}
+
+/* ---------- Pilihan onboarding & jelajahi: terpilih = lebih terang ---------- */
+.hobby input:checked + .hobby__body { box-shadow: 0 10px 26px rgba(var(--hn-sage), .30); }
+.hobby__body { transition: box-shadow .25s ease, transform .18s var(--hn-ease), border-color .2s ease, background-color .2s ease; }
+.hobby:hover .hobby__body { transform: translateY(-2px); }
+.hobby input:checked + .hobby__body .hobby__check { animation: hn-pop .32s var(--hn-ease); }
+.opt__body { transition: box-shadow .25s ease, transform .18s var(--hn-ease), border-color .2s ease, background-color .2s ease; }
+.opt:hover .opt__body { transform: translateY(-1px); }
+.opt--level input:checked + .opt__body { box-shadow: 0 8px 22px rgba(var(--hn-sage), .30); }
+.opt--tool input:checked + .opt__body { box-shadow: 0 8px 22px rgba(var(--hn-peri), .30); }
+.opt--budget input:checked + .opt__body { box-shadow: 0 8px 22px rgba(var(--hn-rose), .30); }
+.opt input:checked + .opt__body .opt__check, .opt input:checked + .opt__body .opt__box { animation: hn-pop .32s var(--hn-ease); }
+
+.pk-box { transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease; }
+.pk-check input:checked + .pk-box { background: #A6CC8A; border-color: #6FA050; color: #fff;
+    box-shadow: 0 0 0 4px rgba(var(--hn-sage), .22); animation: hn-pop .32s var(--hn-ease); }
+
+/* ---------- Kartu: bentuk tetap, hanya bayangan saat disentuh ---------- */
+.hcard, .pk-card, .rm-card, .pk-badge, .pk-done__card { transition: box-shadow .25s ease, transform .2s var(--hn-ease); }
+.hcard:hover, .pk-card:hover, .pk-done__card:hover { box-shadow: 0 12px 28px rgba(var(--hn-rose), .22); transform: translateY(-2px); }
+.pitem { transition: box-shadow .25s ease, transform .2s var(--hn-ease); }
+.pitem:hover { box-shadow: 0 10px 24px rgba(var(--hn-rose), .22); transform: translateY(-1px); }
+.rm-node:not(.rm-node--locked) { transition: box-shadow .25s ease, transform .2s var(--hn-ease); }
+.rm-node:not(.rm-node--locked):hover { box-shadow: 0 12px 26px rgba(var(--hn-sage), .22); }
+
+/* ---------- Warna: progres & aksen lebih seragam ---------- */
+.bar span, .rm-bar__fill { background-image: linear-gradient(90deg, #A6CC8A, #7E9A6B); transition: width .5s var(--hn-ease); }
+.bar--dark span { background-image: linear-gradient(90deg, #DDE9CF, #C8D8B9); }
+.nav__links a.is-active { border-bottom-color: #A6CC8A; }
+:focus-visible { outline-color: #9DB0E8; }
+::selection { background: rgba(241, 198, 202, .6); }
+
+/* Badge profil (tambahan untuk halaman profil) */
+.pk-badge__icon--pink { background: #FBEEF0; color: #A4505D; }
+.pk-badge .pk-badge__date { margin-top: 2px; color: #5B7B48; font-weight: 600; }
+.pk-done { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+.pk-done__card { border-radius: 22px; background: #fff; box-shadow: 0 6px 20px rgba(112, 93, 86, .08); overflow: hidden; }
+.pk-done__media { aspect-ratio: 4 / 3; background: #EFF4EA; }
+.pk-done__media img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.pk-done__body { padding: 14px 18px 18px; }
+.pk-done__body h3 { margin: 0 0 2px; font: 700 1rem 'Quicksand', sans-serif; }
+.pk-done__body p { margin: 0; color: #8F7D76; font-size: .8rem; }
+
+/* Hormati preferensi gerak berkurang */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+}

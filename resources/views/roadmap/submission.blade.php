@@ -54,12 +54,12 @@
 
                 <div class="rm-media">
                     <div>
-                        <span class="rm-label">Add photos</span>
+                        <span class="rm-label">Foto hasil karya</span>
                         <label for="photos" class="rm-upload">
                             <span class="rm-upload__icon">@include('roadmap.partials.icon', ['name' => 'image'])</span>
                             <strong>Click to upload or drag &amp; drop</strong>
-                            <small>PNG, JPG or WebP &middot; up to {{ $maxPhotos }} photos &middot; 5 MB each</small>
-                            <input id="photos" name="photos[]" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+                            <small>Maksimal 1 foto · PNG, JPG atau WebP · 5 MB. Foto baru otomatis mengganti foto lama.</small>
+                            <input id="photos" name="photos[]" type="file" accept="image/jpeg,image/png,image/webp">
                         </label>
                         @error('photos') <p class="rm-error">{{ $message }}</p> @enderror
                         @error('photos.*') <p class="rm-error">{{ $message }}</p> @enderror
@@ -69,18 +69,12 @@
                         <span class="rm-label">Preview</span>
                         <div class="rm-preview">
                             <div class="rm-preview__empty" id="rm-empty" @if ($existing->isNotEmpty()) hidden @endif>
-                                Your photos will show up here.
+                                Foto hasil karya akan muncul di sini.
                             </div>
                             <ul class="rm-photos {{ $existing->count() <= 1 ? 'rm-photos--single' : '' }}" id="rm-photos">
                                 @foreach ($existing as $photo)
                                     <li class="rm-photo">
                                         <img src="{{ $photo->url }}" alt="Photo of your creation">
-                                        <span class="rm-photo__actions">
-                                            <label class="rm-remove">
-                                                <input type="checkbox" name="remove_photo_ids[]" value="{{ $photo->id }}">
-                                                <span>Remove</span>
-                                            </label>
-                                        </span>
                                     </li>
                                 @endforeach
                             </ul>
@@ -146,6 +140,7 @@
         input.addEventListener('change', function () {
             [].slice.call(list.querySelectorAll('[data-new]')).forEach(function (el) { el.remove(); });
 
+            [].slice.call(list.querySelectorAll('li:not([data-new])')).forEach(function (el) { el.hidden = input.files.length > 0; });
             [].slice.call(input.files).forEach(function (file) {
                 var li = document.createElement('li');
                 li.className = 'rm-photo';
@@ -157,7 +152,7 @@
                 list.appendChild(li);
             });
 
-            var count = list.children.length;
+            var count = list.querySelectorAll('li:not([hidden])').length;
             list.classList.toggle('rm-photos--single', count <= 1);
             if (empty) empty.hidden = count > 0;
         });

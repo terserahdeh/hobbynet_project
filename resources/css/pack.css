@@ -1,0 +1,151 @@
+/* =========================================
+   HOBBYNET - FINAL BADGE COLOR FIX
+   ========================================= */
+
+.hn-badges-v8 {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 18px !important;
+}
+
+/* Desain utama kartu lencana */
+.hn-badges-v8 > .pk-badge {
+    --badge-start: #ffe7c2;
+    --badge-end: #fff7e9;
+    --badge-accent: #b67b32;
+
+    position: relative;
+    display: flex !important;
+    align-items: center;
+    gap: 20px;
+    min-height: 165px;
+    padding: 24px !important;
+    overflow: hidden;
+
+    background: linear-gradient(
+        135deg,
+        var(--badge-start),
+        var(--badge-end)
+    ) !important;
+
+    border: 1px solid var(--badge-accent) !important;
+    border-radius: 24px !important;
+    box-shadow: 0 8px 24px rgba(60, 40, 40, 0.06) !important;
+
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+
+/* WARNA BERDASARKAN URUTAN LENCANA */
+
+.hn-badges-v8 > .pk-badge:nth-child(6n+1) {
+    --badge-start: #ffe1ae;
+    --badge-end: #fff6df;
+    --badge-accent: #b67b32;
+}
+
+.hn-badges-v8 > .pk-badge:nth-child(6n+2) {
+    --badge-start: #ccdfff;
+    --badge-end: #eff4ff;
+    --badge-accent: #586fbd;
+}
+
+.hn-badges-v8 > .pk-badge:nth-child(6n+3) {
+    --badge-start: #ffcce0;
+    --badge-end: #fff0f6;
+    --badge-accent: #bd5685;
+}
+
+.hn-badges-v8 > .pk-badge:nth-child(6n+4) {
+    --badge-start: #c5efd6;
+    --badge-end: #effff5;
+    --badge-accent: #418763;
+}
+
+.hn-badges-v8 > .pk-badge:nth-child(6n+5) {
+    --badge-start: #e2ccff;
+    --badge-end: #f8efff;
+    --badge-accent: #8758ba;
+}
+
+.hn-badges-v8 > .pk-badge:nth-child(6n+6) {
+    --badge-start: #c6ecff;
+    --badge-end: #f0faff;
+    --badge-accent: #3489aa;
+}
+
+/* Dekorasi */
+.hn-badges-v8 > .pk-badge::after {
+    content: "✦";
+    position: absolute;
+    right: 15px;
+    bottom: -30px;
+    font-size: 115px;
+    line-height: 1;
+    color: var(--badge-accent);
+    opacity: .09;
+    pointer-events: none;
+}
+
+/* Hover */
+.hn-badges-v8 > .pk-badge:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 14px 30px rgba(60, 40, 40, .13) !important;
+}
+
+/* Ikon */
+.hn-badges-v8 > .pk-badge .pk-badge__icon {
+    width: 62px !important;
+    height: 62px !important;
+    min-width: 62px;
+    border-radius: 20px !important;
+    background: rgba(255, 255, 255, .75) !important;
+    color: var(--badge-accent) !important;
+}
+
+.hn-badges-v8 > .pk-badge .pk-badge__icon svg {
+    color: var(--badge-accent) !important;
+    stroke: currentColor !important;
+}
+
+/* Teks */
+.hn-badges-v8 > .pk-badge h3 {
+    color: #49342e !important;
+    font-size: 1.05rem;
+    margin: 5px 0 7px;
+}
+
+.hn-badges-v8 > .pk-badge p {
+    color: #705d55 !important;
+    font-size: .85rem;
+    line-height: 1.6;
+}
+
+.hn-badges-v8 > .pk-badge .hn-badge-v8__tag,
+.hn-badges-v8 > .pk-badge .pk-badge__date {
+    color: var(--badge-accent) !important;
+    font-weight: 700;
+}
+
+/* Lencana terkunci */
+.hn-badges-v8 > .pk-badge.is-locked {
+    opacity: .65;
+    filter: grayscale(.65);
+}
+
+/* Responsive */
+@media (max-width: 760px) {
+    .hn-badges-v8 {
+        grid-template-columns: 1fr !important;
+    }
+
+    .hn-badges-v8 > .pk-badge {
+        min-height: 140px;
+        padding: 20px !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hn-badges-v8 > .pk-badge {
+        transition: none;
+    }
+}

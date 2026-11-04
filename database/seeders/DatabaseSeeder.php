@@ -19,10 +19,12 @@ class DatabaseSeeder extends Seeder
             HobbySeeder::class,
             ProjectSeeder::class,
             RoadmapSeeder::class,
+            StarterPackSeeder::class,
         ]);
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // firstOrCreate: aman dijalankan berulang (email unik).
+        User::firstOrCreate(
+            ['email' => 'test@example.com'],
+            User::factory()->make(['name' => 'Test User'])->getAttributes()
+        );
     }
 }
