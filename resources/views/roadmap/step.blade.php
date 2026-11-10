@@ -14,14 +14,18 @@
     $allChecked = $items->every(fn ($i) => in_array($i->id, $checkedIds));
 
     // Every step shows a demonstration picture. Order of preference:
-    //   1. an image saved on one of the step's instructions
-    //   2. public/images/roadmap/{step-slug}.(jpg|jpeg|png|webp|svg)
-    //   3. a generic placeholder
+    //   1. the picture an admin uploaded for the step (Admin > Roadmap steps)
+    //   2. an image saved on one of the step's instructions
+    //   3. public/images/roadmap/{step-slug}.(jpg|jpeg|png|webp|svg)
+    //   4. a generic placeholder
     $heroSrc = null;
     $heroCaption = null;
     $withImage = $step->instructions->first(fn ($i) => filled($i->image));
 
-    if ($withImage) {
+    if ($step->image) {
+        $heroSrc = route('roadmap.steps.image', [$hobby->slug, $step->slug]);
+        $heroCaption = $step->image_caption;
+    } elseif ($withImage) {
         $heroSrc = asset($withImage->image);
         $heroCaption = $withImage->image_caption;
     } else {

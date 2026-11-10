@@ -133,4 +133,29 @@ class RoadmapStepController extends Controller
             ->route('roadmap.show', $hobby->slug)
             ->with('status', 'That checkpoint opens once the one before it is done. One small step at a time.');
     }
+
+    public function showImage(Hobby $hobby, string $stepSlug)
+    {
+        $step = RoadmapStep::where('slug', $stepSlug)
+            ->whereHas('project', fn ($query) =>
+                $query->where('hobby_id', $hobby->id)
+            )
+            ->firstOrFail();
+
+        abort_if(empty($step->image), 404);
+
+        $mime = (new \finfo(FILEINFO_MIME_TYPE))->buffer($step->image);
+
+        abort_unless(
+            in_array($mime, ['image/jpeg', 'image/png', 'image/webp']),
+            404
+        );
+
+        return response($step->image, 200, [
+            'Content-Type' => $mime,
+            'Content-Disposition' => 'inline',
+            'X-Content-Type-Options' => 'nosniff',
+            'Cache-Control' => 'private, no-store',
+        ]);
+    }
 }
