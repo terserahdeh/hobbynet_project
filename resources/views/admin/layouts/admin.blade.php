@@ -7,20 +7,20 @@
     <title>@yield('title', 'Admin') · HobbyNet Admin</title>
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
 </head>
-<body class="ad">
-<div class="ad-shell">
-    <aside class="ad-side">
-        <a href="{{ route('admin.dashboard') }}" class="ad-brand">
-            <span class="ad-brand__mark">@include('roadmap.partials.icon', ['name' => 'yarn'])</span>
+<body class="admin">
+<div class="admin-shell">
+    <aside class="admin-side">
+        <a href="{{ route('admin.dashboard') }}" class="admin-brand">
+            <span class="admin-brand__mark">@include('roadmap.partials.icon', ['name' => 'yarn'])</span>
             <span>HobbyNet <small>Admin</small></span>
         </a>
 
-        <nav class="ad-nav" aria-label="Admin">
+        <nav class="admin-nav" aria-label="Admin">
             <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'is-active' : '' }}">
                 @include('roadmap.partials.icon', ['name' => 'target']) Overview
             </a>
 
-            <span class="ad-nav__label">Content</span>
+            <span class="admin-nav__label">Content</span>
             <a href="{{ route('admin.hobbies.index') }}" class="{{ request()->routeIs('admin.hobbies.*') ? 'is-active' : '' }}">
                 @include('roadmap.partials.icon', ['name' => 'heart']) Hobbies
             </a>
@@ -32,24 +32,24 @@
             </a>
         </nav>
 
-        <div class="ad-side__foot">
+        <div class="admin-side__foot">
             Signed in as<br><strong>{{ auth()->user()->name }}</strong><br>
             <a href="{{ url('/home') }}">&larr; Back to the site</a>
         </div>
     </aside>
 
     <main class="admin-main">
-        <div class="ad-wrap @yield('wrap')">
+        <div class="admin-wrap @yield('wrap')">
             @if (session('status'))
-                <div class="ad-flash ad-flash--ok" role="status">{{ session('status') }}</div>
+                <div class="admin-flash admin-flash--ok" role="status">{{ session('status') }}</div>
             @endif
 
             @if (session('warning'))
-                <div class="ad-flash ad-flash--warn" role="alert">{{ session('warning') }}</div>
+                <div class="admin-flash admin-flash--warn" role="alert">{{ session('warning') }}</div>
             @endif
 
             @if ($errors->any())
-                <div class="ad-flash ad-flash--err" role="alert">
+                <div class="admin-flash admin-flash--err" role="alert">
                     <div>
                         <strong>Please fix these before saving:</strong>
                         <ul>
