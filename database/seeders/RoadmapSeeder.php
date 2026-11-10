@@ -19,52 +19,33 @@ class RoadmapSeeder extends Seeder
     {
         $badges = $this->seedBadges();
 
-        // hobi => [metode langkah, proyek cadangan jika belum ada starter pemula]
-        $roadmaps = [
-            'crochet' => ['crochetSteps', [
-                'slug' => 'beginner-crochet-coaster', 'title' => 'Beginner Crochet Coaster', 'category' => 'Crochet',
-                'summary' => 'Make a soft, simple coaster with one basic stitch.', 'minutes' => 150,
-            ]],
-            'painting' => ['paintingSteps', [
-                'slug' => 'beginner-watercolor-postcard', 'title' => 'Beginner Watercolor Postcard', 'category' => 'Painting',
-                'summary' => 'Paint a small postcard with a soft wash of color.', 'minutes' => 120,
-            ]],
-            'photography' => ['photographySteps', [
-                'slug' => 'beginner-photo-story', 'title' => 'A Photo Story of Everyday Life', 'category' => 'Photography',
-                'summary' => 'Tell a short story about your day with five phone photos.', 'minutes' => 120,
-            ]],
-        ];
-
-        foreach ($roadmaps as $hobbySlug => [$method, $fallback]) {
-            $hobby = Hobby::where('slug', $hobbySlug)->first();
-
-            if (! $hobby) {
-                $this->command?->warn("No \"{$hobbySlug}\" hobby found. Seed hobbies first.");
-                continue;
-            }
-
-            // Starter pemula milik hobi ini (bukan starter level lain).
-            $project = Project::where('hobby_id', $hobby->id)->where('is_starter', true)->where('level', 'beginner')->first()
-                ?? Project::where('hobby_id', $hobby->id)->where('is_starter', true)->first()
-                ?? Project::create([
-                    'hobby_id' => $hobby->id,
-                    'slug' => $fallback['slug'],
-                    'title' => $fallback['title'],
-                    'category' => $fallback['category'],
-                    'summary' => $fallback['summary'],
-                    'level' => 'beginner',
-                    'duration_minutes' => $fallback['minutes'],
-                    'color' => $hobby->color,
-                    'is_starter' => true,
-                ]);
-
-            $this->seedSteps($project, $this->{$method}($badges), $badges);
+        $hobby = Hobby::where('slug', 'crochet')->first();
+        if (! $hobby) {
+            $this->command?->warn('No "crochet" hobby found. Seed hobbies first.');
+            return;
         }
-    }
 
-    private function seedSteps(Project $project, array $steps, array $badges): void
-    {
-        foreach ($steps as $position => $data) {
+        $project = Project::where('hobby_id', $hobby->id)->where('is_starter', true)->first()
+            ?? Project::create([
+                'hobby_id' => $hobby->id,
+                'slug' => 'beginner-crochet-coaster',
+                'title' => 'Beginner Crochet Coaster',
+                'category' => 'Crochet',
+                'summary' => 'Make a soft, simple coaster with one basic stitch.',
+                'level' => 'beginner',
+                'duration_minutes' => 150,
+                'color' => $hobby->color,
+                'is_starter' => true,
+            ]);
+
+        // Once a roadmap has steps it is managed in /admin. Re-seeding would overwrite
+        // those edits and reset learners' ticked checklist items, so leave it alone.
+        if (RoadmapStep::where('project_id', $project->id)->exists()) {
+            $this->command?->info('The crochet roadmap already has steps, so it was left untouched. Edit it in /admin.');
+            return;
+        }
+
+        foreach ($this->crochetSteps($badges) as $position => $data) {
             $step = RoadmapStep::updateOrCreate(
                 ['project_id' => $project->id, 'slug' => $data['slug']],
                 [
@@ -103,6 +84,9 @@ class RoadmapSeeder extends Seeder
                 $step->checklistItems()->create(['position' => $i + 1, 'label' => $label]);
             }
         }
+
+        // Learners only see published roadmaps (admins can hide it again in /admin).
+        $project->forceFill(['roadmap_published' => true])->save();
     }
 
     /** @return array<string, Badge> */
