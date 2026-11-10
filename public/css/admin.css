@@ -51,7 +51,7 @@
 .ad-side__foot a { display: inline-block; margin-top: 6px; text-decoration: none; font-weight: 700; color: var(--ad-green-dark); }
 .ad-side__foot a:hover { text-decoration: underline; }
 
-.ad-main { min-width: 0; padding: 36px 44px 96px; }
+.admin-main { min-width: 0; padding: 36px 44px 96px; }
 .ad-wrap { max-width: 1040px; margin: 0 auto; }
 .ad-wrap--narrow { max-width: 760px; }
 
@@ -212,7 +212,7 @@ select.ad-input { appearance: none; background-image: url("data:image/svg+xml,%3
     .ad-brand { padding: 0 8px 0 0; }
     .ad-nav { display: flex; flex-wrap: wrap; margin: 0; }
     .ad-nav__label, .ad-side__foot { display: none; }
-    .ad-main { padding: 24px 16px 72px; }
+    .admin-main { padding: 24px 16px 72px; }
     .ad-grid2, .ad-grid3 { grid-template-columns: 1fr; }
     .ad-upload { grid-template-columns: 1fr; }
     .ad-row--material { grid-template-columns: 1fr 1fr; }

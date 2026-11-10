@@ -38,7 +38,7 @@
         </div>
     </aside>
 
-    <main class="ad-main">
+    <main class="admin-main">
         <div class="ad-wrap @yield('wrap')">
             @if (session('status'))
                 <div class="ad-flash ad-flash--ok" role="status">{{ session('status') }}</div>
