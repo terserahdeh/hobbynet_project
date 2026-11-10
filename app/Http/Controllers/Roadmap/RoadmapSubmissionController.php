@@ -146,9 +146,14 @@ class RoadmapSubmissionController extends Controller
             404
         );
 
-        // Pastikan pengguna hanya bisa melihat foto miliknya.
+        // Foto showcase publik dapat dilihat pengguna lain; foto privat tetap milik pemiliknya.
         abort_unless(
-            $photo->submission()->where('user_id', auth()->id())->exists(),
+            $photo->submission()->where(function ($query) {
+                $query->where('user_id', auth()->id())
+                    ->orWhere(function ($public) {
+                        $public->where('status', 'submitted')->where('is_showcase', true);
+                    });
+            })->exists(),
             403
         );
 

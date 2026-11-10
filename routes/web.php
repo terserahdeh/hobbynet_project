@@ -17,6 +17,7 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\WorkController;
 use App\Http\Controllers\StarterPackController;       // BARU
 use App\Models\Project;
+use App\Http\Controllers\CommunityController;
 use Illuminate\Support\Facades\Route;
 
 // Selalu mulai dari landing page, termasuk untuk pengguna yang sudah login
@@ -58,6 +59,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/onboarding/hobbies', [HobbyController::class, 'store'])->name('onboarding.hobbies.store');
     Route::post('/onboarding/hobbies/skip', [HobbyController::class, 'skip'])->name('onboarding.hobbies.skip');
 
+    Route::get('/community', [CommunityController::class,'index'])->name('community.index');
+    Route::get('/community/{post}', [CommunityController::class,'show'])->name('community.show');
+    Route::post('/community/{post}/like', [CommunityController::class,'like'])->name('community.like')->middleware('throttle:60,1');
+    Route::post('/community/{post}/save', [CommunityController::class,'save'])->name('community.save')->middleware('throttle:60,1');
+    Route::post('/community/{post}/comments', [CommunityController::class,'comment'])->name('community.comment')->middleware('throttle:30,1');
+    Route::get('/notifications/unread-count', [CommunityController::class,'unreadCount'])->name('community.notifications.count')->middleware('throttle:60,1');
+    Route::get('/notifications', [CommunityController::class,'notifications'])->name('community.notifications');
+    Route::post('/notifications/read', [CommunityController::class,'readNotifications'])->name('community.notifications.read');
     // Beranda
     Route::get('/home', HomeController::class)->name('home');
 
