@@ -33,6 +33,9 @@
                 {{-- Jelajahi tetap menyala saat membuka detail paket --}}
                 <a href="{{ route('explore') }}" @class(['is-active' => request()->routeIs('explore', 'search', 'packs.*')]) @if (request()->routeIs('explore', 'search', 'packs.*')) aria-current="page" @endif>Jelajahi</a>
                 <a href="{{ route('bookmarks') }}" @class(['is-active' => request()->routeIs('bookmarks')]) @if (request()->routeIs('bookmarks')) aria-current="page" @endif>Tersimpan</a>
+                @if (auth()->user()?->is_admin)
+                    <a href="{{ route('admin.dashboard') }}">Admin</a>
+                @endif
             </nav>
 
             <form class="nav__search" role="search" action="{{ route('search') }}" method="GET">

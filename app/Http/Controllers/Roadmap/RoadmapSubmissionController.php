@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Roadmap;
 
 use App\Http\Controllers\Controller;
+
 use App\Http\Requests\SubmissionRequest;
 use App\Models\Hobby;
 use App\Models\Project;
@@ -60,7 +61,7 @@ class RoadmapSubmissionController extends Controller
 
     /** "Save as Draft" or "Submit My Project", decided by the `action` field. */
     public function store(SubmissionRequest $request, Hobby $hobby): RedirectResponse
-    {        
+    {
         $user = $request->user();
         $project = $this->roadmap->starterProject($hobby);
         $summary = $this->roadmap->summary($user, $project);

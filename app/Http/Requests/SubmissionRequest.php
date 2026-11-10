@@ -14,10 +14,6 @@ class SubmissionRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        $tags = array_values(array_filter(
-            $this->input('tags', []),
-            fn ($tag) => filled($tag)
-        ));
         $this->merge([
             'is_showcase' => $this->boolean('is_showcase'),
         ]);
@@ -31,7 +27,7 @@ class SubmissionRequest extends FormRequest
             'reflection' => ['nullable', 'string', 'max:2000'],
             'category' => ['nullable', 'string', 'max:50'],
             'tags' => ['nullable', 'array', 'max:5'],
-            'tags.*' => ['nullable','string', 'max:30'],
+            'tags.*' => ['nullable', 'string', 'max:30'],
             'is_showcase' => ['boolean'],
             'photos' => ['nullable', 'array', 'max:' . SubmissionService::MAX_PHOTOS],
             'photos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
