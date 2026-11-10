@@ -34,7 +34,7 @@
 
         <div class="ad-side__foot">
             Signed in as<br><strong>{{ auth()->user()->name }}</strong><br>
-            <a href="{{ url('/') }}">&larr; Back to the site</a>
+            <a href="{{ url('/home') }}">&larr; Back to the site</a>
         </div>
     </aside>
 

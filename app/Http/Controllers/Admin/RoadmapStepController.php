@@ -101,4 +101,23 @@ class RoadmapStepController extends Controller
 
         return $redirect;
     }
+
+    public function showImage(RoadmapStep $step)
+    {
+        abort_if(empty($step->image), 404);
+
+        $mime = (new \finfo(FILEINFO_MIME_TYPE))->buffer($step->image);
+
+        abort_unless(
+            in_array($mime, ['image/jpeg', 'image/png', 'image/webp']),
+            404
+        );
+
+        return response($step->image, 200, [
+            'Content-Type' => $mime,
+            'Content-Disposition' => 'inline',
+            'X-Content-Type-Options' => 'nosniff',
+            'Cache-Control' => 'private, no-store',
+        ]);
+    }
 }

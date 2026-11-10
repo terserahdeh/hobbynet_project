@@ -22,8 +22,8 @@
     $heroCaption = null;
     $withImage = $step->instructions->first(fn ($i) => filled($i->image));
 
-    if ($step->image_url) {
-        $heroSrc = $step->image_url;
+    if ($step->image) {
+        $heroSrc = route('roadmap.steps.image', [$hobby->slug, $step->slug]);
         $heroCaption = $step->image_caption;
     } elseif ($withImage) {
         $heroSrc = asset($withImage->image);

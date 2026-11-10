@@ -293,12 +293,11 @@ class RoadmapBuilder
     private function applyImage(RoadmapStep $step, ?UploadedFile $image, bool $remove, Project $project): void
     {
         if (($remove || $image) && $step->image) {
-            Storage::disk('public')->delete($step->image);
             $step->image = null;
         }
 
         if ($image) {
-            $step->image = $image->store("roadmap/steps/{$project->id}", 'public');
+            $step->image = file_get_contents($image->getRealPath());
         }
     }
 }

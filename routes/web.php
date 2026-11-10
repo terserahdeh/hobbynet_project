@@ -118,6 +118,7 @@ Route::middleware('auth')->prefix('roadmap')->name('roadmap.')->group(function (
     Route::prefix('{hobby:slug}')->group(function () {
         // Checkpoints
         Route::get('steps/{stepSlug}', [RoadmapStepController::class, 'show'])->name('steps.show');
+        Route::get('steps/{stepSlug}/image', [RoadmapStepController::class, 'showImage'])->name('steps.image');
         Route::post('steps/{stepSlug}/complete', [RoadmapStepController::class, 'complete'])->name('steps.complete');
         Route::patch('steps/{stepSlug}/checklist/{item}', [RoadmapStepController::class, 'toggleChecklist'])->name('steps.checklist');
 
@@ -143,4 +144,6 @@ Route::middleware(['auth', EnsureUserIsAdmin::class])->prefix('admin')->name('ad
     Route::post('steps/{step}/move/{direction}', [AdminRoadmapStepController::class, 'move'])
         ->where('direction', 'up|down')
         ->name('steps.move');
+    Route::get('steps/{step}/image', [AdminRoadmapStepController::class, 'showImage'])
+    ->name('steps.image');
 });
