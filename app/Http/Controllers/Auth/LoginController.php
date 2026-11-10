@@ -33,9 +33,6 @@ class LoginController extends Controller
 
         $request->session()->regenerate();
 
-        // sebelum
-        return redirect()->intended(route('onboarding.hobbies'));
-        // sesudah
         return redirect()->intended(route('home'));
     }
 

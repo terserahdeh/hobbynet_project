@@ -1,429 +1,1727 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HobbyNet — Temukan Hobi Pertamamu</title>
-    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
-    <meta name="description" content="Temukan hobi yang kamu suka, siapkan perlengkapannya, dan mulai proyek pertamamu satu langkah kecil demi satu langkah.">
+    <meta name="theme-color" content="#FFF8F3">
+    <meta name="description" content="Temukan hobi baru, belajar bertahap, dan bagikan hasil karyamu bersama HobbyNet.">
+
+    <title>HobbyNet — Mulai Hobimu, Ciptakan Ceritamu</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
 
     @php
-        // Fallback jika route bernama belum ada (mis. belum pasang Breeze/Fortify)
-        $loginUrl    = route('login');
-        $registerUrl = route('onboarding.account');
+        $loggedIn = auth()->check();
+
+        $startUrl = $loggedIn
+            ? route('home')
+            : route('onboarding.account');
+
+        $startLabel = $loggedIn
+            ? 'Buka Beranda'
+            : 'Mulai Gratis';
+
+        $exploreUrl = $loggedIn
+            ? route('explore')
+            : route('onboarding.account');
+
+        $courses = [
+            [
+                'title' => 'Crochet untuk Pemula',
+                'category' => 'CRAFT & DIY',
+                'description' => 'Belajar merajut dari simpul pertama sampai membuat alas gelas.',
+                'image' => 'images/landing/path-1.png',
+                'label' => 'Favorit Pemula',
+                'icon' => '🧶',
+            ],
+            [
+                'title' => 'Belajar Melukis',
+                'category' => 'ART & PAINTING',
+                'description' => 'Eksplorasi warna, kuas, dan kreativitas melalui karya pertamamu.',
+                'image' => 'images/landing/path-2.png',
+                'label' => 'Kreatif',
+                'icon' => '🎨',
+            ],
+            [
+                'title' => 'Fotografi Dasar',
+                'category' => 'PHOTOGRAPHY',
+                'description' => 'Kenali komposisi, pencahayaan, dan cara menghasilkan foto menarik.',
+                'image' => 'images/landing/path-3.png',
+                'label' => 'Eksplorasi',
+                'icon' => '📷',
+            ],
+        ];
     @endphp
 
     <style>
         :root {
-            --ink: 87, 66, 58;               /* #57423A */
-            --text: rgb(var(--ink));
-            --text-80: rgba(var(--ink), .8);
-            --text-60: rgba(var(--ink), .6);
-            --text-45: rgba(var(--ink), .45);
-            --text-25: rgba(var(--ink), .25);
-            --bg: #FFF9F5;
-            --bg-alt: #F5F8F0;
-            --cream: #FDF3EE;
-            --pink: #F1C6CA;
-            --pink-soft: #FAECED;
-            --sage: #C8D8B9;
-            --sage-soft: #EEF3E9;
-            --lav: #C6D3F5;
-            --lav-soft: #EDF1FC;
-            --radius: 20px;
-            /* Palet: Warm White #FFF9F5 | Dusty Pink #F1C6CA | Soft Sage #C8D8B9 | Periwinkle #C6D3F5 */
+            --bg: #FFF8F3;
+            --ink: #483B42;
+            --muted: #81737B;
+
+            --pink: #F4AFC3;
+            --pink-light: #FFE5EC;
+            --pink-deep: #B95073;
+
+            --green: #B7D8AE;
+            --green-light: #E7F3E1;
+            --green-deep: #50774B;
+
+            --purple: #C7C5FA;
+            --purple-light: #EDEBFF;
+            --purple-deep: #7067AC;
+
+            --yellow: #FFE1A0;
+            --yellow-light: #FFF2D4;
+
+            --white: #FFFFFF;
+            --shadow: 0 12px 40px rgba(80, 55, 75, .08);
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            font-family: 'Outfit', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             background: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
+            color: var(--ink);
+            line-height: 1.65;
+            overflow-x: hidden;
         }
-        a { color: inherit; text-decoration: none; }
-        img { display: block; max-width: 100%; }
-        h1, h2, h3, .logo { font-family: 'Fraunces', serif; color: var(--text); }
 
-        .container { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
 
-        /* ===== Buttons ===== */
+        button {
+            font: inherit;
+        }
+
+        img {
+            display: block;
+            max-width: 100%;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Fraunces', Georgia, serif;
+            line-height: 1.2;
+        }
+
+        .container {
+            width: min(1180px, calc(100% - 48px));
+            margin: auto;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: .68rem;
+            font-weight: 800;
+            letter-spacing: .11em;
+            text-transform: uppercase;
+            color: var(--pink-deep);
+        }
+
+        .section-header {
+            max-width: 650px;
+            margin: 0 auto 40px;
+            text-align: center;
+        }
+
+        .section-header h2 {
+            font-size: clamp(1.8rem, 3.1vw, 2.6rem);
+            margin: 12px 0 13px;
+        }
+
+        .section-header p {
+            color: var(--muted);
+            font-size: .91rem;
+            line-height: 1.75;
+        }
+
+        .highlight-pink {
+            color: var(--pink-deep);
+        }
+
+        .highlight-green {
+            color: var(--green-deep);
+        }
+
+        /* =========================
+           NAVBAR
+           ========================= */
+
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 248, 243, .93);
+            backdrop-filter: blur(18px);
+            border-bottom: 1px solid rgba(90, 60, 80, .06);
+        }
+
+        .nav-content {
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Fraunces', Georgia, serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -.035em;
+            white-space: nowrap;
+        }
+
+        .logo-mark {
+            display: grid;
+            place-items: center;
+            width: 36px;
+            height: 36px;
+            flex: none;
+            background: var(--green);
+            border-radius: 12px;
+            color: #57423A;
+        }
+
+        .logo-mark svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 26px;
+            font-size: .83rem;
+            font-weight: 600;
+        }
+
+        .nav-links > a:not(.btn) {
+            transition: color .2s;
+        }
+
+        .nav-links > a:not(.btn):hover {
+            color: var(--pink-deep);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* =========================
+           BUTTONS
+           ========================= */
+
         .btn {
-            display: inline-flex; align-items: center; justify-content: center;
-            padding: 12px 24px; border-radius: 999px;
-            font: 500 .875rem 'Outfit', sans-serif;
-            border: 1.5px solid transparent; cursor: pointer;
-            transition: transform .2s, box-shadow .2s, background .2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 23px;
+            border-radius: 100px;
+            border: 2px solid transparent;
+            font-size: .84rem;
+            font-weight: 800;
+            text-align: center;
+            transition: transform .25s, box-shadow .25s, background .25s;
         }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(var(--ink), .18); }
-        .btn:active { transform: translateY(0); box-shadow: inset 0 3px 8px rgba(var(--ink), .25); }
-        .btn-pink    { background: var(--pink); color: var(--text); }
-        .btn-outline { border-color: var(--text); color: var(--text); background: transparent; }
-        .btn-dark    { background: var(--text); color: #fff; }
-        .btn-sm      { padding: 9px 18px; font-size: .78rem; }
 
-        /* ===== Navbar ===== */
-        :root { --nav-h: 76px; }
-        .navbar { height: var(--nav-h); position: sticky; top: 0; z-index: 50; background: rgba(255,249,245,.9); backdrop-filter: blur(8px); }
-        .navbar .container { height: 100%; display: flex; align-items: center; justify-content: space-between; }
-        .logo { display: flex; align-items: center; gap: 10px; font-size: 1.05rem; font-weight: 700; }
-        .logo-mark { width: 22px; height: 22px; border-radius: 7px; background: var(--pink); display: grid; place-items: center; }
-        .logo-mark::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #fff; }
-        .nav-links { display: flex; align-items: center; gap: 10px; font-size: .78rem; }
-        .nav-links a:not(.btn) {
-            color: var(--text-80);
-            padding: 9px 16px; border-radius: 999px;
-            transition: color .2s, background .2s, box-shadow .2s, transform .2s;
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(80, 50, 70, .12);
         }
-        /* Hover: muncul bayangan lembut seperti tombol */
-        .nav-links a:not(.btn):hover {
-            color: var(--text); background: #fff;
-            box-shadow: 0 6px 16px rgba(var(--ink), .14);
-            transform: translateY(-2px);
-        }
-        /* Saat ditekan: bayangan masuk ke dalam */
-        .nav-links a:not(.btn):active {
-            transform: translateY(0);
-            background: var(--pink-soft);
-            box-shadow: inset 0 2px 6px rgba(var(--ink), .18);
-        }
-        .nav-links a:focus-visible, .btn:focus-visible { outline: 2px solid var(--pink); outline-offset: 3px; }
 
-        /* ===== Hero ===== */
+        .btn-primary {
+            background: var(--pink);
+            color: var(--ink);
+        }
+
+        .btn-primary:hover {
+            background: #F29DB8;
+        }
+
+        .btn-white {
+            background: white;
+            color: var(--ink);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border-color: #D9CBD0;
+            color: var(--ink);
+        }
+
+        .btn-dark {
+            background: var(--ink);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 10px 18px;
+            font-size: .78rem;
+        }
+
+        /* =========================
+           HERO SECTION
+           ========================= */
+
         .hero {
-            /* Hero memenuhi layar: tinggi layar dikurangi tinggi navbar */
-            min-height: calc(100vh - var(--nav-h));
-            min-height: calc(100svh - var(--nav-h));
-            display: flex; align-items: center;
-            padding: 24px 0 48px;
-        }
-        .hero .container { width: 100%; display: grid; grid-template-columns: 1.1fr 1fr; gap: 40px; align-items: center; }
-        .hero h1 { font-size: clamp(2.2rem, 4.6vw, 3.1rem); line-height: 1.15; font-weight: 700; margin-bottom: 20px; }
-        .hero p { color: var(--text-60); font-size: .9rem; max-width: 300px; margin-bottom: 28px; }
-        .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-
-        .hero-visual { position: relative; height: 280px; }
-        .photo {
-            position: absolute; border: 4px solid #fff; border-radius: 22px;
-            background: var(--pink-soft); overflow: hidden;
-            box-shadow: 0 14px 30px rgba(var(--ink), .15);
-        }
-        .photo img { width: 100%; height: 100%; object-fit: cover; }
-        .photo.p1 { width: 142px; height: 138px; left: 0;     top: 100px; }
-        .photo.p2 { width: 108px; height: 140px; left: 154px; top: 50px;  }
-        .photo.p3 { width: 124px; height: 154px; left: 270px; top: 0;     }
-
-        /* ===== Section heading ===== */
-        section { position: relative; }
-        .section-head { text-align: center; margin-bottom: 56px; }
-        .section-head h2 { font-size: 1.35rem; margin-bottom: 6px; }
-        .section-head p { color: var(--text-60); font-size: .75rem; }
-
-        /* ===== How it works ===== */
-        .how { padding: 88px 0 80px; background: var(--bg); }
-        .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; text-align: center; }
-        .step-icon { width: 96px; height: 96px; border-radius: 50%; margin: 0 auto 22px; display: grid; place-items: center; }
-        .step-icon img { width: 80px; height: 80px; object-fit: cover; border-radius: 6px; }
-        .step-icon svg { width: 40px; height: 40px; stroke: var(--text); fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; opacity: .75; }
-        .step:nth-child(1) .step-icon { background: var(--pink-soft); }
-        .step:nth-child(2) .step-icon { background: var(--sage-soft); }
-        .step:nth-child(3) .step-icon { background: var(--lav-soft); }
-        .step h3 { font-size: .95rem; margin-bottom: 8px; }
-        .step p { color: var(--text-60); font-size: .72rem; max-width: 250px; margin: 0 auto; }
-
-        /* ===== Popular paths ===== */
-        .paths { padding: 72px 0 80px; background: var(--cream); }
-        .paths-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 28px; }
-        .paths-head h2 { font-size: 1.35rem; }
-        .paths-head p  { color: var(--text-60); font-size: .75rem; }
-        .link-underline { font-size: .72rem; border-bottom: 1px solid var(--text-45); padding-bottom: 2px; color: var(--text-80); }
-        .paths-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-        .path-img { height: 200px; border-radius: 18px; overflow: hidden; background: var(--pink-soft); margin-bottom: 14px; }
-        .path-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s; }
-        .path:hover .path-img img { transform: scale(1.05); }
-        .path h3 { font-size: .95rem; margin-bottom: 4px; }
-        .path p { color: var(--text-60); font-size: .7rem; margin-bottom: 10px; }
-        .path .more { font-size: .68rem; font-weight: 500; }
-        .path:nth-child(1) .more { color: #D4909B; }
-        .path:nth-child(2) .more { color: #84A06F; }
-        .path:nth-child(3) .more { color: #8798D6; }
-
-        /* ===== Quick wins ===== */
-        .wins { padding: 72px 0 88px; background: var(--bg-alt); }
-        .wins .section-head { margin-bottom: 36px; }
-        .wins-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-        .win { background: #fff; border-radius: 18px; padding: 8px; box-shadow: 0 4px 14px rgba(var(--ink), .05); transition: transform .25s, box-shadow .25s; }
-        .win:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(var(--ink), .1); }
-        .win-img { height: 96px; border-radius: 12px; overflow: hidden; background: var(--sage-soft); }
-        .win-img img { width: 100%; height: 100%; object-fit: cover; }
-        .win-body { padding: 10px 6px 6px; }
-        .tag { font-size: .55rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 500; }
-        .win:nth-child(1) .tag { color: #D4909B; }
-        .win:nth-child(2) .tag { color: #D4909B; }
-        .win:nth-child(3) .tag { color: #8798D6; }
-        .win:nth-child(4) .tag { color: #D4909B; }
-        .win h4 { font: 500 .8rem 'Outfit', sans-serif; margin: 3px 0 4px; }
-        .meta { display: flex; gap: 12px; font-size: .6rem; color: var(--text-45); }
-
-        /* ===== CTA ===== */
-        .cta { padding: 64px 0 72px; background: var(--bg); }
-        .cta-box { background: var(--lav-soft); border-radius: 32px; padding: 64px 24px; text-align: center; position: relative; overflow: hidden; }
-        .cta-box h2 { font-size: 1.6rem; margin-bottom: 12px; }
-        .cta-box p { color: var(--text-60); font-size: .8rem; max-width: 320px; margin: 0 auto 26px; }
-        .deco { position: absolute; width: 56px; height: 56px; stroke: rgba(var(--ink), .15); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-        .deco.d1 { top: 24px; left: 20px; }
-        .deco.d2 { bottom: 20px; right: 20px; }
-
-        /* ===== Footer ===== */
-        footer { border-top: 1px solid rgba(var(--ink), .08); padding: 40px 0 28px; }
-        .footer-top { display: flex; justify-content: space-between; gap: 40px; flex-wrap: wrap; }
-        .footer-brand p { color: var(--text-60); font-size: .68rem; max-width: 300px; margin-top: 10px; }
-        .footer-cols { display: flex; gap: 56px; }
-        .footer-col h5 { font: 500 .7rem 'Outfit', sans-serif; margin-bottom: 10px; }
-        .footer-col a { display: block; font-size: .66rem; color: var(--text-45); margin-bottom: 6px; transition: color .2s; }
-        .footer-col a:hover { color: var(--text); }
-        .socials { display: flex; gap: 10px; }
-        .socials a { width: 16px; height: 16px; }
-        .socials svg { width: 100%; height: 100%; fill: none; stroke: var(--text); stroke-width: 1.8; }
-        .copyright { text-align: center; font-size: .6rem; color: var(--text-25); margin-top: 48px; }
-
-        /* ===== Responsive ===== */
-        @media (max-width: 860px) {
-            .hero .container { 
-                grid-template-columns: 1fr !important; 
-                text-align: center; 
-                gap: 24px; 
-            }
-            .hero p {
-                margin-left: auto;
-                margin-right: auto;
-            }
-            .hero-actions { 
-                justify-content: center; 
-            }
-
-            /* Kotak utama foto dikunci 280px agar selalu pas di tengah layar HP */
-            .hero-visual { 
-                position: relative !important;
-                width: 280px !important; 
-                height: 180px !important; 
-                margin: 0 auto !important; 
-            }
-
-            /* Posisi 3 foto di dalam kotak 280px */
-            .photo.p1 { 
-                width: 95px !important; 
-                height: 95px !important; 
-                left: 0px !important; 
-                top: 65px !important; 
-            }
-            .photo.p2 { 
-                width: 82px !important; 
-                height: 102px !important; 
-                left: 98px !important; 
-                top: 32px !important; 
-            }
-            .photo.p3 { 
-                width: 92px !important; 
-                height: 112px !important; 
-                left: 188px !important; 
-                top: 0px !important; 
-            }
-
-            .steps, .paths-grid { grid-template-columns: 1fr; }
-            .wins-grid { grid-template-columns: repeat(2, 1fr); }
-            .nav-links a:first-child { display: none; }
+            position: relative;
+            overflow: hidden;
+            padding: 76px 0 86px;
+            background:
+                radial-gradient(circle at 93% 15%, #FCE0E9 0, transparent 33%),
+                radial-gradient(circle at 4% 85%, #E7EDFF 0, transparent 35%),
+                var(--bg);
         }
 
-        @media (max-width: 480px) {
-            .wins-grid { grid-template-columns: 1fr; }
-            .footer-cols { gap: 28px; flex-wrap: wrap; }
+        .hero::before {
+            content: '✳';
+            position: absolute;
+            left: 3%;
+            top: 12%;
+            font-size: 80px;
+            color: var(--pink);
+            opacity: .38;
+            pointer-events: none;
+        }
+
+        .hero::after {
+            content: '✦';
+            position: absolute;
+            right: 5%;
+            bottom: 9%;
+            font-size: 100px;
+            color: #A4C79B;
+            opacity: .45;
+            pointer-events: none;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.08fr 1fr;
+            gap: 50px;
+            align-items: center;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 14px;
+            background: white;
+            border: 1px solid #F6DAE4;
+            border-radius: 100px;
+            font-size: .69rem;
+            font-weight: 800;
+            color: var(--pink-deep);
+            margin-bottom: 22px;
+            box-shadow: 0 6px 18px rgba(150, 90, 110, .06);
+        }
+
+        .hero h1 {
+            font-size: clamp(2.65rem, 4.35vw, 3.85rem);
+            letter-spacing: -.045em;
+            line-height: 1.19;
+            margin-bottom: 23px;
+        }
+
+        .hero h1 .accent {
+            position: relative;
+            color: var(--pink-deep);
+        }
+
+     
+
+        .hero-desc {
+            max-width: 475px;
+            font-size: .95rem;
+            line-height: 1.8;
+            color: var(--muted);
+            margin-bottom: 27px;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .hero-note {
+            display: flex;
+            gap: 9px;
+            align-items: center;
+            margin-top: 21px;
+            color: var(--muted);
+            font-size: .76rem;
+        }
+
+        /* =========================
+           HERO VISUAL
+           ========================= */
+
+        .hero-visual {
+            position: relative;
+            min-height: 440px;
+        }
+
+        .visual-blob {
+            position: absolute;
+            inset: 45px 25px 25px 35px;
+            background: #F7CCD9;
+            border-radius: 42% 58% 62% 38% / 40% 41% 59% 60%;
+            transform: rotate(-8deg);
+        }
+
+        .hero-photo {
+            position: absolute;
+            overflow: hidden;
+            border: 7px solid white;
+            box-shadow: 0 18px 35px rgba(78, 50, 66, .17);
+        }
+
+        .hero-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-one {
+            width: 58%;
+            height: 235px;
+            left: 4%;
+            top: 14px;
+            border-radius: 30px;
+            transform: rotate(-9deg);
+        }
+
+        .photo-two {
+            width: 58%;
+            height: 250px;
+            right: 0;
+            top: 120px;
+            border-radius: 30px;
+            transform: rotate(8deg);
+        }
+
+        .photo-three {
+            width: 42%;
+            height: 160px;
+            left: 5%;
+            bottom: 0;
+            border-radius: 25px;
+            transform: rotate(-4deg);
+        }
+
+        .floating-note {
+            position: absolute;
+            z-index: 4;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+            padding: 11px 15px;
+            border-radius: 18px;
+            box-shadow: 0 15px 30px rgba(80, 55, 75, .12);
+            font-size: .75rem;
+            font-weight: 800;
+        }
+
+        .floating-note .emoji {
+            font-size: 1.35rem;
+        }
+
+        .note-top {
+            right: -12px;
+            top: 25px;
+            transform: rotate(7deg);
+        }
+
+        .note-bottom {
+            left: 16%;
+            bottom: 18px;
+            transform: rotate(-5deg);
+        }
+
+        /* =========================
+           FEATURE STRIP
+           ========================= */
+
+        .feature-strip {
+            background: white;
+            padding: 30px 0;
+            border-block: 1px solid #F3EBEA;
+        }
+
+        .feature-strip-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .strip-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-size: .78rem;
+            font-weight: 800;
+        }
+
+        .strip-icon {
+            display: grid;
+            place-items: center;
+            width: 39px;
+            height: 39px;
+            border-radius: 14px;
+            font-size: 1.2rem;
+        }
+
+        .strip-item:nth-child(1) .strip-icon {
+            background: var(--pink-light);
+        }
+
+        .strip-item:nth-child(2) .strip-icon {
+            background: var(--green-light);
+        }
+
+        .strip-item:nth-child(3) .strip-icon {
+            background: var(--purple-light);
+        }
+
+        .strip-item:nth-child(4) .strip-icon {
+            background: var(--yellow-light);
+        }
+
+        /* =========================
+           HOW IT WORKS
+           ========================= */
+
+        .how {
+            padding: 85px 0;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+
+        .step-card {
+            position: relative;
+            padding: 30px 27px;
+            border-radius: 30px;
+            transition: transform .25s;
+        }
+
+        .step-card:hover {
+            transform: translateY(-6px);
+        }
+
+        .step-card:nth-child(1) {
+            background: #FCE3EB;
+        }
+
+        .step-card:nth-child(2) {
+            background: #E7F2DD;
+        }
+
+        .step-card:nth-child(3) {
+            background: #E9E7FC;
+        }
+
+        .step-number {
+            display: inline-block;
+            font-size: .68rem;
+            font-weight: 800;
+            letter-spacing: .08em;
+            margin-bottom: 20px;
+            opacity: .65;
+        }
+
+        .step-emoji {
+            font-size: 2.9rem;
+            margin-bottom: 18px;
+            line-height: 1;
+        }
+
+        .step-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .step-card p {
+            font-size: .84rem;
+            color: #73666D;
+        }
+
+        /* =========================
+           COURSE CARDS
+           ========================= */
+
+        .courses {
+            padding: 85px 0;
+            background: #F2F1FF;
+        }
+
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+
+        .course-card {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-radius: 26px;
+            background: white;
+            box-shadow: var(--shadow);
+            transition: transform .25s, box-shadow .25s;
+        }
+
+        .course-card:hover {
+            transform: translateY(-7px);
+            box-shadow: 0 20px 45px rgba(70, 52, 90, .14);
+        }
+
+        .course-image {
+            position: relative;
+            height: 210px;
+            overflow: hidden;
+        }
+
+        .course-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform .45s;
+        }
+
+        .course-card:hover img {
+            transform: scale(1.06);
+        }
+
+        .course-label {
+            position: absolute;
+            top: 17px;
+            left: 17px;
+            background: white;
+            border-radius: 100px;
+            padding: 7px 13px;
+            font-size: .7rem;
+            font-weight: 800;
+        }
+
+        .course-body {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            padding: 23px;
+        }
+
+        .course-category {
+            font-size: .64rem;
+            font-weight: 800;
+            letter-spacing: .09em;
+            color: var(--pink-deep);
+            margin-bottom: 9px;
+        }
+
+        .course-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 10px;
+        }
+
+        .course-card p {
+            color: var(--muted);
+            font-size: .82rem;
+            flex: 1;
+        }
+
+        .course-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #F0EBEF;
+            margin-top: 20px;
+            padding-top: 18px;
+            font-size: .81rem;
+            font-weight: 800;
+        }
+
+        .course-footer span:last-child {
+            color: var(--pink-deep);
+        }
+
+        /* =========================
+           CREATIVE JOURNEY
+           ========================= */
+
+        .journey {
+            padding: 90px 0;
+        }
+
+        .journey-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 55px;
+            align-items: center;
+        }
+
+        .journey-art {
+            position: relative;
+            background: #E4EDD9;
+            border-radius: 45px;
+            padding: 36px;
+            min-height: 370px;
+            display: grid;
+            place-items: center;
+        }
+
+        .journey-art img {
+            width: 100%;
+            max-height: 350px;
+            object-fit: contain;
+            border-radius: 24px;
+        }
+
+        .journey-content h2 {
+            font-size: clamp(1.9rem, 3vw, 2.6rem);
+            margin: 15px 0 20px;
+        }
+
+        .journey-content > p {
+            color: var(--muted);
+            font-size: .92rem;
+            margin-bottom: 28px;
+        }
+
+        .journey-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .journey-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .journey-icon {
+            flex: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 15px;
+            display: grid;
+            place-items: center;
+            background: var(--pink-light);
+            font-size: 1.3rem;
+        }
+
+        .journey-item:nth-child(2) .journey-icon {
+            background: var(--purple-light);
+        }
+
+        .journey-item:nth-child(3) .journey-icon {
+            background: var(--green-light);
+        }
+
+        .journey-item strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: .91rem;
+        }
+
+        .journey-item p {
+            color: var(--muted);
+            font-size: .82rem;
+        }
+
+        /* =========================
+           AI COACH
+           ========================= */
+
+        .ai-section {
+            padding: 85px 0;
+            background: #FFF0F3;
+        }
+
+        .ai-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 45px;
+            align-items: center;
+            background: white;
+            border-radius: 36px;
+            padding: 44px;
+            box-shadow: var(--shadow);
+        }
+
+        .ai-content h2 {
+            font-size: clamp(1.9rem, 3vw, 2.6rem);
+            margin: 15px 0 20px;
+        }
+
+        .ai-content p {
+            color: var(--muted);
+            font-size: .92rem;
+            margin-bottom: 26px;
+        }
+
+        .ai-demo {
+            background: #F7F5FF;
+            padding: 26px;
+            border-radius: 28px;
+        }
+
+        .ai-demo-title {
+            font-size: .78rem;
+            font-weight: 800;
+            margin-bottom: 23px;
+        }
+
+        .chat-bubble {
+            max-width: 86%;
+            padding: 15px 18px;
+            border-radius: 18px;
+            font-size: .81rem;
+            margin-bottom: 16px;
+            line-height: 1.65;
+        }
+
+        .chat-user {
+            background: #E5DFFF;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+
+        .chat-ai {
+            background: white;
+            border: 1px solid #E6E1F6;
+            border-bottom-left-radius: 5px;
+        }
+
+        /* =========================
+           HOBBYNET PLUS
+           ========================= */
+
+        .plus-section {
+            padding: 85px 0;
+        }
+
+        .plus-box {
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 60px;
+            align-items: center;
+            background: linear-gradient(120deg, #E8D9FF, #FFE0EA, #FFF0D1);
+            border-radius: 40px;
+            padding: 52px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .plus-box h2 {
+            font-size: clamp(1.9rem, 3vw, 2.6rem);
+            margin: 15px 0 20px;
+        }
+
+        .plus-box p {
+            color: #71616B;
+            font-size: .92rem;
+            margin-bottom: 27px;
+        }
+
+        .plus-art {
+            display: grid;
+            place-items: center;
+            min-height: 215px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.35);
+            font-size: 7rem;
+            transform: rotate(10deg);
+        }
+
+        /* =========================
+           FINAL CTA
+           ========================= */
+
+        .final-cta {
+            padding: 75px 0;
+        }
+
+        .cta-card {
+            position: relative;
+            overflow: hidden;
+            background: #B9D9AE;
+            padding: 63px 30px;
+            border-radius: 40px;
+            text-align: center;
+        }
+
+        .cta-card::before,
+        .cta-card::after {
+            position: absolute;
+            font-size: 150px;
+            line-height: 1;
+            opacity: .18;
+            pointer-events: none;
+        }
+
+        .cta-card::before {
+            content: '✿';
+            left: 3%;
+            top: 15%;
+        }
+
+        .cta-card::after {
+            content: '✦';
+            right: 5%;
+            bottom: 5%;
+        }
+
+        .cta-card h2 {
+            font-size: clamp(1.9rem, 3.2vw, 2.8rem);
+            margin-bottom: 18px;
+        }
+
+        .cta-card p {
+            max-width: 470px;
+            margin: 0 auto 28px;
+            color: #58704F;
+            font-size: .9rem;
+        }
+
+        /* =========================
+           FOOTER
+           ========================= */
+
+        .footer {
+            background: #483B42;
+            color: white;
+            padding: 55px 0 22px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr;
+            gap: 60px;
+            margin-bottom: 55px;
+        }
+
+        .footer .logo {
+            color: white;
+        }
+
+        .footer-brand p {
+            color: #CFBDC7;
+            font-size: .81rem;
+            max-width: 330px;
+            margin-top: 20px;
+        }
+
+        .footer h4 {
+            font-family: 'DM Sans', sans-serif;
+            font-size: .85rem;
+            margin-bottom: 20px;
+        }
+
+        .footer-links {
+            display: grid;
+            gap: 13px;
+        }
+
+        .footer-links a {
+            color: #CFBDC7;
+            font-size: .81rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--pink);
+        }
+
+        .footer-bottom {
+            padding-top: 25px;
+            border-top: 1px solid rgba(255,255,255,.13);
+            color: #B9A9B3;
+            font-size: .78rem;
+            text-align: center;
+        }
+
+        /* =========================
+           RESPONSIVE
+           ========================= */
+
+        @media (max-width: 1000px) {
+            .hero-grid {
+                gap: 30px;
+            }
+
+            .hero h1 {
+                font-size: clamp(2.4rem, 4.5vw, 3.2rem);
+            }
+
+            .journey-grid,
+            .ai-box,
+            .plus-box {
+                gap: 35px;
+            }
+        }
+
+        @media (max-width: 820px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero-grid,
+            .journey-grid,
+            .ai-box,
+            .plus-box {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-visual {
+                min-height: 430px;
+                max-width: 520px;
+                width: 100%;
+                margin: auto;
+            }
+
+            .steps-grid,
+            .course-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .feature-strip-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                width: min(100% - 32px, 1180px);
+            }
+
+            .nav-content {
+                min-height: 68px;
+            }
+
+            .nav-actions .btn-outline {
+                display: none;
+            }
+
+            .hero {
+                padding: 55px 0 70px;
+            }
+
+            .hero h1 {
+                font-size: clamp(2.25rem, 9vw, 2.8rem);
+                line-height: 1.17;
+            }
+
+            .hero-desc {
+                font-size: .88rem;
+            }
+
+            .hero-visual {
+                min-height: 340px;
+            }
+
+            .photo-one {
+                height: 185px;
+            }
+
+            .photo-two {
+                top: 95px;
+                height: 205px;
+            }
+
+            .photo-three {
+                height: 125px;
+            }
+
+            .floating-note {
+                padding: 9px 12px;
+                font-size: .67rem;
+            }
+
+            .steps-grid,
+            .course-grid,
+            .feature-strip-grid,
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .strip-item {
+                justify-content: flex-start;
+            }
+
+            .how,
+            .courses,
+            .journey,
+            .ai-section,
+            .plus-section {
+                padding: 65px 0;
+            }
+
+            .section-header h2 {
+                font-size: 1.95rem;
+            }
+
+            .ai-box,
+            .plus-box {
+                padding: 28px 22px;
+                border-radius: 26px;
+            }
+
+            .plus-art {
+                min-height: 145px;
+                font-size: 5rem;
+            }
+
+            .journey-art {
+                min-height: 280px;
+            }
+
+            .cta-card {
+                padding: 48px 22px;
+                border-radius: 28px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                transition: none !important;
+            }
         }
     </style>
 </head>
+
 <body>
 
-    {{-- ================= NAVBAR ================= --}}
+    <!-- =========================
+         NAVBAR
+         ========================= -->
+
     <header class="navbar">
-        <div class="container">
-            <a href="{{ url('/') }}" class="logo"><span class="logo-mark"></span> HobbyNet </a>
-            <nav class="nav-links">
-                <a href="#paths">Explore Hobbies</a>
-                <a href="{{ $loginUrl }}">Log In</a>
-                <a href="{{ $registerUrl }}" class="btn btn-dark btn-sm">Sign Up</a>
+        <div class="container nav-content">
+
+            <a href="{{ route('landing') }}" class="logo">
+                <span class="logo-mark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M12 3C7.03 3 3 7.03 3 12s4.03 9 9 9c1.5 0 2.4-.9 2.4-2.1 0-.8-.3-1.2-.3-1.8 0-.8.6-1.3 1.4-1.3h1.2c2.6 0 4.3-1.8 4.3-4.3C21 6.78 17 3 12 3Z"/>
+                        <circle cx="7.7" cy="11.3" r="1"/>
+                        <circle cx="10.3" cy="7.5" r="1"/>
+                        <circle cx="15" cy="7.7" r="1"/>
+                        <circle cx="17.2" cy="11.5" r="1"/>
+                    </svg>
+                </span>
+                HobbyNet
+            </a>
+
+            <nav class="nav-links" aria-label="Navigasi utama">
+                <a href="#how">Cara Kerja</a>
+                <a href="#courses">Jelajah Hobi</a>
+                <a href="#journey">Roadmap</a>
+                <a href="{{ route('plus') }}">HobbyNet Plus</a>
             </nav>
+
+            <div class="nav-actions">
+                @guest
+                    <a href="{{ route('login') }}" class="btn btn-outline btn-sm">
+                        Masuk
+                    </a>
+                @endguest
+
+                <a href="{{ $startUrl }}" class="btn btn-primary btn-sm">
+                    {{ $startLabel }} ↗
+                </a>
+            </div>
+
         </div>
     </header>
 
-    {{-- ================= HERO ================= --}}
-    <section class="hero">
-        <div class="container">
-            <div>
-                <h1>Your next favorite hobby starts here.</h1>
-                <p>Find a hobby you love, gather what you need, and create your very first project — one small step at a time.</p>
-                <div class="hero-actions">
-                    <a href="{{ $registerUrl }}" class="btn btn-pink">Find My Hobby</a>
-                    <a href="#quick-wins" class="btn btn-outline">Explore Projects</a>
-                </div>
-            </div>
+    <main>
 
-            <div class="hero-visual">
-                <div class="photo p1"><img src="{{ asset('images/landing/hero-1.png') }}" alt="Alat lukis" onerror="this.style.display='none'"></div>
-                <div class="photo p2"><img src="{{ asset('images/landing/hero-2.png') }}" alt="Kamera dan kopi" onerror="this.style.display='none'"></div>
-                <div class="photo p3"><img src="{{ asset('images/landing/hero-3.png') }}" alt="Merajut" onerror="this.style.display='none'"></div>
-            </div>
-        </div>
-    </section>
+        <!-- =========================
+             HERO
+             ========================= -->
 
-    {{-- ================= HOW IT WORKS ================= --}}
-    <section class="how" id="how-it-works">
-        <div class="container">
-            <div class="section-head">
-                <h2>How It Works</h2>
-                <p>A gentle path from curiosity to creation.</p>
-            </div>
-            <div class="steps">
-                <div class="step">
-                    <div class="step-icon">
-                        <img src="{{ asset('images/landing/how-1.png') }}" alt="" onerror="this.style.display='none'">
+        <section class="hero">
+            <div class="container hero-grid">
+
+                <div class="hero-content">
+
+                    <span class="hero-badge">
+                        Your creative journey starts here
+                    </span>
+
+                    <h1>
+                        Hobi Baru,<br>
+                        Cerita Baru,<br>
+                        <span class="accent">Versi Baru Kamu.</span>
+                    </h1>
+
+                    <p class="hero-desc">
+                        Nggak perlu jago untuk mulai berkarya.
+                        Temukan hobi yang kamu suka, ikuti panduan
+                        langkah demi langkah, dan rayakan setiap
+                        hasil karya pertamamu bersama HobbyNet.
+                    </p>
+
+                    <div class="hero-actions">
+                        <a href="{{ $startUrl }}" class="btn btn-primary">
+                            {{ $startLabel }} ↗
+                        </a>
+
+                        <a href="#how" class="btn btn-outline">
+                            Lihat Cara Kerja ↓
+                        </a>
                     </div>
-                    <h3>1. Choose Your Hobby</h3>
-                    <p>Take our simple quiz or browse categories to find what speaks to your heart.</p>
-                </div>
-                <div class="step">
-                    <div class="step-icon">
-                        <img src="{{ asset('images/landing/how-2.png') }}" alt="" onerror="this.style.display='none'">
+
+                    <div class="hero-note">
+                        <span>
+                            Mulai dari langkah kecil,
+                            berkembang dengan caramu sendiri.
+                        </span>
                     </div>
-                    <h3>2. Get Ready</h3>
-                    <p>We'll give you a curated list of exactly what you need—nothing more, nothing less.</p>
+
                 </div>
-                <div class="step">
-                    <div class="step-icon">
-                        <img src="{{ asset('images/landing/how-3.png') }}" alt="" onerror="this.style.display='none'">
+
+                <div class="hero-visual"
+                     aria-label="Berbagai aktivitas hobi kreatif">
+
+                    <div class="visual-blob"></div>
+
+                    <div class="hero-photo photo-one">
+                        <img
+                            src="{{ asset('images/landing/hero-1.png') }}"
+                            alt="Aktivitas melukis dan berkarya"
+                        >
                     </div>
-                    <h3>3. Make Your First Project</h3>
-                    <p>Follow our beginner-friendly guides to complete your very first masterpiece today.</p>
+
+                    <div class="hero-photo photo-two">
+                        <img
+                            src="{{ asset('images/landing/hero-2.png') }}"
+                            alt="Aktivitas merajut"
+                        >
+                    </div>
+
+                    <div class="hero-photo photo-three">
+                        <img
+                            src="{{ asset('images/landing/hero-3.png') }}"
+                            alt="Kamera dan perlengkapan fotografi"
+                        >
+                    </div>
+
                 </div>
-            </div>
-        </div>
-    </section>
 
-    {{-- ================= POPULAR PATHS ================= --}}
-    <section class="paths" id="paths">
-        <div class="container">
-            <div class="paths-head">
-                <div>
-                    <h2>Explore Popular Paths</h2>
-                    <p>Discover the joy in these favorite activities.</p>
+            </div>
+        </section>
+
+        <!-- =========================
+             FEATURE STRIP
+             ========================= -->
+
+        
+<section class="feature-strip">
+    <div class="container feature-strip-grid">
+
+        <div class="strip-item">
+            <span class="strip-icon">🌈</span>
+            <span>Eksplorasi Berbagai Hobi</span>
+        </div>
+
+        <div class="strip-item">
+            <span class="strip-icon">🗺️</span>
+            <span>Panduan Bertahap</span>
+        </div>
+
+        <div class="strip-item">
+            <span class="strip-icon">📸</span>
+            <span>Portofolio Karya</span>
+        </div>
+
+        <div class="strip-item">
+            <span class="strip-icon">🏆</span>
+            <span>Lencana Pencapaian</span>
+        </div>
+
+    </div>
+</section>
+
+
+        <!-- =========================
+             HOW IT WORKS
+             ========================= -->
+
+        <section class="how" id="how">
+            <div class="container">
+
+                <div class="section-header">
+                    <span class="eyebrow">✦ HOW IT WORKS</span>
+
+                    <h2>
+                        Mulai Berkarya Itu
+                        <span class="highlight-pink">Nggak Ribet!</span>
+                    </h2>
+
+                    <p>
+                        Tiga langkah sederhana untuk memulai
+                        perjalanan hobimu. Nggak harus sempurna,
+                        yang penting berani mencoba.
+                    </p>
                 </div>
-                <a href="{{ $registerUrl }}" class="link-underline">View All Hobbies</a>
+
+                <div class="steps-grid">
+
+                    <article class="step-card">
+                        <span class="step-number">STEP 01</span>
+                        <div class="step-emoji">🔎</div>
+
+                        <h3>Temukan Hobimu</h3>
+
+                        <p>
+                            Jelajahi berbagai aktivitas kreatif
+                            dan pilih hobi yang paling bikin
+                            kamu penasaran.
+                        </p>
+                    </article>
+
+                    <article class="step-card">
+                        <span class="step-number">STEP 02</span>
+                        <div class="step-emoji">🧩</div>
+
+                        <h3>Belajar Bertahap</h3>
+
+                        <p>
+                            Ikuti roadmap, siapkan bahan,
+                            dan kerjakan tantangan kecil
+                            satu per satu.
+                        </p>
+                    </article>
+
+                    <article class="step-card">
+                        <span class="step-number">STEP 03</span>
+                        <div class="step-emoji">🏆</div>
+
+                        <h3>Rayakan Karyamu</h3>
+
+                        <p>
+                            Unggah hasil karya, simpan di profil,
+                            dan kumpulkan lencana pencapaianmu.
+                        </p>
+                    </article>
+
+                </div>
+
             </div>
+        </section>
 
-            <div class="paths-grid">
-                <a href="{{ $registerUrl }}" class="path">
-                    <div class="path-img"><img src="{{ asset('images/landing/path-1.png') }}" alt="Crochet" onerror="this.style.display='none'"></div>
-                    <h3>Crochet</h3>
-                    <p>The meditative art of yarn and hook. Perfect for cozy evenings.</p>
-                    <span class="more">Learn More →</span>
-                </a>
-                <a href="{{ $registerUrl }}" class="path">
-                    <div class="path-img"><img src="{{ asset('images/landing/path-2.png') }}" alt="Painting" onerror="this.style.display='none'"></div>
-                    <h3>Painting</h3>
-                    <p>Express yourself through colors and textures. No experience needed.</p>
-                    <span class="more">Learn More →</span>
-                </a>
-                <a href="{{ $registerUrl }}" class="path">
-                    <div class="path-img"><img src="{{ asset('images/landing/path-3.png') }}" alt="Photography" onerror="this.style.display='none'"></div>
-                    <h3>Photography</h3>
-                    <p>Capture the world through your unique lens. Start with your phone.</p>
-                    <span class="more">Learn More →</span>
-                </a>
-            </div>
-        </div>
-    </section>
+        <!-- =========================
+             EXPLORE COURSES
+             ========================= -->
 
-    {{-- ================= QUICK WINS ================= --}}
-    <section class="wins" id="quick-wins">
-        <div class="container">
-            <div class="section-head">
-                <h2>Quick Wins</h2>
-                <p>Start and finish these beginner projects in under 2 hours.</p>
-            </div>
+        <section class="courses" id="courses">
+            <div class="container">
 
-            <div class="wins-grid">
-                @php
-                    $wins = [
-                        ['img' => 'win-1.png',  'tag' => 'Crochet • Beginner',  'title' => 'Cotton Crochet Coaster', 'time' => '45m', 'level' => 'Easy'],
-                        ['img' => 'win-2.png','tag' => 'Painting • Beginner', 'title' => 'Sunset Watercolor',      'time' => '60m', 'level' => 'Easy'],
-                        ['img' => 'win-3.png','tag' => 'Photo • Intro',      'title' => 'Composition 101',        'time' => '30m', 'level' => 'Fundamental'],
-                        ['img' => 'win-4.png',   'tag' => 'Craft • Beginner',    'title' => 'Soy Wax Candle',         'time' => '90m', 'level' => 'Moderate'],
-                    ];
-                @endphp
+                <div class="section-header">
+                    <span class="eyebrow">✦ EXPLORE YOUR PASSION</span>
 
-                @foreach ($wins as $w)
-                    <a href="{{ $registerUrl }}" class="win">
-                        <div class="win-img"><img src="{{ asset('images/landing/'.$w['img']) }}" alt="{{ $w['title'] }}" onerror="this.style.display='none'"></div>
-                        <div class="win-body">
-                            <span class="tag">{{ $w['tag'] }}</span>
-                            <h4>{{ $w['title'] }}</h4>
-                            <div class="meta"><span>⏱ {{ $w['time'] }}</span><span>▮ {{ $w['level'] }}</span></div>
-                        </div>
+                    <h2>
+                        Banyak Hobi,
+                        <span class="highlight-pink">Banyak Cerita.</span>
+                    </h2>
+
+                    <p>
+                        Dari benang rajut sampai kamera,
+                        setiap hobi punya keseruannya sendiri.
+                    </p>
+                </div>
+
+                <div class="course-grid">
+
+                    @foreach ($courses as $course)
+
+                        <a href="{{ $exploreUrl }}" class="course-card">
+
+                            <div class="course-image">
+                                <img
+                                    src="{{ asset($course['image']) }}"
+                                    alt="{{ $course['title'] }}"
+                                    loading="lazy"
+                                >
+
+                                <span class="course-label">
+                                    {{ $course['icon'] }}
+                                    {{ $course['label'] }}
+                                </span>
+                            </div>
+
+                            <div class="course-body">
+                                <span class="course-category">
+                                    {{ $course['category'] }}
+                                </span>
+
+                                <h3>{{ $course['title'] }}</h3>
+
+                                <p>{{ $course['description'] }}</p>
+
+                                <div class="course-footer">
+                                    <span>Jelajahi Course</span>
+                                    <span>Mulai ↗</span>
+                                </div>
+                            </div>
+
+                        </a>
+
+                    @endforeach
+
+                </div>
+
+                <div style="text-align:center;margin-top:42px">
+                    <a href="{{ $exploreUrl }}" class="btn btn-dark">
+                        Lihat Semua Hobi ↗
                     </a>
-                @endforeach
-            </div>
-        </div>
-    </section>
-
-    {{-- ================= CTA ================= --}}
-    <section class="cta">
-        <div class="container">
-            <div class="cta-box">
-                <svg class="deco d1" viewBox="0 0 24 24"><path d="M20 4c-8 0-14 5-14 12v4h4c7 0 10-6 10-16z"/><path d="M6 20c2-5 5-8 9-10"/></svg>
-                <h2>Ready to start something new?</h2>
-                <p>Join our community of over 10,000 hobbyists who found their passion with us. No pressure, just joy.</p>
-                <a href="{{ $registerUrl }}" class="btn btn-dark">Sign Up for Free</a>
-                <svg class="deco d2" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.100 15.900M14.500 14.500 20 20M8.100 8.100 12 12"/></svg>
-            </div>
-        </div>
-    </section>
-
-    {{-- ================= FOOTER ================= --}}
-    <footer>
-        <div class="container">
-            <div class="footer-top">
-                <div class="footer-brand">
-                    <a href="{{ url('/') }}" class="logo"><span class="logo-mark"></span> HobbyNet</a>
-                    <p>Supporting your creative journey, one small project at a time. Designed for the curious heart.</p>
                 </div>
-                <div class="footer-cols">
-                    <div class="footer-col">
-                        <h5>Explore</h5>
-                        <a href="#paths">All Hobbies</a>
-                        <a href="#quick-wins">Popular Projects</a>
-                        <a href="#quick-wins">Starter Kits</a>
-                    </div>
-                    <div class="footer-col">
-                        <h5>Community</h5>
-                        <a href="#">Showcase</a>
-                        <a href="#">Forums</a>
-                        <a href="#">Workshops</a>
-                    </div>
-                    <div class="footer-col">
-                        <h5>Connect</h5>
-                        <div class="socials">
-                            <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.500" cy="6.500" r=".6"/></svg></a>
-                            <a href="#" aria-label="Pinterest"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M11 8c-3 1-3 5 0 5s3-3 1-5M10 16l1.500-8"/></svg></a>
-                            <a href="#" aria-label="TikTok"><svg viewBox="0 0 24 24"><path d="M14 3v11a4 4 0 1 1-4-4M14 3c0 3 2 5 5 5"/></svg></a>
+
+            </div>
+        </section>
+
+        <!-- =========================
+             CREATIVE JOURNEY
+             ========================= -->
+
+        <section class="journey" id="journey">
+            <div class="container journey-grid">
+
+                <div class="journey-art">
+                    <img
+                        src="{{ asset('images/landing/win-1.png') }}"
+                        alt="Ilustrasi karya kreatif"
+                        loading="lazy"
+                    >
+                </div>
+
+                <div class="journey-content">
+
+                    <span class="eyebrow">✦ YOUR CREATIVE JOURNEY</span>
+
+                    <h2>
+                        Setiap Langkah
+                        <span class="highlight-green">Punya Arti.</span>
+                    </h2>
+
+                    <p>
+                        HobbyNet bukan cuma tempat mencari tutorial.
+                        Kami membantu kamu membangun kebiasaan belajar
+                        sampai menghasilkan karya yang bisa dibanggakan.
+                    </p>
+
+                    <div class="journey-list">
+
+                        <div class="journey-item">
+                            <span class="journey-icon">🗺️</span>
+
+                            <div>
+                                <strong>Roadmap yang Jelas</strong>
+                                <p>
+                                    Belajar lewat langkah yang terstruktur,
+                                    dari pemula sampai menyelesaikan proyek.
+                                </p>
+                            </div>
                         </div>
+
+                        <div class="journey-item">
+                            <span class="journey-icon">📸</span>
+
+                            <div>
+                                <strong>Portofolio Karyamu</strong>
+                                <p>
+                                    Simpan foto, judul, dan cerita dari
+                                    setiap karya yang kamu selesaikan.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="journey-item">
+                            <span class="journey-icon">🏅</span>
+
+                            <div>
+                                <strong>Lencana Pencapaian</strong>
+                                <p>
+                                    Rayakan progres belajarmu dengan
+                                    lencana yang bisa dikumpulkan.
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div style="margin-top:32px">
+                        <a href="{{ $startUrl }}" class="btn btn-primary">
+                            Mulai Perjalananmu ↗
+                        </a>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- =========================
+             AI COACH
+             ========================= -->
+
+        
+<section class="ai-section" id="showcase">
+    <div class="container">
+        <div class="ai-box">
+
+            <div class="ai-content">
+                <span class="eyebrow">
+                    ✦ SHOW YOUR CREATION
+                </span>
+
+                <h2>
+                    Dari Belajar,
+                    <span class="highlight-pink">
+                        Jadi Karya Nyata.
+                    </span>
+                </h2>
+
+                <p>
+                    Selesaikan course, abadikan hasil
+                    karyamu, dan simpan setiap pencapaian
+                    di portofolio HobbyNet.
+
+                    Setiap karya punya cerita,
+                    dan setiap perjalanan layak dirayakan.
+                </p>
+
+                <a href="{{ $startUrl }}" class="btn btn-dark">
+                    Mulai Berkarya ↗
+                </a>
+            </div>
+
+            <div class="ai-demo"
+                 style="background:#F7F0FF;
+                        padding:22px;
+                        border-radius:28px;">
+
+                <div style="border-radius:20px;overflow:hidden;">
+                    <img
+                        src="{{ asset('images/landing/win-1.png') }}"
+                        alt="Contoh karya kreatif HobbyNet"
+                        style="width:100%;max-height:280px;object-fit:cover;"
+                        loading="lazy"
+                    >
+                </div>
+
+                <div style="padding:18px 4px 0;">
+                    <span class="eyebrow">✦ CREATIVE PORTFOLIO</span>
+
+                    <h3 style="font-size:1.3rem;margin:8px 0;">
+                        Karya Pertamamu Dimulai di Sini
+                    </h3>
+
+                    <p style="font-size:.85rem;color:#81737B;">
+                        Belajar, berkreasi, unggah karya,
+                        dan kumpulkan lencana.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+        <!-- =========================
+             HOBBYNET PLUS
+             ========================= -->
+
+        <section class="plus-section">
+            <div class="container">
+
+                <div class="plus-box">
+
+                    <div>
+                        <span class="eyebrow">✦ HOBBYNET PLUS</span>
+
+                        <h2>
+                            Your Passion,
+                            <br>
+                            <span class="highlight-pink">
+                                Without Limits.
+                            </span>
+                        </h2>
+
+                        <p>
+                            Ingin eksplorasi lebih jauh?
+                            HobbyNet Plus membuka akses ke
+                            course premium dan pengalaman
+                            belajar yang lebih lengkap.
+                        </p>
+
+                        <a href="{{ route('plus') }}" class="btn btn-dark">
+                            Jelajahi HobbyNet Plus ↗
+                        </a>
+                    </div>
+
+                    <div class="plus-art" aria-hidden="true">
+                        👑
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- =========================
+             FINAL CALL TO ACTION
+             ========================= -->
+
+        <section class="final-cta">
+            <div class="container">
+
+                <div class="cta-card">
+
+                    <span class="eyebrow" style="color:#50774B">
+                        ✦ IT'S YOUR TURN
+                    </span>
+
+                    <h2>
+                        Karya Pertamamu
+                        <br>
+                        Menunggu untuk Dibuat!
+                    </h2>
+
+                    <p>
+                        Nggak perlu menunggu sampai jago.
+                        Setiap kreator hebat pernah menjadi pemula.
+                        Yuk, mulai cerita hobimu hari ini!
+                    </p>
+
+                    <a href="{{ $startUrl }}" class="btn btn-white">
+                        {{ $startLabel }} 
+                    </a>
+
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- =========================
+         FOOTER
+         ========================= -->
+
+    <footer class="footer">
+        <div class="container">
+
+            <div class="footer-grid">
+
+                <div class="footer-brand">
+                    <a href="{{ route('landing') }}" class="logo">
+                        <span class="logo-mark" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="1.8"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path d="M12 3C7.03 3 3 7.03 3 12s4.03 9 9 9c1.5 0 2.4-.9 2.4-2.1 0-.8-.3-1.2-.3-1.8 0-.8.6-1.3 1.4-1.3h1.2c2.6 0 4.3-1.8 4.3-4.3C21 6.78 17 3 12 3Z"/>
+                                <circle cx="7.7" cy="11.3" r="1"/>
+                                <circle cx="10.3" cy="7.5" r="1"/>
+                                <circle cx="15" cy="7.7" r="1"/>
+                                <circle cx="17.2" cy="11.5" r="1"/>
+                            </svg>
+                        </span>
+                        HobbyNet
+                    </a>
+
+                    <p>
+                        Tempat untuk menemukan passion,
+                        mengeksplorasi ide, dan merayakan
+                        setiap karya kecil yang kamu buat.
+                    </p>
+                </div>
+
+                <div>
+                    <h4>Explore</h4>
+
+                    <div class="footer-links">
+                        <a href="#courses">Jelajah Hobi</a>
+                        <a href="#how">Cara Kerja</a>
+                        <a href="#journey">Creative Journey</a>
+                        <a href="{{ route('plus') }}">HobbyNet Plus</a>
                     </div>
                 </div>
+
+                <div>
+                    <h4>Account</h4>
+
+                    <div class="footer-links">
+                        @auth
+                            <a href="{{ route('home') }}">Beranda</a>
+                            <a href="{{ route('profile') }}">Profil</a>
+                            <a href="{{ route('explore') }}">Jelajah</a>
+                        @else
+                            <a href="{{ route('login') }}">Masuk</a>
+                            <a href="{{ route('onboarding.account') }}">
+                                Daftar Gratis
+                            </a>
+                        @endauth
+                    </div>
+                </div>
+
             </div>
-            <p class="copyright">© {{ date('Y') }} HobbyNet. Crafted with love for creators everywhere.</p>
+
+            <div class="footer-bottom">
+                © {{ date('Y') }} HobbyNet.
+                Made with ♡ for every creative soul.
+            </div>
+
         </div>
     </footer>
 

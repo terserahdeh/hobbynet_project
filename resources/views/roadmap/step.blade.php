@@ -138,14 +138,7 @@
                                 <img src="{{ $heroSrc }}" alt="{{ $heroCaption }}" loading="lazy">
                             @else
                                 <span class="rm-visual__art" role="img" aria-label="Illustration for {{ $step->title }}">
-                                    <svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                        <circle cx="52" cy="72" r="24"/>
-                                        <path d="M30 66c14 8 30 8 44 0"/>
-                                        <path d="M32 80c12 7 26 7 40 0"/>
-                                        <path d="M44 50c-3 14 0 36 8 46"/>
-                                        <path d="M70 58 100 28"/>
-                                        <path d="M96 24c4-2 9 3 6 7"/>
-                                    </svg>
+                                    @include('roadmap.partials.art', ['hobby' => $hobby])
                                 </span>
                             @endif
                             <figcaption>{{ $heroCaption }}</figcaption>

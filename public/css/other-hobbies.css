@@ -1,0 +1,35 @@
+/* Bagian "Hobi Lainnya" di beranda */
+.oh { margin-top: 44px; --oh-line: #EFE3DD; --oh-text: #4F3F39; --oh-soft: #6B5851; }
+.oh__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.oh__title { margin: 0; font-size: 20px; }
+.oh__all { font-size: 13px; color: var(--oh-soft); }
+.oh__all:hover { color: var(--oh-text); }
+.oh__sub { margin: 0 0 16px; color: var(--oh-soft); }
+.oh__grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+
+.oh-card { height: 100%; display: grid; gap: 14px; padding: 12px 12px 18px; background: #fff; border-radius: 24px; box-shadow: 0 6px 20px rgba(112, 93, 86, .08); }
+.oh-card__media {
+    position: relative; display: block; aspect-ratio: 16 / 10; border-radius: 16px; overflow: hidden;
+    background: linear-gradient(135deg, var(--a, #F8DDE0), var(--b, #F1C6CA));
+}
+.oh-card__media--pink { --a: #FBE9EB; --b: #F1C6CA; }
+.oh-card__media--sage { --a: #EAF1E3; --b: #C8D8B9; }
+.oh-card__media--peri { --a: #E8EDFB; --b: #C6D3F5; }
+.oh-card__media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.oh-card__tag {
+    position: absolute; top: 10px; left: 10px; padding: 3px 10px; border-radius: 999px;
+    background: rgba(255, 255, 255, .94); font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--oh-text);
+}
+.oh-card__body { display: grid; gap: 6px; padding: 0 8px; }
+.oh-card__title { margin: 0; font-size: 17px; line-height: 1.25; }
+.oh-card__meta { margin: 0; font-size: 12.5px; color: var(--oh-soft); }
+.oh-bar { height: 6px; border-radius: 999px; background: #F0EBE6; overflow: hidden; }
+.oh-bar span { display: block; height: 100%; border-radius: inherit; background: #7E9A6B; }
+.oh-card__cta {
+    justify-self: start; margin-top: 6px; display: inline-flex; align-items: center; height: 40px; padding: 0 20px;
+    border-radius: 999px; background: #fff; border: 1.5px solid var(--oh-line); color: var(--oh-text); font-weight: 700; font-size: 13px; text-decoration: none;
+}
+.oh-card__cta:hover { border-color: #705D56; }
+.oh-card__cta:focus-visible { outline: 3px solid #C6D3F5; outline-offset: 2px; }
+
+@media (max-width: 720px) { .oh__grid { grid-template-columns: 1fr; } }
