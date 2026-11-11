@@ -40,6 +40,9 @@ class ProjectSubmission extends Model
         return $this->hasMany(SubmissionPhoto::class, 'project_submission_id')->orderBy('position');
     }
 
+    public function communityLikes(): \Illuminate\Database\Eloquent\Relations\HasMany { return $this->hasMany(CommunityLike::class); }
+    public function communityComments(): \Illuminate\Database\Eloquent\Relations\HasMany { return $this->hasMany(CommunityComment::class); }
+
     public function isSubmitted(): bool
     {
         return $this->status === self::STATUS_SUBMITTED;

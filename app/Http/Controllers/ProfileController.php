@@ -104,7 +104,9 @@ class ProfileController extends Controller
             ->sortByDesc(fn ($work) => $work['date']?->timestamp ?? 0)
             ->values();
 
+        $savedPosts = ProjectSubmission::with(['user','photos'])->where('status','submitted')->where('is_showcase',true)->whereIn('id',DB::table('community_saves')->where('user_id',$user->id)->select('project_submission_id'))->latest('submitted_at')->get();
         return view('profile.show', [
+            'savedPosts' => $savedPosts,
             'works' => $works,
             'courseWorks' => $courseWorks,
             'user'       => $user,
