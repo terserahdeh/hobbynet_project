@@ -16,6 +16,12 @@ use App\Http\Controllers\ProfileController;           // BARU
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\WorkController;
 use App\Http\Controllers\StarterPackController;       // BARU
+use App\Http\Controllers\Admin\BadgeController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\HobbyController  as AdminHobbyController;
+use App\Http\Controllers\Admin\ProjectController;
+use App\Http\Controllers\Admin\RoadmapStepController as AdminRoadmapStepController;
+use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Models\Project;
 use App\Http\Controllers\CommunityController;
 use Illuminate\Support\Facades\Route;
@@ -121,6 +127,7 @@ Route::middleware('auth')->prefix('roadmap')->name('roadmap.')->group(function (
     Route::prefix('{hobby:slug}')->group(function () {
         // Checkpoints
         Route::get('steps/{stepSlug}', [RoadmapStepController::class, 'show'])->name('steps.show');
+        Route::get('steps/{stepSlug}/image', [RoadmapStepController::class, 'showImage'])->name('steps.image');
         Route::post('steps/{stepSlug}/complete', [RoadmapStepController::class, 'complete'])->name('steps.complete');
         Route::patch('steps/{stepSlug}/checklist/{item}', [RoadmapStepController::class, 'toggleChecklist'])->name('steps.checklist');
 
@@ -129,4 +136,23 @@ Route::middleware('auth')->prefix('roadmap')->name('roadmap.')->group(function (
         Route::post('submission', [RoadmapSubmissionController::class, 'store'])->name('submission.store');
         Route::get('celebration', [RoadmapSubmissionController::class, 'celebration'])->name('celebration');
     });
+});
+
+//admin
+Route::middleware(['auth', EnsureUserIsAdmin::class])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', DashboardController::class)->name('dashboard');
+
+    Route::resource('hobbies', AdminHobbyController::class)->except('show');
+    Route::resource('badges', BadgeController::class)->except('show');
+
+    Route::resource('projects', ProjectController::class)->except('show');
+    Route::post('projects/{project}/publish', [ProjectController::class, 'publish'])->name('projects.publish');
+
+    // Steps live under a project; once you have a step its own URL is enough.
+    Route::resource('projects.steps', AdminRoadmapStepController::class)->except('show')->shallow();
+    Route::post('steps/{step}/move/{direction}', [AdminRoadmapStepController::class, 'move'])
+        ->where('direction', 'up|down')
+        ->name('steps.move');
+    Route::get('steps/{step}/image', [AdminRoadmapStepController::class, 'showImage'])
+    ->name('steps.image');
 });

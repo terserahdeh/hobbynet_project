@@ -34,7 +34,9 @@ class RoadmapController extends Controller
      */
     public function project(Request $request, Project $project): RedirectResponse
     {
-        $hobby = ($project->is_starter && $project->hobby_id) ? Hobby::find($project->hobby_id) : null;
+        $hobby = ($project->is_starter && $project->roadmap_published && $project->hobby_id)
+            ? Hobby::find($project->hobby_id)
+            : null;
         $summary = $hobby ? $this->roadmap->summary($request->user(), $project) : null;
 
         if (! $hobby || $summary['total'] === 0) {
