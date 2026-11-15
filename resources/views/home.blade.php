@@ -4,7 +4,9 @@
 
 @section('content')
 @php
-    $go = fn ($p) => route('roadmap.project', $p);
+    $go = fn ($p) => $p->is_starter && $p->hobby
+    ? route('roadmap.show', $p->hobby->slug)
+    : route('projects.show', $p->slug);
 @endphp
 <div class="dash">
     

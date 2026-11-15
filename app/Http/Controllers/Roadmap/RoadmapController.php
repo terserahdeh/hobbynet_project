@@ -58,7 +58,7 @@ class RoadmapController extends Controller
     public function show(Request $request, Hobby $hobby): View
     {
         $user = $request->user();
-        $project = $this->roadmap->starterProject($hobby);
+        $project = $this->roadmap->starterProject($hobby, $request->user());
 
         $this->roadmap->begin($user, $project);
 

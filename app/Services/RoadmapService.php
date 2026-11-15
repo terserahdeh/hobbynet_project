@@ -31,8 +31,8 @@ class RoadmapService
         return self::LEVELS[$user->experience_level] ?? 'beginner';
     }
 
-    /** Starter yang punya langkah roadmap, level terdekat dengan pengguna. Null jika hobi belum punya starter. */
-    public function findStarter(Hobby $hobby, ?User $user = null): ?Project
+    /** Starter yang direkomendasikan: yang punya langkah, level terdekat dengan pengguna. */
+    public function recommendedStarter(Hobby $hobby, ?User $user = null): ?Project
     {
         $level    = $user ? $this->levelFor($user) : 'beginner';
         $starters = Project::where('hobby_id', $hobby->id)->where('is_starter', true)->get();
@@ -49,6 +49,56 @@ class RoadmapService
                 (self::LEVEL_ORDER[$p->level] ?? 0) - self::LEVEL_ORDER[$level]
             ) * 100000 + $p->id)
             ->first();
+    }
+
+    /** Starter yang dipakai: pilihan pengguna jika ada, selain itu yang direkomendasikan. */
+    public function findStarter(Hobby $hobby, ?User $user = null): ?Project
+    {
+        return ($user ? $this->chosenStarter($hobby, $user) : null)
+            ?? $this->recommendedStarter($hobby, $user);
+    }
+
+    private function chosenStarter(Hobby $hobby, User $user): ?Project
+    {
+        $projectId = DB::table('user_roadmap_choices')
+            ->where('user_id', $user->id)->where('hobby_id', $hobby->id)->value('project_id');
+
+        if (! $projectId) {
+            return null;
+        }
+
+        $project = Project::where('id', $projectId)
+            ->where('hobby_id', $hobby->id)->where('is_starter', true)->first();
+
+        return $project && RoadmapStep::where('project_id', $project->id)->exists() ? $project : null;
+    }
+
+    public function chooseStarter(User $user, Project $project): void
+    {
+        DB::table('user_roadmap_choices')->updateOrInsert(
+            ['user_id' => $user->id, 'hobby_id' => $project->hobby_id],
+            ['project_id' => $project->id, 'created_at' => now(), 'updated_at' => now()]
+        );
+    }
+
+    /** Semua starter hobi ini yang punya langkah, urut level, dengan penanda aktif dan rekomendasi. */
+    public function startersFor(Hobby $hobby, ?User $user = null): Collection
+    {
+        $starters  = Project::where('hobby_id', $hobby->id)->where('is_starter', true)->get();
+        $withSteps = RoadmapStep::whereIn('project_id', $starters->pluck('id'))->pluck('project_id')->unique();
+
+        $current     = $this->findStarter($hobby, $user);
+        $recommended = $this->recommendedStarter($hobby, $user);
+
+        return $starters
+            ->whereIn('id', $withSteps)
+            ->sortBy(fn (Project $p) => self::LEVEL_ORDER[$p->level] ?? 0)
+            ->values()
+            ->map(fn (Project $p) => [
+                'project'     => $p,
+                'current'     => $current?->id === $p->id,
+                'recommended' => $recommended?->id === $p->id,
+            ]);
     }
 
     /** The starter project that powers a hobby's roadmap. */

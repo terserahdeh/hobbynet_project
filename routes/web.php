@@ -4,18 +4,19 @@ use App\Http\Controllers\AiCoachController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\SocialAuthController;
-use App\Http\Controllers\BookmarkController;          // BARU
-use App\Http\Controllers\PremiumController;
+use App\Http\Controllers\BookmarkController;      
+use App\Http\Controllers\PremiumController;   
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Onboarding\HobbyController;
 use App\Http\Controllers\Onboarding\PersonalizeController;
 use App\Http\Controllers\Roadmap\RoadmapController;
 use App\Http\Controllers\Roadmap\RoadmapStepController;
 use App\Http\Controllers\Roadmap\RoadmapSubmissionController;
-use App\Http\Controllers\ProfileController;           // BARU
+use App\Http\Controllers\ProfileController;   
 use App\Http\Controllers\CourseController;
-use App\Http\Controllers\WorkController;
-use App\Http\Controllers\StarterPackController;       // BARU
+use App\Http\Controllers\WorkController;        
+use App\Http\Controllers\StarterPackController;   
+use App\Http\Controllers\GuidedProjectController;    
 use App\Http\Controllers\Admin\BadgeController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\HobbyController  as AdminHobbyController;
@@ -46,11 +47,11 @@ Route::middleware('guest')->group(function () {
         ->middleware('throttle:10,1')
         ->name('login.store');
 
-    // Login sosial (Google / Apple), butuh laravel/socialite
+    // Login sosial (Google), butuh laravel/socialite
     Route::get('/auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])
-        ->whereIn('provider', ['google', 'apple'])->name('social.redirect');
+        ->whereIn('provider', ['google'])->name('social.redirect');
     Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'])
-        ->whereIn('provider', ['google', 'apple'])->name('social.callback');
+        ->whereIn('provider', ['google'])->name('social.callback');
 });
 
 // Pengguna sudah login
@@ -65,7 +66,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/onboarding/hobbies', [HobbyController::class, 'store'])->name('onboarding.hobbies.store');
     Route::post('/onboarding/hobbies/skip', [HobbyController::class, 'skip'])->name('onboarding.hobbies.skip');
 
-    Route::get('/community', [CommunityController::class,'index'])->name('community.index');
+        Route::get('/community', [CommunityController::class,'index'])->name('community.index');
     Route::get('/community/{post}', [CommunityController::class,'show'])->name('community.show');
     Route::post('/community/{post}/like', [CommunityController::class,'like'])->name('community.like')->middleware('throttle:60,1');
     Route::post('/community/{post}/save', [CommunityController::class,'save'])->name('community.save')->middleware('throttle:60,1');
@@ -101,12 +102,16 @@ Route::middleware('auth')->group(function () {
     // Coach AI + langganan Plus
     Route::post('/plus/subscribe', [PremiumController::class, 'subscribe'])->name('plus.subscribe');
     Route::post('/plus/cancel', [PremiumController::class, 'cancel'])->name('plus.cancel');
-    // HobbyNet Plus
 
 
     // Halaman proyek (masih placeholder)
-    Route::get('/projects/{project:slug}', fn (Project $project) => view('soon', ['title' => $project->title]))
-        ->name('projects.show');
+    Route::get('/projects/{project:slug}', [GuidedProjectController::class, 'show'])->name('projects.show');
+    Route::post('/projects/{project:slug}/start', [GuidedProjectController::class, 'start'])->name('projects.start');
+    Route::post('/projects/{project:slug}/materials', [GuidedProjectController::class, 'toggleMaterial'])->name('projects.materials.toggle');
+    Route::get('/projects/{project:slug}/steps/{stepSlug}', [GuidedProjectController::class, 'step'])->name('projects.steps.show');
+    Route::patch('/projects/{project:slug}/steps/{stepSlug}/checklist/{item}', [GuidedProjectController::class, 'toggleChecklist'])->name('projects.steps.checklist');
+    Route::post('/projects/{project:slug}/steps/{stepSlug}/complete', [GuidedProjectController::class, 'complete'])->name('projects.steps.complete');
+    Route::post('/projects/{project:slug}/roadmap', [ProjectController::class, 'chooseRoadmap'])->name('projects.roadmap.choose');
 
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
 });
@@ -127,7 +132,7 @@ Route::middleware('auth')->prefix('roadmap')->name('roadmap.')->group(function (
     Route::prefix('{hobby:slug}')->group(function () {
         // Checkpoints
         Route::get('steps/{stepSlug}', [RoadmapStepController::class, 'show'])->name('steps.show');
-        Route::get('steps/{stepSlug}/image', [RoadmapStepController::class, 'showImage'])->name('steps.image');
+                Route::get('steps/{stepSlug}/image', [RoadmapStepController::class, 'showImage'])->name('steps.image');
         Route::post('steps/{stepSlug}/complete', [RoadmapStepController::class, 'complete'])->name('steps.complete');
         Route::patch('steps/{stepSlug}/checklist/{item}', [RoadmapStepController::class, 'toggleChecklist'])->name('steps.checklist');
 

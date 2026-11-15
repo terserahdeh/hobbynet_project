@@ -128,9 +128,10 @@ class RoadmapSeeder extends Seeder
                 'encouragement' => 'Great start! Having everything in one spot makes the rest feel easy.',
                 'materials' => [
                     ['tool', 'Crochet hook', '4 mm', false],
-                    ['material', 'Yarn', 'Medium weight (4), cotton works well', false],
+                    ['material', 'Yarn', 'Medium weight (4), Milk-cotton or acrylic yarn', false],
                     ['tool', 'Scissors', null, false],
                     ['tool', 'Tapestry needle', 'For weaving in ends', true],
+                    ['tool', 'Stitch marker', 'to mark your stitches', true],
                 ],
                 'instructions' => [
                     'Lay out your hook, yarn and scissors on a table with good light.',

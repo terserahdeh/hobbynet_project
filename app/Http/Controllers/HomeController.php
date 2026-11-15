@@ -12,6 +12,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use App\Services\RoadmapService;
 
 class HomeController extends Controller
 {
@@ -19,7 +20,7 @@ class HomeController extends Controller
     {
     }
 
-    public function __invoke(Request $request): View|RedirectResponse
+    public function __invoke(Request $request, RoadmapService $roadmaps): View|RedirectResponse
     {
         $user = $request->user();
 
@@ -38,8 +39,8 @@ class HomeController extends Controller
         return view('home', [
             'firstName'  => Str::before($user->name, ' '),
             'hobbies'    => $hobbies,
-            'current'    => $this->currentProject($hobbies, $progress),
-            'hobbyCards' => $this->hobbyCards($hobbies, $progress),
+            'current'    => $this->currentProject($hobbies, $progress, $roadmaps, $user),
+            'hobbyCards' => $this->hobbyCards($hobbies, $progress, $roadmaps, $user),
             'popular'    => $this->popularProjects($hobbies),
             'nextBadge'  => $this->nextBadge($user),
             'tip'        => TipOfTheDay::for($hobbies),
@@ -48,7 +49,7 @@ class HomeController extends Controller
     }
 
     /** Proyek yang paling pantas dilanjutkan, atau proyek pertama dari hobi terpilih. */
-    private function currentProject(Collection $hobbies, Collection $progress): ?array
+    private function currentProject(Collection $hobbies, Collection $progress, RoadmapService $roadmaps, User $user): ?array
     {
         $row = $progress
             ->filter(fn ($p) => $p->progress_percent >= 1 && $p->progress_percent < 100)
@@ -60,8 +61,8 @@ class HomeController extends Controller
             return $this->present($row->project, $row->progress_percent);
         }
 
-        $project = $hobbies->first()?->projects->first();
-
+        $hobby = $hobbies->first();
+        $project = $hobby ? $roadmaps->findStarter($hobby, $user) : null;
         return $project ? $this->present($project, 0) : null;
     }
 
@@ -77,11 +78,11 @@ class HomeController extends Controller
     }
 
     /** Satu kartu per hobi terpilih: proyek pertama + statusnya. */
-    private function hobbyCards(Collection $hobbies, Collection $progress): Collection
+    private function hobbyCards(Collection $hobbies, Collection $progress, RoadmapService $roadmaps, User $user): Collection
     {
         return $hobbies
-            ->map(function ($hobby) use ($progress) {
-                $project = $hobby->projects->first();
+            ->map(function ($hobby) use ($progress, $roadmaps, $user) {
+                $project = $roadmaps->findStarter($hobby, $user);
 
                 if (! $project) {
                     return null;
