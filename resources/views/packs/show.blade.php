@@ -118,7 +118,7 @@
                     </div>
                 </dl>
 
-                <a href="{{ route('courses.show', $pack) }}" class="btn btn--primary">
+                <a style="color:white" class="btn btn--primary" href="{{ route('courses.show', $pack) }}">
                     {{ $pack->is_premium && !auth()->user()->isPlus() ? '★ Buka dengan Plus' : 'Aku Siap — Mulai Course' }} @include('packs._icon', ['name' => 'arrow-right'])
                 </a>
 
