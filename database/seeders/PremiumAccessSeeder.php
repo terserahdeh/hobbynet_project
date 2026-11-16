@@ -22,7 +22,9 @@ class PremiumAccessSeeder extends Seeder
 {
     /** Slug proyek non-roadmap yang tetap gratis. Tambahkan di sini kalau ingin membuka proyek tertentu. */
     private const ALSO_FREE = [
-        // 'scrunchie-rajut-sederhana',
+        'scrunchie-rajut-sederhana',
+        'kota-hujan-basah',
+        'gradasi-langit-senja',
     ];
 
     public function run(): void

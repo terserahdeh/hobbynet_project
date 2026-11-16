@@ -40,10 +40,10 @@ class RoadmapSeeder extends Seeder
 
         // Once a roadmap has steps it is managed in /admin. Re-seeding would overwrite
         // those edits and reset learners' ticked checklist items, so leave it alone.
-        if (RoadmapStep::where('project_id', $project->id)->exists()) {
-            $this->command?->info('The crochet roadmap already has steps, so it was left untouched. Edit it in /admin.');
-            return;
-        }
+        // if (RoadmapStep::where('project_id', $project->id)->exists()) {
+        //     $this->command?->info('The crochet roadmap already has steps, so it was left untouched. Edit it in /admin.');
+        //     return;
+        // }
 
         foreach ($this->crochetSteps($badges) as $position => $data) {
             $step = RoadmapStep::updateOrCreate(

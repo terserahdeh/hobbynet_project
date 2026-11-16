@@ -51,10 +51,9 @@ class ProjectVideoSeeder extends Seeder
             // Roadmap pemula: Fotografi
             'cerita-foto-sehari-hari' => [
                 'steps' => [
-                    'learn-to-see-light' => 'https://www.youtube.com',  // Learn to See the Light (lesson)
-                    'build-your-composition-skills' => 'https://www.youtube.com',  // Build Your Basic Skills (lesson)
-                    'mini-photo-practice' => 'https://www.youtube.com',  // Follow a Mini Practice Project (practice)
-                    'create-your-photo-story' => 'https://www.youtube.com',  // Create Your Photo Story (project)
+                    'meet-your-camera'=> 'https://youtu.be/osvmY_YtolI?si=5ODcfBDHO8kInBzG',
+                    'learn-to-see-light' => 'https://youtu.be/OCT43_2MQi0?si=GSfmoxgwgAp5yttG',  // Learn to See the Light (lesson)
+                    'build-your-composition-skills' => 'https://youtu.be/ZM8FzfPKTt4?si=6_aPIxfjUte718fW',  // Build Your Basic Skills (lesson)
                 ],
             ],
 
@@ -100,10 +99,8 @@ class ProjectVideoSeeder extends Seeder
             // Roadmap menengah: Fotografi
             'seri-foto-jalanan' => [
                 'steps' => [
-                    'refresh-the-exposure-basics' => 'https://www.youtube.com',  // Refresh the Exposure Basics (lesson)
-                    'learn-the-decisive-moment' => 'https://www.youtube.com',  // Learn the Decisive Moment (lesson)
-                    'shoot-moving-subjects' => 'https://www.youtube.com',  // Shoot Moving Subjects (practice)
-                    'shoot-your-street-series' => 'https://www.youtube.com',  // Shoot Your Street Series (project)
+                    'refresh-the-exposure-basics' => 'https://youtu.be/WkZXlfUzuUQ?si=icAgypZpbbmbrlZL',  // Refresh the Exposure Basics (lesson)
+                    'shoot-moving-subjects' => 'https://youtu.be/lRqxF6IRiNI?si=C0Rq8U8wHCrZ4-nu',  // Shoot Moving Subjects (practice)
                 ],
             ],
 
