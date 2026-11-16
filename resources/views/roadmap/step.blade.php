@@ -98,6 +98,12 @@
                         <small>Keep it up!</small>
                     </div>
                 @endif
+                @if ($step->type === 'materials')
+                    @inject('packChecklist', 'App\Services\PackChecklist')
+                    <div style="margin-top: 24px;">
+                        @include('partials.pack-checklist', ['checklist' => $packChecklist->forProject($project, auth()->user())])
+                    </div>
+                @endif
             </aside>
 
             <div>
@@ -125,8 +131,11 @@
                             @endforeach
                         </ul>
                     @endif
-
-                    <div class="rm-split">
+                    @php
+                        $video = \App\Support\YouTube::id($step->video_url);
+                        $hasVisual = $video || $heroSrc;
+                    @endphp
+                    <div class="rm-split {{ $hasVisual ? '' : 'rm-split--single' }}">
                         <ol class="rm-instr">
                             @foreach ($step->instructions as $ins)
                                 <li>
@@ -135,9 +144,10 @@
                                 </li>
                             @endforeach
                         </ol>
-
-                        {{-- Demo picture: step_instructions.image, else public/images/roadmap/{slug}.*, else the drawing below --}}
-                        <figure class="rm-visual {{ $heroSrc ? '' : 'rm-visual--empty' }}">
+                        @if ($video)
+                            @include('partials.youtube', ['url' => $video, 'title' => $step->title . ' video'])
+                        @elseif ($heroSrc)
+                             <figure class="rm-visual {{ $heroSrc ? '' : 'rm-visual--empty' }}">
                             @if ($heroSrc)
                                 <img src="{{ $heroSrc }}" alt="{{ $heroCaption }}" loading="lazy">
                             @else
@@ -147,6 +157,9 @@
                             @endif
                             <figcaption>{{ $heroCaption }}</figcaption>
                         </figure>
+                        @endif
+                        {{-- Demo picture: step_instructions.image, else public/images/roadmap/{slug}.*, else the drawing below --}}
+                       
                     </div>
 
                     @if ($items->isNotEmpty())

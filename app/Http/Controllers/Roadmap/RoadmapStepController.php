@@ -118,7 +118,7 @@ class RoadmapStepController extends Controller
     /** @return array{0: \App\Models\Project, 1: array, 2: RoadmapStep} */
     private function locate(Request $request, Hobby $hobby, string $stepSlug): array
     {
-        $project = $this->roadmap->starterProject($hobby);
+        $project = $this->roadmap->starterProject($hobby, $request->user());
         $summary = $this->roadmap->summary($request->user(), $project);
         $step = $summary['steps']->firstWhere('slug', $stepSlug);
 
