@@ -45,9 +45,9 @@ class CourseController extends Controller
             ->where('starter_pack_id', $starterPack->id)->count();
         if ($progressCount >= count($lessons)) {
             $this->giveCompletionBadge($request->user(), $starterPack);
-            return redirect()->route('courses.show', $starterPack)->with('status', 'Selamat! Course selesai dan lencana sudah masuk profilmu.');
+            return redirect()->route('courses.legacy', $starterPack)->with('status', 'Selamat! Course selesai dan lencana sudah masuk profilmu.');
         }
-        return redirect()->route('courses.show', $starterPack)->with('status', 'Pelajaran terselesaikan. Lanjutkan ke tahap berikutnya!');
+        return redirect()->route('courses.legacy', $starterPack)->with('status', 'Pelajaran terselesaikan. Lanjutkan ke tahap berikutnya!');
     }
     public function submission(Request $request, StarterPack $starterPack)
     {

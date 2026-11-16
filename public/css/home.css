@@ -185,7 +185,7 @@ a { color: inherit; }
 }
 
 /* Hobimu */
-.hgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.hgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
 .hcard { background: var(--card); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: 12px 12px 14px; }
 .hcard__media { display: block; aspect-ratio: 4 / 3; border-radius: var(--radius-md); overflow: hidden; }
 .hcard__title { font-size: 17px; margin: 16px 8px 4px; line-height: 1.25; }

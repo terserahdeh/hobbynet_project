@@ -4,12 +4,12 @@
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/guided.css') }}">
+<link rel="stylesheet" href="{{ asset('css/plus-lock.css') }}">
 
 @php
+    $locked = $locked ?? false;
+    $premium = $premium ?? false;
     $total = $summary['total'];
-    $readyCount = $materials->filter(fn ($m) => in_array($m->name, $ready, true))->count();
-    $missing = $materials->reject(fn ($m) => in_array($m->name, $ready, true));
-    $readyPercent = $materials->isEmpty() ? 0 : (int) round($readyCount / $materials->count() * 100);
     $first = $first ?? null;
     $firstImage = $first?->instructions->first(fn ($i) => filled($i->image));
 @endphp
@@ -30,6 +30,9 @@
         </div>
 
         <div class="gp-hero__body">
+            @if ($premium)
+                <span class="gp-plus">&#9733; HobbyNet Plus</span>
+            @endif
             <h1 id="gp-title">{{ $project->title }}</h1>
             <p class="gp-lead">{{ $project->description ?? $project->summary }}</p>
 
@@ -48,17 +51,15 @@
                     </div>
                 </div>
 
-                @if ($roadmapChoice ?? false)
-                    <p class="gp-note">
-                        This is a {{ strtolower($project->level_label) }} roadmap.
-                        @if ($recommended) Your recommended starter is <strong>{{ $recommended->title }}</strong> ({{ $recommended->level_label }}). @endif
-                        You can switch back any time from the roadmap page, and your progress on each one is kept.
-                    </p>
-                    <div class="gp-actions">
-                        <form method="POST" action="{{ route('projects.roadmap.choose', $project->slug) }}">
-                            @csrf
-                            <button type="submit" class="gp-btn gp-btn--primary">Use as my {{ $project->hobby->short_name ?? $project->hobby->name }} roadmap</button>
-                        </form>
+                @if ($locked)
+                    <div class="gp-lock">
+                        <p><strong>This project is part of HobbyNet Plus.</strong> You can preview the details, materials and step 1. Unlock every step, the checklist and sharing with Plus.</p>
+                        <div class="gp-actions">
+                            <a class="gp-btn gp-btn--plus" href="{{ route('plus') }}">&#9733; Unlock with Plus</a>
+                            @if ($first)
+                                <a class="gp-btn gp-btn--ghost" href="{{ route('projects.steps.show', [$project->slug, $first->slug]) }}">Preview step 1</a>
+                            @endif
+                        </div>
                     </div>
                 @else
                     <div class="gp-actions">
@@ -78,56 +79,12 @@
         </div>
     </section>
 
-    @if (\App\Support\YouTube::id($project->video_url))
-        <section class="gp-card" aria-labelledby="gp-video-title">
-            <h2 id="gp-video-title">Tutorial Video</h2>
-            @include('partials.youtube', ['url' => $project->video_url, 'title' => $project->title . ' tutorial video'])
-        </section>
-    @endif
-
     @if ($total > 0)
     <div class="gp-grid">
         {{-- ===== Tools & Materials ===== --}}
-        <section class="gp-card gp-materials" aria-labelledby="gp-mat-title">
-            <div class="gp-card__head">
-                <h2 id="gp-mat-title">Tools &amp; Materials</h2>
-                <span class="gp-count">{{ $readyCount }} of {{ $materials->count() }} ready</span>
-            </div>
-            <div class="gp-bar gp-bar--thin" aria-hidden="true"><span style="width: {{ $readyPercent }}%"></span></div>
-
-            <ul class="gp-checks">
-                @foreach ($materials as $m)
-                    @php $isReady = in_array($m->name, $ready, true); @endphp
-                    <li>
-                        <form method="POST" action="{{ route('projects.materials.toggle', $project->slug) }}">
-                            @csrf
-                            <input type="hidden" name="name" value="{{ $m->name }}">
-                            <label class="gp-check {{ $isReady ? 'is-ready' : '' }}">
-                                <input type="checkbox" @checked($isReady) onchange="this.form.submit()">
-                                <span>{{ $m->name }}@if ($m->spec) <small>({{ $m->spec }})</small>@endif @if ($m->is_optional) <small>optional</small>@endif</span>
-                            </label>
-                            <noscript><button type="submit" class="gp-link">Save</button></noscript>
-                        </form>
-                    </li>
-                @endforeach
-            </ul>
-
-            @if ($missing->isNotEmpty())
-                <details class="gp-shop">
-                    <summary class="gp-btn gp-btn--dark">Shop Missing Items</summary>
-                    <ul>
-                        @foreach ($missing as $m)
-                            <li>
-                                <span>{{ $m->name }}</span>
-                                <a href="{{ str_replace('%s', rawurlencode($m->name), $shopUrl) }}" target="_blank" rel="noopener noreferrer">Search</a>
-                            </li>
-                        @endforeach
-                    </ul>
-                </details>
-            @else
-                <p class="gp-note">You have everything you need. Ready when you are.</p>
-            @endif
-        </section>
+        @if ($checklist)
+            <div class="gp-card">@include('partials.pack-checklist', ['checklist' => $checklist])</div>
+        @endif
 
         <div class="gp-col">
             {{-- ===== What You'll Learn ===== --}}
@@ -160,11 +117,8 @@
                         <h3 id="gp-prev-title">Step 1: {{ $first->title }}</h3>
                         <p>{{ $first->summary }}</p>
                     </div>
-                    @if ($roadmapChoice ?? false)
-                        <form method="POST" action="{{ route('projects.roadmap.choose', $project->slug) }}">
-                            @csrf
-                            <button type="submit" class="gp-btn gp-btn--primary gp-btn--sm">Use as roadmap</button>
-                        </form>
+                    @if ($locked)
+                        <a class="gp-btn gp-btn--ghost gp-btn--sm" href="{{ route('projects.steps.show', [$project->slug, $first->slug]) }}">Preview</a>
                     @else
                         <form method="POST" action="{{ route('projects.start', $project->slug) }}">
                             @csrf

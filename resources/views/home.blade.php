@@ -5,9 +5,10 @@
 @section('content')
 @php
     $go = fn ($p) => $p->is_starter && $p->hobby
-    ? route('roadmap.show', $p->hobby->slug)
-    : route('projects.show', $p->slug);
+        ? route('roadmap.show', [$p->hobby->slug, 'main' => 1])
+        : route('projects.show', $p->slug);
 @endphp
+<link rel="stylesheet" href="{{ asset('css/plus-lock.css') }}">
 <div class="dash">
     
     {{-- Sapaan + lencana berikutnya --}}
@@ -56,7 +57,6 @@
 
         {{-- Kolom utama: rekomendasi personal --}}
         <div class="dash__main">
-
             <section aria-labelledby="h-lanjut">
                 <h2 class="section-title" id="h-lanjut">Lanjutkan berkarya</h2>
 
@@ -165,7 +165,7 @@
                             <a class="pitem" href="{{ route('projects.show', $item) }}">
                                 @include('onboarding.partials.project-thumb', ['project' => $item])
                                 <span class="pitem__text">
-                                    <span class="pitem__cat">{{ $item->category }}</span>
+                                    <span class="pitem__cat">{{ $item->category }} @if ($item->is_premium)<span class="pitem__plus">&#9733; Plus</span>@endif</span>
                                     <strong>{{ $item->title }}</strong>
                                     <span class="pitem__meta">{{ $item->learners_label }} • {{ $item->duration_label }}</span>
                                 </span>

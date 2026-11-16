@@ -8,7 +8,7 @@ use Illuminate\Database\Seeder;
 
 /**
  * Proyek berpemandu (bukan roadmap): halaman detail + langkah satu per satu.
- * Memakai tabel roadmap_steps yang sama, tanpa langkah "Share".
+ * Memakai tabel roadmap_steps yang sama, termasuk langkah "Share" di akhir (sama seperti roadmap).
  * Jalankan SETELAH migrasi terbaru, RoadmapSeeder, dan ProjectSeeder:
  *   php artisan db:seed --class=GuidedProjectSeeder
  */
@@ -32,7 +32,7 @@ class GuidedProjectSeeder extends Seeder
                 'learnings' => json_encode($def['learnings']),
             ]);
 
-            $this->seedProjectSteps($project, $def, false);
+            $this->seedProjectSteps($project, $def, true); // true = ada langkah "Share" (simpan pribadi atau bagikan ke Komunitas)
         }
     }
 

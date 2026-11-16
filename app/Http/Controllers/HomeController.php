@@ -41,7 +41,7 @@ class HomeController extends Controller
             'hobbies'    => $hobbies,
             'current'    => $this->currentProject($hobbies, $progress, $roadmaps, $user),
             'hobbyCards' => $this->hobbyCards($hobbies, $progress, $roadmaps, $user),
-            'popular'    => $this->popularProjects($hobbies),
+            'popular'    => app(\App\Services\DiscoveryService::class)->popular($request->user()),
             'nextBadge'  => $this->nextBadge($user),
             'tip'        => TipOfTheDay::for($hobbies),
             'goal'       => $this->dailyGoal($user),

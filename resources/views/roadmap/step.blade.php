@@ -98,6 +98,12 @@
                         <small>Keep it up!</small>
                     </div>
                 @endif
+                @if ($step->type === 'materials')
+                    @inject('packChecklist', 'App\Services\PackChecklist')
+                    <div style="margin-top: 24px;">
+                        @include('partials.pack-checklist', ['checklist' => $packChecklist->forProject($project, auth()->user())])
+                    </div>
+                @endif
             </aside>
 
             <div>

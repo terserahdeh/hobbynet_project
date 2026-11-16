@@ -119,7 +119,7 @@
                 </dl>
 
                 <a style="color:white" class="btn btn--primary" href="{{ route('courses.show', $pack) }}">
-                    {{ $pack->is_premium && !auth()->user()->isPlus() ? '★ Buka dengan Plus' : 'Aku Siap — Mulai Course' }} @include('packs._icon', ['name' => 'arrow-right'])
+                    {{ $pack->is_premium && !auth()->user()->isPlus() ? '★ Buka dengan Plus' : 'Aku Siap — Mulai Proyek' }} @include('packs._icon', ['name' => 'arrow-right'])
                 </a>
 
                 <form method="POST" action="{{ route('bookmarks.toggle', $pack) }}">
@@ -157,7 +157,6 @@
     var root = document.querySelector('[data-pack]');
     if (!root) return;
 
-    var key   = 'hobbynet:pack:' + root.dataset.pack + ':owned';
     var boxes = Array.prototype.slice.call(root.querySelectorAll('input[data-owned]'));
     var essentials = boxes.filter(function (b) { return b.dataset.essential === '1'; });
 
@@ -170,12 +169,6 @@
     var elRemain  = root.querySelector('[data-remain]');
 
     function rp(n) { return 'Rp ' + Number(n).toLocaleString('id-ID'); }
-
-    // Pulihkan centangan yang tersimpan di browser ini (hanya kenyamanan, bukan data penting).
-    try {
-        var stored = JSON.parse(localStorage.getItem(key) || '[]');
-        boxes.forEach(function (b) { if (stored.indexOf(b.value) > -1) b.checked = true; });
-    } catch (e) {}
 
     function update() {
         var owned = essentials.filter(function (b) { return b.checked; });
@@ -192,15 +185,21 @@
         elRemain.textContent  = rp(total - saved);
 
         boxes.forEach(function (b) { b.closest('.pk-item').classList.toggle('is-owned', b.checked); });
-
-        try {
-            localStorage.setItem(key, JSON.stringify(
-                boxes.filter(function (b) { return b.checked; }).map(function (b) { return b.value; })
-            ));
-        } catch (e) {}
     }
 
-    boxes.forEach(function (b) { b.addEventListener('change', update); });
+    var tokenMeta = document.querySelector('meta[name="csrf-token"]');
+    var token = tokenMeta ? tokenMeta.content : '{{ csrf_token() }}';
+
+    boxes.forEach(function (b) {
+        b.addEventListener('change', function () {
+            update();
+            fetch(b.dataset.url, { method: 'POST', headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json' } })
+                .then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
+                .then(function (d) { b.checked = d.owned; update(); })
+                .catch(function () { b.checked = !b.checked; update(); });
+        });
+    });
+    
     update();
 
     // Salin tautan

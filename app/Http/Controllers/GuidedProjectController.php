@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SubmissionRequest;
 use App\Models\Project;
+use App\Models\ProjectSubmission;
 use App\Models\RoadmapStep;
 use App\Models\StepChecklistItem;
 use App\Models\StepMaterial;
+use App\Models\User;
 use App\Services\RoadmapService;
+use App\Services\SubmissionService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -15,14 +19,19 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Proyek berpemandu: halaman detail + langkah satu per satu, TANPA tampilan roadmap.
+ * Halaman proyek: detail + langkah berpemandu satu per satu (tanpa tampilan roadmap).
  * Memakai tabel dan RoadmapService yang sama dengan roadmap (roadmap_steps, user_step_progress, dst).
- * Proyek starter (roadmap) tetap diarahkan ke halaman roadmap hobinya.
+ * Hanya starter yang sedang menjadi roadmap utama pengguna (satu per hobi) yang dialihkan ke halaman roadmap.
+ * Starter level/hobi lain dan proyek biasa dibuka di sini sebagai proyek berpemandu.
+ * Langkah terakhir ("Share") memakai SubmissionService dan form yang sama dengan roadmap:
+ * simpan pribadi, atau centang "Bagikan ke Komunitas" agar tampil di halaman Komunitas.
  */
 class GuidedProjectController extends Controller
 {
-    public function __construct(private RoadmapService $roadmap)
-    {
+    public function __construct(
+        private RoadmapService $roadmap,
+        private SubmissionService $submissions,
+    ) {
     }
 
     /** Detail proyek: info, bahan, yang dipelajari, pratinjau langkah 1. */
@@ -33,19 +42,11 @@ class GuidedProjectController extends Controller
 
         $stepIds = RoadmapStep::where('project_id', $project->id)->pluck('id');
 
-        if ($project->is_starter && $project->hobby && $stepIds->isNotEmpty()) {
-            return redirect()->route('roadmap.show', $project->hobby->slug);
+        if ($redirect = $this->roadmapRedirect($project, $user)) {
+            return $redirect;
         }
 
         $summary = $this->roadmap->summary($user, $project);
-
-        $materials = StepMaterial::whereIn('roadmap_step_id', $stepIds)
-            ->orderBy('roadmap_step_id')->orderBy('position')->get()
-            ->unique('name')->values();
-
-        $ready = DB::table('project_material_ready')
-            ->where('user_id', $user->id)->where('project_id', $project->id)
-            ->pluck('name')->all();
 
         $learn = $project->learnings;
         if (is_string($learn)) {
@@ -58,8 +59,7 @@ class GuidedProjectController extends Controller
             'project' => $project,
             'summary' => $summary,
             'started' => DB::table('user_projects')->where('user_id', $user->id)->where('project_id', $project->id)->exists(),
-            'materials' => $materials,
-            'ready' => $ready,
+            'checklist' => app(\App\Services\PackChecklist::class)->forProject($project, $user),
             'learnings' => is_array($learn) ? $learn : [],
             'first' => $first ? $first->load('instructions') : null,
             'shopUrl' => config('hobbynet.shop_search_url'),
@@ -69,7 +69,9 @@ class GuidedProjectController extends Controller
     /** "Start Project" / "Continue Project". */
     public function start(Request $request, Project $project): RedirectResponse
     {
-        $this->abortIfRoadmapProject($project);
+        if ($redirect = $this->roadmapRedirect($project, $request->user())) {
+            return $redirect;
+        }
 
         $this->roadmap->begin($request->user(), $project);
         $summary = $this->roadmap->summary($request->user(), $project);
@@ -77,13 +79,17 @@ class GuidedProjectController extends Controller
 
         abort_if($target === null, 404);
 
-        return redirect()->route('projects.steps.show', [$project->slug, $target->slug]);
+        if ($summary['is_complete'] && $this->submittedWork($request->user(), $project)) {
+            return redirect()->route('projects.celebration', $project->slug);
+        }
+
+        return $this->goTo($project, $target);
     }
 
     /** Satu langkah: instruksi, bahan, tip, checklist. */
     public function step(Request $request, Project $project, string $stepSlug): View|RedirectResponse
     {
-        if ($redirect = $this->roadmapRedirect($project)) {
+        if ($redirect = $this->roadmapRedirect($project, $request->user())) {
             return $redirect;
         }
 
@@ -91,6 +97,10 @@ class GuidedProjectController extends Controller
 
         if ($step->state === 'locked') {
             return $this->lockedRedirect($project);
+        }
+
+        if ($step->type === RoadmapStep::TYPE_SHARE) {
+            return redirect()->route('projects.submission.show', $project->slug);
         }
 
         $this->roadmap->begin($request->user(), $project);
@@ -118,7 +128,7 @@ class GuidedProjectController extends Controller
     /** Centang atau batalkan satu item checklist. */
     public function toggleChecklist(Request $request, Project $project, string $stepSlug, StepChecklistItem $item): JsonResponse|RedirectResponse
     {
-        $this->abortIfRoadmapProject($project);
+        $this->abortIfPrimaryRoadmap($project, $request->user());
 
         [, $step] = $this->locate($request, $project, $stepSlug);
 
@@ -144,12 +154,16 @@ class GuidedProjectController extends Controller
     /** "Mark as Complete": seluruh checklist harus tercentang, lalu lanjut. */
     public function complete(Request $request, Project $project, string $stepSlug): RedirectResponse
     {
-        $this->abortIfRoadmapProject($project);
+        $this->abortIfPrimaryRoadmap($project, $request->user());
 
         [$summary, $step] = $this->locate($request, $project, $stepSlug);
 
         if ($step->state === 'locked') {
             return $this->lockedRedirect($project);
+        }
+
+        if ($step->type === RoadmapStep::TYPE_SHARE) {
+            return redirect()->route('projects.submission.show', $project->slug);
         }
 
         $user = $request->user();
@@ -178,26 +192,108 @@ class GuidedProjectController extends Controller
                 ->with('status', 'You finished ' . $project->title . '! One small step at a time got you here.');
         }
 
-        return redirect()->route('projects.steps.show', [$project->slug, $next->slug]);
+        return $this->goTo($project, $next);
     }
 
-    /** Tandai bahan "sudah punya" / batalkan. */
-    public function toggleMaterial(Request $request, Project $project): RedirectResponse
+    /** "Look What You Made!": langkah Share, sama seperti roadmap. */
+    public function submission(Request $request, Project $project): View|RedirectResponse
     {
-        $this->abortIfRoadmapProject($project);
-
-        $name = $request->validate(['name' => ['required', 'string', 'max:150']])['name'];
-
-        $stepIds = RoadmapStep::where('project_id', $project->id)->pluck('id');
-        abort_unless(StepMaterial::whereIn('roadmap_step_id', $stepIds)->where('name', $name)->exists(), 404);
-
-        $key = ['user_id' => $request->user()->id, 'project_id' => $project->id, 'name' => $name];
-
-        if (! DB::table('project_material_ready')->where($key)->delete()) {
-            DB::table('project_material_ready')->insertOrIgnore($key + ['created_at' => now(), 'updated_at' => now()]);
+        if ($redirect = $this->roadmapRedirect($project, $request->user())) {
+            return $redirect;
         }
 
-        return back();
+        [$summary, $shareStep] = $this->shareContext($request, $project);
+
+        if ($shareStep->state === 'locked') {
+            return $this->lockedRedirect($project);
+        }
+
+        $user = $request->user();
+        $submission = ProjectSubmission::with('photos')
+            ->where('user_id', $user->id)
+            ->where('project_id', $project->id)
+            ->first();
+
+        if ($submission?->isSubmitted()) {
+            return redirect()->route('projects.celebration', $project->slug);
+        }
+
+        return view('projects.submission', [
+            'project' => $project,
+            'summary' => $summary,
+            'step' => $shareStep,
+            'submission' => $submission ?? new ProjectSubmission([
+                'category' => $project->hobby?->name ?? $project->category,
+                'tags' => [],
+                'is_showcase' => false,
+            ]),
+            'maxPhotos' => SubmissionService::MAX_PHOTOS,
+        ]);
+    }
+
+    /** "Save as Draft" atau "Submit My Project", ditentukan oleh field `action`. */
+    public function storeSubmission(SubmissionRequest $request, Project $project): RedirectResponse
+    {
+        $user = $request->user();
+        $this->abortIfPrimaryRoadmap($project, $user);
+
+        [, $shareStep] = $this->shareContext($request, $project);
+
+        if ($shareStep->state === 'locked') {
+            return $this->lockedRedirect($project);
+        }
+
+        if ($shareStep->state === 'completed' && $this->submittedWork($user, $project)) {
+            return redirect()->route('projects.celebration', $project->slug);
+        }
+
+        $submit = $request->input('action') === 'submit';
+
+        $result = $this->submissions->save(
+            $user,
+            $project,
+            $shareStep,
+            $request->safe()->except(['action', 'photos', 'remove_photo_ids']),
+            $request->file('photos', []),
+            $request->input('remove_photo_ids', []),
+            $submit,
+        );
+
+        if (! $submit) {
+            return back()->with('status', 'Draft saved. Pick it up whenever you\'re ready.');
+        }
+
+        if ($result['badges']->isNotEmpty()) {
+            session()->flash('badges', $result['badges']->pluck('name')->all());
+        }
+
+        return redirect()->route('projects.celebration', $project->slug);
+    }
+
+    /** "You did it!": lencana dan saran proyek berikutnya. */
+    public function celebration(Request $request, Project $project): View|RedirectResponse
+    {
+        if ($redirect = $this->roadmapRedirect($project, $request->user())) {
+            return $redirect;
+        }
+
+        $user = $request->user();
+        $submission = $this->submittedWork($user, $project);
+
+        if ($submission === null) {
+            return redirect()->route('projects.show', $project->slug);
+        }
+
+        $summary = $this->roadmap->summary($user, $project);
+        $shareStep = $this->roadmap->shareStep($summary['steps']);
+
+        return view('projects.celebration', [
+            'project' => $project,
+            'summary' => $summary,
+            'submission' => $submission->load('photos'),
+            'badge' => $shareStep?->badge,
+            'nextProject' => $this->suggestNextProject($project),
+        ]);
     }
 
     /** @return array{0: array, 1: RoadmapStep} */
@@ -211,26 +307,68 @@ class GuidedProjectController extends Controller
         return [$summary, $step];
     }
 
-    /** Proyek starter punya halaman roadmap sendiri. */
-    private function roadmapRedirect(Project $project): ?RedirectResponse
+    /** Proyek roadmap = starter sebuah hobi yang punya langkah, di level mana pun. */
+    private function isRoadmapProject(Project $project): bool
     {
         $project->loadMissing('hobby');
 
-        if ($project->is_starter && $project->hobby && RoadmapStep::where('project_id', $project->id)->exists()) {
-            return redirect()->route('roadmap.show', $project->hobby->slug);
-        }
-
-        return null;
+        return $project->is_starter
+            && $project->hobby
+            && RoadmapStep::where('project_id', $project->id)->exists();
     }
 
-    private function abortIfRoadmapProject(Project $project): void
+    /** Proyek roadmap selalu dibuka di halaman roadmap, bukan sebagai proyek berpemandu. */
+    private function roadmapRedirect(Project $project, User $user): ?RedirectResponse
     {
-        $project->loadMissing('hobby');
+        if (! $this->isRoadmapProject($project)) {
+            return null;
+        }
 
-        abort_if(
-            $project->is_starter && $project->hobby && RoadmapStep::where('project_id', $project->id)->exists(),
-            404
-        );
+        $this->roadmap->openRoadmap($project, $user);
+
+        return redirect()->route('roadmap.show', $project->hobby->slug);
+    }
+
+    private function abortIfPrimaryRoadmap(Project $project, User $user): void
+    {
+        abort_if($this->isRoadmapProject($project), 404);
+    }
+
+    /** Buka sebuah langkah; langkah Share diarahkan ke form submission. */
+    private function goTo(Project $project, RoadmapStep $step): RedirectResponse
+    {
+        return $step->type === RoadmapStep::TYPE_SHARE
+            ? redirect()->route('projects.submission.show', $project->slug)
+            : redirect()->route('projects.steps.show', [$project->slug, $step->slug]);
+    }
+
+    /** @return array{0: array, 1: RoadmapStep} */
+    private function shareContext(Request $request, Project $project): array
+    {
+        $summary = $this->roadmap->summary($request->user(), $project);
+        $shareStep = $this->roadmap->shareStep($summary['steps']);
+
+        abort_if($shareStep === null, 404);
+
+        return [$summary, $shareStep];
+    }
+
+    private function submittedWork(User $user, Project $project): ?ProjectSubmission
+    {
+        return ProjectSubmission::where('user_id', $user->id)
+            ->where('project_id', $project->id)
+            ->where('status', ProjectSubmission::STATUS_SUBMITTED)
+            ->first();
+    }
+
+    /** Proyek lain yang punya langkah: hobi yang sama dulu, lalu yang paling populer. */
+    private function suggestNextProject(Project $current): ?Project
+    {
+        return Project::where('id', '!=', $current->id)
+            ->whereIn('id', RoadmapStep::query()->select('project_id'))
+            ->orderByRaw('hobby_id = ? desc', [$current->hobby_id])
+            ->orderByDesc('learners_count')
+            ->first();
     }
 
     private function lockedRedirect(Project $project): RedirectResponse

@@ -27,12 +27,30 @@ class Project extends Model
         return $this->belongsTo(Hobby::class);
     }
 
-    public function getLevelLabelAttribute(): string
+    public const LEVELS = ['beginner', 'intermediate', 'advanced'];
+
+    /** Label level untuk tampilan. Bisa dipanggil statis: Project::levelLabel('advanced'). */
+    public static function levelLabel(?string $level): string
     {
-        return match ($this->level) {
+        return match ($level) {
             'intermediate' => 'Menengah',
+            'advanced'     => 'Mahir',
             default        => 'Pemula',
         };
+    }
+
+    /** Urutan level: 0 pemula, 1 menengah, 2 mahir. */
+    public static function levelRank(?string $level): int
+    {
+        $rank = array_search($level, self::LEVELS, true);
+
+        return $rank === false ? 0 : $rank;
+    }
+
+    /** $project->level_label */
+    public function getLevelLabelAttribute(): string
+    {
+        return static::levelLabel($this->level);
     }
 
     public function getDurationLabelAttribute(): string

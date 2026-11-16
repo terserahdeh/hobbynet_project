@@ -5,6 +5,7 @@
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/roadmap.css') }}">
 <link rel="stylesheet" href="{{ asset('css/guided.css') }}">
+<link rel="stylesheet" href="{{ asset('css/plus-lock.css') }}">
 
 @php
     $stepUrl = fn ($s) => route('projects.steps.show', [$project->slug, $s->slug]);
@@ -12,8 +13,10 @@
     $items = $step->checklistItems;
     $allChecked = $items->every(fn ($i) => in_array($i->id, $checkedIds));
     $hero = $step->instructions->first(fn ($i) => filled($i->image));
-    $video = \App\Support\YouTube::id($step->video_url);
+    $locked = $locked ?? false;
+    $video = $locked ? null : \App\Support\YouTube::id($step->video_url);
     $hasVisual = $video || $hero;
+    $instructions = $locked ? $step->instructions->take(1) : $step->instructions;
     $phase = ['materials' => 'Preparation phase', 'lesson' => 'Tutorial phase', 'practice' => 'Practice phase', 'project' => 'Project phase'][$step->type] ?? 'Guided step';
     $isLast = $next === null;
     $goalPercent = min(100, (int) round($goal['minutes'] / $goal['goal'] * 100));
@@ -115,7 +118,7 @@
 
                     <div class="rm-split {{ $hasVisual ? '' : 'rm-split--single' }}">
                         <ol class="rm-instr">
-                            @foreach ($step->instructions as $ins)
+                            @foreach ($instructions as $ins)
                                 <li>
                                     <span class="rm-instr__num">{{ $ins->position }}</span>
                                     <p>{{ $ins->body }}</p>
@@ -133,30 +136,41 @@
                         @endif
                     </div>
 
-                    @if ($step->tip)
-                        <aside class="gp-tip" aria-label="Pro tip">
-                            <span class="gp-tip__icon">@include('roadmap.partials.icon', ['name' => 'bulb'])</span>
-                            <div><strong>Pro Tip</strong><p>{{ $step->tip }}</p></div>
+                    @if ($locked)
+                        <aside class="gp-lockcard" aria-label="HobbyNet Plus">
+                            <span class="gp-lockcard__icon" aria-hidden="true">&#9733;</span>
+                            <div>
+                                <strong>You're viewing a preview</strong>
+                                <p>The rest of this step{{ $step->instructions->count() > 1 ? ' (' . ($step->instructions->count() - 1) . ' more instructions)' : '' }}, the video, the Pro Tip and the checklist are part of HobbyNet Plus.</p>
+                                <a class="gp-btn gp-btn--plus gp-btn--sm" href="{{ route('plus') }}">&#9733; Unlock with Plus</a>
+                            </div>
                         </aside>
-                    @endif
+                    @else
+                        @if ($step->tip)
+                            <aside class="gp-tip" aria-label="Pro tip">
+                                <span class="gp-tip__icon">@include('roadmap.partials.icon', ['name' => 'bulb'])</span>
+                                <div><strong>Pro Tip</strong><p>{{ $step->tip }}</p></div>
+                            </aside>
+                        @endif
 
-                    @if ($items->isNotEmpty())
-                        <section class="rm-checklist" aria-labelledby="rm-checklist-title">
-                            <h2 id="rm-checklist-title">Action Checklist</h2>
-                            <ul id="rm-checklist">
-                                @foreach ($items as $item)
-                                    <li>
-                                        <label class="rm-check">
-                                            <input type="checkbox"
-                                                   data-url="{{ route('projects.steps.checklist', [$project->slug, $step->slug, $item->id]) }}"
-                                                   @checked(in_array($item->id, $checkedIds))>
-                                            <span>{{ $item->label }}</span>
-                                        </label>
-                                    </li>
-                                @endforeach
-                            </ul>
-                            @error('checklist') <p class="rm-error">{{ $message }}</p> @enderror
-                        </section>
+                        @if ($items->isNotEmpty())
+                            <section class="rm-checklist" aria-labelledby="rm-checklist-title">
+                                <h2 id="rm-checklist-title">Action Checklist</h2>
+                                <ul id="rm-checklist">
+                                    @foreach ($items as $item)
+                                        <li>
+                                            <label class="rm-check">
+                                                <input type="checkbox"
+                                                       data-url="{{ route('projects.steps.checklist', [$project->slug, $step->slug, $item->id]) }}"
+                                                       @checked(in_array($item->id, $checkedIds))>
+                                                <span>{{ $item->label }}</span>
+                                            </label>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                                @error('checklist') <p class="rm-error">{{ $message }}</p> @enderror
+                            </section>
+                        @endif
                     @endif
                 </main>
 
@@ -172,18 +186,22 @@
                         <p>Re-read the instructions slowly, take a short break, then try the Pro Tip. You can always come back to this step. One small step at a time.</p>
                     </details>
 
-                    <form method="POST" action="{{ route('projects.steps.complete', [$project->slug, $step->slug]) }}" class="rm-foot__right">
-                        @csrf
-                        <button type="submit" id="rm-complete" class="rm-btn rm-btn--primary"
-                                @disabled(! $allChecked && $step->state !== 'completed')>
-                            @if ($step->state === 'completed')
-                                {{ $isLast ? 'Back to Project' : 'Next Step' }}
-                            @else
-                                {{ $isLast ? 'Finish Project' : 'Mark as Complete' }}
-                            @endif
-                            @include('roadmap.partials.icon', ['name' => 'chev-right'])
-                        </button>
-                    </form>
+                    @if ($locked)
+                        <a class="rm-btn rm-btn--primary rm-foot__right" href="{{ route('plus') }}">&#9733; Unlock with Plus</a>
+                    @else
+                        <form method="POST" action="{{ route('projects.steps.complete', [$project->slug, $step->slug]) }}" class="rm-foot__right">
+                            @csrf
+                            <button type="submit" id="rm-complete" class="rm-btn rm-btn--primary"
+                                    @disabled(! $allChecked && $step->state !== 'completed')>
+                                @if ($step->state === 'completed')
+                                    {{ $isLast ? 'Back to Project' : 'Next Step' }}
+                                @else
+                                    {{ $isLast ? 'Finish Project' : 'Mark as Complete' }}
+                                @endif
+                                @include('roadmap.partials.icon', ['name' => 'chev-right'])
+                            </button>
+                        </form>
+                    @endif
                 </div>
             </div>
         </div>

@@ -5,7 +5,7 @@
 <div class="rm-page">
   <div class="rm-body">
       <div class="rm-container rm-container--form">
-        <a class="rm-link" href="{{ route('courses.show', $starterPack) }}">← Kembali ke course</a>
+        <a class="rm-link" href="{{ route('courses.legacy', $starterPack) }}">← Kembali ke course</a>
       <header class="rm-center" style="margin:34px 0">
         <div class="rm-hero-icon">✦</div>
         <h1 class="rm-display">Lihat Karyamu!</h1>
@@ -57,7 +57,7 @@
       </div>
     </div>
     <div class="rm-form__foot">
-      <a class="rm-link" href="{{ route('courses.show', $starterPack) }}">← Kembali</a><div class="rm-form__actions"><button class="rm-btn rm-btn--ghost" type="submit" name="action" value="draft">Simpan Draft</button><button class="rm-btn rm-btn--primary" type="submit" name="action" value="submit">Kirim Hasil Karya →</button></div></div>
+      <a class="rm-link" href="{{ route('courses.legacy', $starterPack) }}">← Kembali</a><div class="rm-form__actions"><button class="rm-btn rm-btn--ghost" type="submit" name="action" value="draft">Simpan Draft</button><button class="rm-btn rm-btn--primary" type="submit" name="action" value="submit">Kirim Hasil Karya →</button></div></div>
     </form>
   </div>
 </div>
