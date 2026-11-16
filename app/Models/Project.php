@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Project extends Model
 {
     protected $fillable = [
-        'hobby_id', 'slug', 'title', 'category', 'summary', 'description', 'level',
+        'hobby_id', 'slug', 'title', 'category', 'summary', 'skill','description', 'level',
         'duration_minutes', 'learners_count', 'image', 'icon', 'color', 'is_starter', 'is_popular',
     ];
 
