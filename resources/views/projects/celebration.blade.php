@@ -8,7 +8,7 @@
 <div class="rm-page">
     <header class="rm-topbar">
         <div class="rm-topbar__left">
-            <a href="{{ route('roadmap.show', $hobby->slug) }}" class="rm-topbar__close" aria-label="Back to your journey">@include('roadmap.partials.icon', ['name' => 'close'])</a>
+            <a href="{{ route('projects.show', $project->slug) }}" class="rm-topbar__close" aria-label="Back to your journey">@include('roadmap.partials.icon', ['name' => 'close'])</a>
             <div class="rm-topbar__title">
                 <strong>{{ $project->title }}</strong>
                 <span>Apresiasi</span>
