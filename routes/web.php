@@ -12,6 +12,7 @@ use App\Http\Controllers\Onboarding\PersonalizeController;
 use App\Http\Controllers\Roadmap\RoadmapController;
 use App\Http\Controllers\Roadmap\RoadmapStepController;
 use App\Http\Controllers\Roadmap\RoadmapSubmissionController;
+use App\Http\Controllers\Roadmap\RoadmapMaterialController;
 use App\Http\Controllers\ProfileController;   
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\WorkController;        
@@ -134,6 +135,8 @@ Route::middleware('auth')->prefix('roadmap')->name('roadmap.')->group(function (
 
     Route::prefix('{hobby:slug}')->group(function () {
         // Checkpoints
+        Route::patch('steps/{stepSlug}/materials/{material}', [RoadmapMaterialController::class, 'toggle']) ->name('steps.materials.toggle');
+        Route::get('steps/{stepSlug}/materials/{material}/image', [RoadmapStepController::class, 'showMaterialImage']) ->name('steps.materials.image');
         Route::get('steps/{stepSlug}', [RoadmapStepController::class, 'show'])->name('steps.show');
                 Route::get('steps/{stepSlug}/image', [RoadmapStepController::class, 'showImage'])->name('steps.image');
         Route::post('steps/{stepSlug}/complete', [RoadmapStepController::class, 'complete'])->name('steps.complete');
@@ -162,6 +165,8 @@ Route::middleware(['auth', EnsureUserIsAdmin::class])->prefix('admin')->name('ad
     Route::post('steps/{step}/move/{direction}', [AdminRoadmapStepController::class, 'move'])
         ->where('direction', 'up|down')
         ->name('steps.move');
+    Route::get('/step-materials/{material}/image', [RoadmapStepController::class, 'showMaterialImage'])
+        ->name('admin.step-materials.image');
     Route::get('steps/{step}/image', [AdminRoadmapStepController::class, 'showImage'])
     ->name('steps.image');
 });

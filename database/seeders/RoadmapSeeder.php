@@ -71,6 +71,7 @@ class RoadmapSeeder extends Seeder
         //     return;
         // }
         }
+        $this->call(\Database\Seeders\StepMaterialSeeder::class);
     }
 
     private function seedSteps(Project $project, array $steps, array $badges): void

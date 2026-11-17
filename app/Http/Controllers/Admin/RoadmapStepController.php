@@ -120,4 +120,22 @@ class RoadmapStepController extends Controller
             'Cache-Control' => 'private, no-store',
         ]);
     }
+    public function showMaterialImage(StepMaterial $material)
+    {
+        abort_if(empty($material->image), 404);
+
+        $mime = (new \finfo(FILEINFO_MIME_TYPE))->buffer($material->image);
+
+        abort_unless(
+            in_array($mime, ['image/jpeg', 'image/png', 'image/webp']),
+            404
+        );
+
+        return response($material->image, 200, [
+            'Content-Type' => $mime,
+            'Content-Disposition' => 'inline',
+            'X-Content-Type-Options' => 'nosniff',
+            'Cache-Control' => 'private, no-store',
+        ]);
+    }
 }

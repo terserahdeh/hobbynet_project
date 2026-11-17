@@ -14,6 +14,20 @@
         <input name="materials[{{ $i }}][name]" class="admin-input" value="{{ $row['name'] ?? '' }}" maxlength="255" placeholder="Crochet hook" aria-label="Name">
         <input name="materials[{{ $i }}][spec]" class="admin-input" value="{{ $row['spec'] ?? '' }}" maxlength="255" placeholder="4 mm (optional detail)" aria-label="Detail">
         <label class="admin-opt"><input type="checkbox" name="materials[{{ $i }}][is_optional]" value="1" @checked(! empty($row['is_optional']))> Optional</label>
+        <input name="materials[{{ $i }}][item_url]" class="admin-input" type="url" value="{{ $row['item_url'] ?? '' }}" placeholder="Item URL" aria-label="Item URL">
+        <textarea name="materials[{{ $i }}][description]" class="admin-input" placeholder="Description" aria-label="Description">{{ $row['description'] ?? '' }}</textarea>
+        <input name="materials[{{ $i }}][price]" class="admin-input" type="number" min="0" step="0.01" value="{{ $row['price'] ?? '' }}" placeholder="Price" aria-label="Price">
+
+        {{-- Image --}}
+        @if (!empty($row['has_image']) && !empty($row['id']))
+            <img src="{{ route('admin.step-materials.image', $row['id']) }}" alt="Material image" width="80">
+            <label class="admin-opt">
+                <input type="checkbox" name="materials[{{ $i }}][remove_image]" value="1">
+                Remove image
+            </label>
+        @endif
+
+        <input type="file" name="materials[{{ $i }}][image]" class="admin-input" accept="image/jpeg,image/png,image/webp">
         <button type="button" class="admin-icon-btn admin-icon-btn--danger" data-remove aria-label="Remove this row">&times;</button>
     </div>
 

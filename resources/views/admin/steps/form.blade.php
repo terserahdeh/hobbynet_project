@@ -5,6 +5,7 @@
 
     $materialRows = old('materials', $step->materials->map(fn ($m) => [
         'id' => $m->id, 'kind' => $m->kind, 'name' => $m->name, 'spec' => $m->spec, 'is_optional' => $m->is_optional,
+        'item_url' => $m->item_url, 'description' => $m->description, 'price' => $m->price, 'has_image' => !empty($m->image),
     ])->all()) ?: [['kind' => 'tool']];
 
     $instructionRows = old('instructions', $step->instructions->map(fn ($i) => [
@@ -285,6 +286,24 @@
                 preview.appendChild(img);
             });
         }
+        // Preview material images (including dynamically added rows).
+        form.addEventListener('change', function (e) {
+            if (!e.target.matches('[data-material-image]')) return;
+
+            var input = e.target;
+            var row = input.closest('[data-row]');
+            var preview = row.querySelector('.material-new-preview');
+            var img = preview.querySelector('img');
+
+            if (!input.files.length) {
+                preview.hidden = true;
+                img.removeAttribute('src');
+                return;
+            }
+
+            img.src = URL.createObjectURL(input.files[0]);
+            preview.hidden = false;
+        });
     })();
 </script>
 @endpush

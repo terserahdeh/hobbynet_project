@@ -16,8 +16,15 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
         $this->call([
+            DemoProgressSeeder::class,
+            ExplorePackSeeder::class,
+            GuidedProjectSeeder::class,
             HobbySeeder::class,
+            StepMaterialSeeder::class,
+            PremiumAccessSeeder::class,
             ProjectSeeder::class,
+            ProjectVideoSeeder::class,
+            RoadmapLevelSeeder::class,
             RoadmapSeeder::class,
             StarterPackSeeder::class,
         ]);
