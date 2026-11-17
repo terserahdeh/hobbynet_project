@@ -155,61 +155,80 @@
 <script>
 (function () {
     var root = document.querySelector('[data-pack]');
-    if (!root) return;
+    if (!root) { console.warn('Checklist: elemen [data-pack] tidak ditemukan.'); return; }
 
     var boxes = Array.prototype.slice.call(root.querySelectorAll('input[data-owned]'));
     var essentials = boxes.filter(function (b) { return b.dataset.essential === '1'; });
 
-    var elCount   = root.querySelector('[data-owned-count]');
-    var elPercent = root.querySelector('[data-percent]');
-    var elBar     = root.querySelector('[data-bar]');
-    var elBarWrap = root.querySelector('[data-bar-wrap]');
-    var elTotal   = root.querySelector('[data-total]');
-    var elSaved   = root.querySelector('[data-saved]');
-    var elRemain  = root.querySelector('[data-remain]');
-
-    function rp(n) { return 'Rp ' + Number(n).toLocaleString('id-ID'); }
-
-    function update() {
-        var owned = essentials.filter(function (b) { return b.checked; });
-        var total = essentials.reduce(function (s, b) { return s + Number(b.dataset.price); }, 0);
-        var saved = owned.reduce(function (s, b) { return s + Number(b.dataset.price); }, 0);
-        var pct   = essentials.length ? Math.round(owned.length / essentials.length * 100) : 0;
-
-        elCount.textContent   = owned.length;
-        elPercent.textContent = pct + '%';
-        elBar.style.width     = pct + '%';
-        elBarWrap.setAttribute('aria-valuenow', pct);
-        elTotal.textContent   = rp(total);
-        elSaved.textContent   = '− ' + rp(saved);
-        elRemain.textContent  = rp(total - saved);
-
-        boxes.forEach(function (b) { b.closest('.pk-item').classList.toggle('is-owned', b.checked); });
-    }
+    var el = function (sel) { return root.querySelector(sel); };
+    var elCount = el('[data-owned-count]'), elPercent = el('[data-percent]'), elBar = el('[data-bar]'),
+        elBarWrap = el('[data-bar-wrap]'), elTotal = el('[data-total]'), elSaved = el('[data-saved]'),
+        elRemain = el('[data-remain]');
 
     var tokenMeta = document.querySelector('meta[name="csrf-token"]');
     var token = tokenMeta ? tokenMeta.content : '{{ csrf_token() }}';
 
+    function rp(n) { return 'Rp ' + Number(n).toLocaleString('id-ID'); }
+    function set(node, text) { if (node) node.textContent = text; }
+
+    function update() {
+        var owned = essentials.filter(function (b) { return b.checked; });
+        var total = essentials.reduce(function (s, b) { return s + Number(b.dataset.price || 0); }, 0);
+        var saved = owned.reduce(function (s, b) { return s + Number(b.dataset.price || 0); }, 0);
+        var pct = essentials.length ? Math.round(owned.length / essentials.length * 100) : 0;
+
+        set(elCount, owned.length);
+        set(elPercent, pct + '%');
+        if (elBar) elBar.style.width = pct + '%';
+        if (elBarWrap) elBarWrap.setAttribute('aria-valuenow', pct);
+        set(elTotal, rp(total));
+        set(elSaved, '− ' + rp(saved));
+        set(elRemain, rp(total - saved));
+
+        boxes.forEach(function (b) {
+            var item = b.closest('.pk-item');
+            if (item) item.classList.toggle('is-owned', b.checked);
+        });
+    }
+
     boxes.forEach(function (b) {
         b.addEventListener('change', function () {
+            var wanted = b.checked;
             update();
-            fetch(b.dataset.url, { method: 'POST', headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json' } })
-                .then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
+
+            if (!b.dataset.url) {
+                console.error('Checklist: data-url kosong. Cek packs/_item.blade.php.');
+                return;
+            }
+
+            fetch(b.dataset.url, {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json' },
+                credentials: 'same-origin'
+            })
+                .then(function (r) {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.json();
+                })
                 .then(function (d) { b.checked = d.owned; update(); })
-                .catch(function () { b.checked = !b.checked; update(); });
+                .catch(function (err) {
+                    console.error('Gagal menyimpan centang:', b.dataset.url, err);
+                    b.checked = !wanted;
+                    update();
+                    alert('Centang belum tersimpan. Muat ulang halaman lalu coba lagi.');
+                });
         });
     });
-    
-    update();
 
-    // Salin tautan
-    var copyBtn  = root.querySelector('[data-copy]');
-    var copyDone = root.querySelector('[data-copy-done]');
+    update();
+    console.info('Checklist siap: ' + boxes.length + ' item.');
+
+    // Salin tautan paket
+    var copyBtn = el('[data-copy]'), copyDone = el('[data-copy-done]');
     if (copyBtn && navigator.clipboard) {
         copyBtn.addEventListener('click', function () {
             navigator.clipboard.writeText(window.location.href).then(function () {
-                copyDone.hidden = false;
-                setTimeout(function () { copyDone.hidden = true; }, 2500);
+                if (copyDone) { copyDone.hidden = false; setTimeout(function () { copyDone.hidden = true; }, 2500); }
             });
         });
     }
