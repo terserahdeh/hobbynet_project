@@ -26,13 +26,13 @@
 
     <div class="rm-head">
         <div>
-            <h1 class="rm-title">Your {{ $hobby->name }} Journey</h1>
-            <p class="rm-lead">Master the basics and create your first beginner-friendly {{ strtolower($project->category) }} project.</p>
+            <h1 class="rm-title">Perjalanan {{ $hobby->name }}mu</h1>
+            <p class="rm-lead">Kuasai dasar-dasarnya dan buat proyek {{ strtolower($project->category) }} pertama Anda!</p>
         </div>
 
         @if ($otherHobbies->isNotEmpty())
             <details class="rm-switch">
-                <summary>@include('roadmap.partials.icon', ['name' => 'chev-left']) Switch Hobby</summary>
+                <summary>@include('roadmap.partials.icon', ['name' => 'chev-left']) Ganti Hobi</summary>
                 <ul class="rm-switch__menu">
                     @foreach ($otherHobbies as $other)
                         <li><a href="{{ route('roadmap.show', $other->slug) }}">{{ $other->name }}</a></li>
@@ -45,20 +45,20 @@
     <section class="rm-card rm-progress" aria-label="Your progress">
         <div class="rm-progress__left">
             <div class="rm-progress__row">
-                <span>Overall progress</span>
-                <strong>{{ $summary['percent'] }}% complete</strong>
+                <span>Progres Roadmap</span>
+                <strong>{{ $summary['percent'] }}% Selesai</strong>
             </div>
             <div class="rm-bar" role="progressbar" aria-valuenow="{{ $summary['percent'] }}" aria-valuemin="0" aria-valuemax="100" aria-label="Roadmap progress">
                 <span class="rm-bar__fill" style="width: {{ $summary['percent'] }}%"></span>
             </div>
-            <p class="rm-progress__note">{{ $summary['completed'] }} of {{ $total }} checkpoints finished</p>
+            <p class="rm-progress__note">{{ $summary['completed'] }} of {{ $total }} checkpoint selesai</p>
         </div>
         <span class="rm-progress__divider" aria-hidden="true"></span>
         <div class="rm-progress__right">
             <span class="rm-progress__icon">@include('roadmap.partials.icon', ['name' => 'clock'])</span>
             <div>
-                <small>Time investment</small>
-                <strong>~{{ $hours }} hours total</strong>
+                <small>Waktu Penyelesaian</small>
+                <strong>~{{ $hours }} jam</strong>
             </div>
         </div>
     </section>
@@ -80,11 +80,11 @@
 
                 @if ($s->state === 'active')
                     <div class="rm-node rm-node--active {{ $isFinal ? 'rm-node--final' : '' }}">
-                        <span class="rm-tag">Active step</span>
+                        <span class="rm-tag">Langkah Sekarang</span>
                         <h2>{{ $s->title }}</h2>
-                        <p>Today's goal: {{ $s->summary }}</p>
+                        <p>Goal hari ini: {{ $s->summary }}</p>
                         <div class="rm-node__cta">
-                            <a href="{{ $stepUrl($s) }}" class="rm-btn rm-btn--blue">Continue Journey @include('roadmap.partials.icon', ['name' => 'chev-right'])</a>
+                            <a href="{{ $stepUrl($s) }}" class="rm-btn rm-btn--blue">Lanjutkan Perjalanan @include('roadmap.partials.icon', ['name' => 'chev-right'])</a>
                             <span>@include('roadmap.partials.icon', ['name' => 'clock']) {{ $s->estimated_minutes }} min</span>
                         </div>
                     </div>
@@ -94,7 +94,7 @@
                         <span class="rm-thumb" aria-hidden="true">@include('roadmap.partials.icon', ['name' => $hobby->slug === 'painting' ? 'brush' : ($hobby->slug === 'photography' ? 'camera' : 'yarn')])</span>
                         <span>
                             <h2>{{ $s->title }}</h2>
-                            <p class="rm-node__sub">Completed &bull; {{ $s->completed_at?->format('M j') }}</p>
+                            <p class="rm-node__sub">Selesai &bull; {{ $s->completed_at?->format('M j') }}</p>
                         </span>
                     </a>
 
@@ -103,7 +103,7 @@
                         <span class="rm-final__icon" aria-hidden="true">@include('roadmap.partials.icon', ['name' => 'arrow-right'])</span>
                         <h2>{{ $s->title }}</h2>
                         <p>{{ $s->summary }}</p>
-                        <span class="rm-final__lock">@include('roadmap.partials.icon', ['name' => 'lock']) Unlock by completing Step {{ $total - 1 }}</span>
+                        <span class="rm-final__lock">@include('roadmap.partials.icon', ['name' => 'lock']) Buka dengan menyelesaikan langkah {{ $total - 1 }}</span>
                     </div>
 
                 @else
@@ -111,7 +111,7 @@
                         <span class="rm-thumb" aria-hidden="true">@include('roadmap.partials.icon', ['name' => $side === 'left' ? 'bulb' : 'plus'])</span>
                         <span>
                             <h2>{{ $s->title }}</h2>
-                            <p class="rm-node__sub">Checkpoint locked</p>
+                            <p class="rm-node__sub">Checkpoint terkunci</p>
                         </span>
                     </div>
                 @endif
@@ -120,12 +120,12 @@
     </ol>
 
     @if ($summary['is_complete'])
-        <p class="rm-done-note">You finished every checkpoint. Curious about something new?
-            <a href="{{ route('roadmap.celebration', $hobby->slug) }}"><strong>See your celebration</strong></a>
+        <p class="rm-done-note">Kamu sudah menyelesaikan semua langkah.
+            <a href="{{ route('roadmap.celebration', $hobby->slug) }}"><strong> Lihat Karyamu</strong></a>
         </p>
     @elseif (Route::has('profile'))
         <div class="rm-pills">
-            <a href="{{ route('profile') }}" class="rm-pill-link">@include('roadmap.partials.icon', ['name' => 'star']) View All Milestones</a>
+            <a href="{{ route('profile') }}" class="rm-pill-link">@include('roadmap.partials.icon', ['name' => 'star']) Lihat Semua Lencana</a>
         </div>
     @endif
 </div>
@@ -142,7 +142,7 @@
             <span style="color: var(--rm-green-dark); font-size: 18px; position: relative;">@include('roadmap.partials.icon', ['name' => 'compass'])</span>
         </span>
         <span>
-            <span class="rm-next__eyebrow">Next achievement</span>
+            <span class="rm-next__eyebrow">Pencapaian Selanjutnya</span>
             <strong>{{ $nextBadgeStep->badge->name }}</strong>
             <small>Finish &ldquo;{{ $nextBadgeStep->title }}&rdquo;</small>
         </span>

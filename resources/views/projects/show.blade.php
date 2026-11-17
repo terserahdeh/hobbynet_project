@@ -37,15 +37,15 @@
             <p class="gp-lead">{{ $project->description ?? $project->summary }}</p>
 
             <dl class="gp-meta">
-                <div><dt>Category</dt><dd>{{ $project->category }}</dd></div>
+                <div><dt>Kategori</dt><dd>{{ $project->category }}</dd></div>
                 <div><dt>Level</dt><dd>{{ $project->level_label }}</dd></div>
-                <div><dt>Time</dt><dd>{{ \App\Models\Project::humanDuration($summary['total_minutes']) }}</dd></div>
-                <div><dt>Steps</dt><dd>{{ $total }} {{ $total === 1 ? 'Step' : 'Steps' }}</dd></div>
+                <div><dt>Waktu</dt><dd>{{ \App\Models\Project::humanDuration($summary['total_minutes']) }}</dd></div>
+                <div><dt>Langkah</dt><dd>{{ $total }} {{ $total === 1 ? 'Step' : 'Steps' }}</dd></div>
             </dl>
 
             @if ($total > 0)
                 <div class="gp-progress">
-                    <div class="gp-progress__row"><span>Project Progress</span><strong>{{ $summary['percent'] }}%</strong></div>
+                    <div class="gp-progress__row"><span>Progres Proyek</span><strong>{{ $summary['percent'] }}%</strong></div>
                     <div class="gp-bar" role="progressbar" aria-valuenow="{{ $summary['percent'] }}" aria-valuemin="0" aria-valuemax="100" aria-label="Project progress">
                         <span style="width: {{ $summary['percent'] }}%"></span>
                     </div>
@@ -53,11 +53,11 @@
 
                 @if ($locked)
                     <div class="gp-lock">
-                        <p><strong>This project is part of HobbyNet Plus.</strong> You can preview the details, materials and step 1. Unlock every step, the checklist and sharing with Plus.</p>
+                        <p><strong>Proyek ini merupakan bagian dari HobbyNet Plus.</strong> Anda dapat melihat pratinjau detail, bahan, dan langkah 1. Buka akses ke seluruh langkah, daftar periksa, serta fitur berbagi dengan berlangganan Plus.</p>
                         <div class="gp-actions">
-                            <a class="gp-btn gp-btn--plus" href="{{ route('plus') }}">&#9733; Unlock with Plus</a>
+                            <a class="gp-btn gp-btn--plus" href="{{ route('plus') }}">&#9733; Buka dengan Plus</a>
                             @if ($first)
-                                <a class="gp-btn gp-btn--ghost" href="{{ route('projects.steps.show', [$project->slug, $first->slug]) }}">Preview step 1</a>
+                                <a class="gp-btn gp-btn--ghost" href="{{ route('projects.steps.show', [$project->slug, $first->slug]) }}">Lihat step 1</a>
                             @endif
                         </div>
                     </div>
@@ -66,15 +66,15 @@
                         <form method="POST" action="{{ route('projects.start', $project->slug) }}">
                             @csrf
                             <button type="submit" class="gp-btn gp-btn--primary">
-                                @if ($summary['is_complete']) Review Project
-                                @elseif ($started && $summary['completed'] > 0) Continue Project
-                                @else Start Project @endif
+                                @if ($summary['is_complete']) Review Proyek
+                                @elseif ($started && $summary['completed'] > 0) Lanjutkan Proyek
+                                @else Mulai Proyek @endif
                             </button>
                         </form>
                     </div>
                 @endif
             @else
-                <p class="gp-note">The guided steps for this project are being prepared. Check back soon.</p>
+                <p class="gp-note">Langkah-langkah untuk proyek ini sedang disiapkan. Silakan periksa kembali nanti.</p>
             @endif
         </div>
     </section>
@@ -90,7 +90,7 @@
             {{-- ===== What You'll Learn ===== --}}
             @if (count($learnings))
                 <section class="gp-card" aria-labelledby="gp-learn-title">
-                    <h2 id="gp-learn-title">What You'll Learn</h2>
+                    <h2 id="gp-learn-title">Akan Dipelajari</h2>
                     <ul class="gp-learn">
                         @foreach ($learnings as [$title, $desc])
                             <li>
@@ -113,7 +113,7 @@
                         @endif
                     </div>
                     <div class="gp-preview__text">
-                        <p class="gp-eyebrow">Step 1 preview</p>
+                        <p class="gp-eyebrow">Langkah 1</p>
                         <h3 id="gp-prev-title">Step 1: {{ $first->title }}</h3>
                         <p>{{ $first->summary }}</p>
                     </div>
@@ -122,7 +122,7 @@
                     @else
                         <form method="POST" action="{{ route('projects.start', $project->slug) }}">
                             @csrf
-                            <button type="submit" class="gp-btn gp-btn--primary gp-btn--sm">{{ $started ? 'Continue' : 'Start Project' }}</button>
+                            <button type="submit" class="gp-btn gp-btn--primary gp-btn--sm">{{ $started ? 'Lanjutkan' : 'Mulai Proyek' }}</button>
                         </form>
                     @endif
                 </section>

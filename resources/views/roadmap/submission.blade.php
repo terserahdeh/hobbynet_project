@@ -1,3 +1,5 @@
+@include('partials.flash-popup')
+
 @extends('layouts.app')
 
 @section('title', 'Look What You Made!')
@@ -16,14 +18,14 @@
             <a href="{{ route('roadmap.show', $hobby->slug) }}" class="rm-topbar__close" aria-label="Back to your journey">@include('roadmap.partials.icon', ['name' => 'close'])</a>
             <div class="rm-topbar__title">
                 <strong>{{ $project->title }}</strong>
-                <span>Final milestone</span>
+                <span>Langkah Terakhir</span>
             </div>
         </div>
 
         <div class="rm-topbar__mid">
             <div class="rm-topbar__labels">
-                <span>Final step</span>
-                <span>{{ $summary['percent'] }}% roadmap progress</span>
+                <span>Langkah Terakhir</span>
+                <span>{{ $summary['percent'] }}% progres roadmap</span>
             </div>
             <div class="rm-bar" role="progressbar" aria-valuenow="{{ $summary['percent'] }}" aria-valuemin="0" aria-valuemax="100" aria-label="Roadmap progress">
                 <span class="rm-bar__fill" style="width: {{ $summary['percent'] }}%"></span>
@@ -35,10 +37,10 @@
     <div class="rm-container rm-container--form">
         @include('roadmap.partials.flash')
 
-        <header class="rm-center" style="margin-top: 24px;">
+        <header class="rm-center">
             <div class="rm-hero-icon">@include('roadmap.partials.icon', ['name' => 'heart'])</div>
-            <h1 class="rm-display">Look What You Made!</h1>
-            <p class="rm-sub">You've learned the basics. Now share your creation and celebrate how far you've come.</p>
+            <h1 class="rm-display">Tunjukkan karyamu!</h1>
+            <p class="rm-sub">Anda telah mempelajari dasar-dasarnya. Sekarang, bagikan karya dab cerita perjalanan Anda.</p>
         </header>
 
         <form method="POST" action="{{ route('roadmap.submission.store', $hobby->slug) }}" enctype="multipart/form-data" class="rm-card rm-form">
@@ -46,9 +48,9 @@
 
             <div class="rm-form__body">
                 <div>
-                    <label for="title" class="rm-label">Project title</label>
+                    <label for="title" class="rm-label">Nama Karyamu</label>
                     <input id="title" name="title" type="text" maxlength="120" class="rm-input"
-                           value="{{ old('title', $submission->title) }}" placeholder="My First {{ $project->title }}">
+                           value="{{ old('title', $submission->title) }}" placeholder="{{ $project->title }}">
                     @error('title') <p class="rm-error">{{ $message }}</p> @enderror
                 </div>
 
@@ -57,7 +59,7 @@
                         <span class="rm-label">Foto hasil karya</span>
                         <label for="photos" class="rm-upload">
                             <span class="rm-upload__icon">@include('roadmap.partials.icon', ['name' => 'image'])</span>
-                            <strong>Click to upload or drag &amp; drop</strong>
+                            <strong>Klik untuk upload atau drag &amp; drop</strong>
                             <small>Maksimal 1 foto · PNG, JPG atau WebP · 5 MB. Foto baru otomatis mengganti foto lama.</small>
                             <input id="photos" name="photos[]" type="file" accept="image/jpeg,image/png,image/webp">
                         </label>
@@ -66,7 +68,7 @@
                     </div>
 
                     <div>
-                        <span class="rm-label">Preview</span>
+                        <span class="rm-label">Pratinjau</span>
                         <div class="rm-preview">
                             <div class="rm-preview__empty" id="rm-empty" @if ($existing->isNotEmpty()) hidden @endif>
                                 Foto hasil karya akan muncul di sini.
@@ -84,12 +86,12 @@
 
                 <div class="rm-meta-row">
                     <div>
-                        <label for="reflection" class="rm-label">Reflection (optional)</label>
+                        <label for="reflection" class="rm-label">Ceritakan kisahmu (opsional)</label>
                         <textarea id="reflection" name="reflection" maxlength="2000" class="rm-textarea"
-                                  placeholder="What did you enjoy most about making this?">{{ old('reflection', $submission->reflection) }}</textarea>
+                                  placeholder="Apa yang paling kamu senangi selama membuat karya ini?">{{ old('reflection', $submission->reflection) }}</textarea>
                     </div>
                     <div>
-                        <span class="rm-label">Category</span>
+                        <span class="rm-label">Kategori</span>
                         <div class="rm-chipset">
                             <input name="category" type="text" maxlength="50" class="rm-chipinput rm-chipinput--on"
                                    value="{{ old('category', $submission->category) }}" aria-label="Category">
@@ -111,10 +113,10 @@
             </div>
 
             <div class="rm-form__foot">
-                <a href="{{ route('roadmap.show', $hobby->slug) }}" class="rm-link">@include('roadmap.partials.icon', ['name' => 'chev-left']) Back to Roadmap</a>
+                <a href="{{ route('roadmap.show', $hobby->slug) }}" class="rm-link">@include('roadmap.partials.icon', ['name' => 'chev-left']) Kembali ke Roadmap</a>
                 <div class="rm-form__actions">
-                    <button type="submit" name="action" value="draft" class="rm-btn rm-btn--ghost">Save as Draft</button>
-                    <button type="submit" name="action" value="submit" class="rm-btn rm-btn--primary">Submit My Project @include('roadmap.partials.icon', ['name' => 'chev-right'])</button>
+                    <button type="submit" name="action" value="draft" class="rm-btn rm-btn--ghost">Simpan Draft</button>
+                    <button type="submit" name="action" value="submit" class="rm-btn rm-btn--primary">Kumpulkan Proyek @include('roadmap.partials.icon', ['name' => 'chev-right'])</button>
                 </div>
             </div>
         </form>
