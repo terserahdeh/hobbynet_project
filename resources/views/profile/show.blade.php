@@ -20,6 +20,7 @@
                     <span class="pk-count">{{ $savedCount }}</span>
                 @endif
             </a>
+            <a href="{{ route('profile') }}#postingan-tersimpan">🔖 Postingan Komunitas Tersimpan</a>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit">Keluar</button>
@@ -170,6 +171,20 @@
     </div>
 </section>
 
+        <section class="pk-block" id="postingan-tersimpan">
+            <h2 class="pk-h2">Postingan Komunitas Tersimpan ({{ $savedPosts->count() }})</h2>
+            <p class="hn-subtitle">Koleksi postingan yang kamu simpan dari Komunitas.</p>
+            <div class="hn-works-grid">
+                @forelse($savedPosts as $savedPost)
+                    <a class="hn-portfolio-card" href="{{ route('community.show',$savedPost) }}">
+                        <div class="hn-portfolio-media"><img src="{{ $savedPost->photos->first()?->url }}" alt="{{ $savedPost->title }}" loading="lazy"></div>
+                        <div class="hn-portfolio-copy"><p class="hn-work-category">{{ $savedPost->user->name }}</p><h3>{{ $savedPost->title }}</h3><strong>Lihat postingan →</strong></div>
+                    </a>
+                @empty
+                    <p>Belum ada postingan tersimpan. Jelajahi <a href="{{ route('community.index') }}">Komunitas</a>.</p>
+                @endforelse
+            </div>
+        </section>
         <section class="pk-block hn-gallery-section" id="hasil-karya">
             <div class="hn-section-heading">
                 <div>

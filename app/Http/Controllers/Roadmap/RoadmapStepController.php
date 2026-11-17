@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Hobby;
 use App\Models\RoadmapStep;
 use App\Models\StepChecklistItem;
+use App\Models\StepMaterial;
 use App\Services\RoadmapService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -36,7 +37,9 @@ class RoadmapStepController extends Controller
 
         $steps = $summary['steps'];
 
-        return view('roadmap.step', [
+        $view = $step->type === 'materials' ? 'roadmap.step-materials' : 'roadmap.step';
+
+        return view($view, [
             'hobby' => $hobby,
             'project' => $project,
             'summary' => $summary,
@@ -118,7 +121,7 @@ class RoadmapStepController extends Controller
     /** @return array{0: \App\Models\Project, 1: array, 2: RoadmapStep} */
     private function locate(Request $request, Hobby $hobby, string $stepSlug): array
     {
-        $project = $this->roadmap->starterProject($hobby);
+        $project = $this->roadmap->starterProject($hobby, $request->user());
         $summary = $this->roadmap->summary($request->user(), $project);
         $step = $summary['steps']->firstWhere('slug', $stepSlug);
 
@@ -152,6 +155,34 @@ class RoadmapStepController extends Controller
         );
 
         return response($step->image, 200, [
+            'Content-Type' => $mime,
+            'Content-Disposition' => 'inline',
+            'X-Content-Type-Options' => 'nosniff',
+            'Cache-Control' => 'private, no-store',
+        ]);
+    }
+    public function showMaterialImage(Hobby $hobby, string $stepSlug, StepMaterial $material)
+    {
+        abort_unless(
+            $material->step()
+                ->where('slug', $stepSlug)
+                ->whereHas('project', fn ($query) =>
+                    $query->where('hobby_id', $hobby->id)
+                )
+                ->exists(),
+            404
+        );
+
+        abort_if(empty($material->image), 404);
+
+        $mime = (new \finfo(FILEINFO_MIME_TYPE))->buffer($material->image);
+
+        abort_unless(
+            in_array($mime, ['image/jpeg', 'image/png', 'image/webp']),
+            404
+        );
+
+        return response($material->image, 200, [
             'Content-Type' => $mime,
             'Content-Disposition' => 'inline',
             'X-Content-Type-Options' => 'nosniff',

@@ -104,8 +104,8 @@
                 <label class="rm-showcase">
                     <input type="checkbox" name="is_showcase" value="1" @checked(old('is_showcase', $submission->is_showcase))>
                     <span>
-                        <strong>Ready for Showcase</strong>
-                        <small>I have completed all steps in the roadmap.</small>
+                        <strong>Bagikan ke Komunitas</strong>
+                        <small>Aktifkan agar karya muncul di Komunitas. Jika dimatikan, karya tetap tersimpan pribadi di profil.</small>
                     </span>
                 </label>
             </div>

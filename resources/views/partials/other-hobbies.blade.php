@@ -1,44 +1,36 @@
-{{-- Hobi Lainnya: roadmap hobi yang belum dipilih. Data dari App\View\Composers\OtherHobbiesComposer ($moreHobbies). --}}
-@if ($moreHobbies->isNotEmpty())
+{{-- Hobi Lainnya: roadmap hobi/level lain dan proyek berpemandu. Data dari App\View\Composers\OtherHobbiesComposer ($moreItems). --}}
+@if ($moreItems->isNotEmpty())
 <link rel="stylesheet" href="{{ asset('css/other-hobbies.css') }}">
 <section class="oh" aria-labelledby="h-oh">
     <div class="oh__head">
         <h2 class="oh__title" id="h-oh">Hobi Lainnya</h2>
         <a class="oh__all" href="{{ route('explore') }}">Lihat semua</a>
     </div>
-    <p class="oh__sub">Penasaran dengan hal baru? Coba satu proyek kecil dulu, kamu bisa berhenti kapan pun.</p>
+    <p class="oh__sub">Roadmap hobi atau tingkat lain, dan proyek berpemandu. Coba kapan pun kamu penasaran.</p>
 
     <ul class="oh__grid">
-        @foreach ($moreHobbies as $item)
-            @php
-                $hobby = $item['hobby'];
-                $project = $item['project'];
-            @endphp
+        @foreach ($moreItems as $item)
+            @php $p = $item['project']; @endphp
             <li>
-                <article class="oh-card">
-                    <a class="oh-card__media oh-card__media--{{ $hobby->color }}"
-                       href="{{ route('roadmap.show', $hobby->slug) }}" tabindex="-1" aria-hidden="true">
-                        @if ($project->image)
-                            <img src="{{ asset($project->image) }}" alt="" loading="lazy" onerror="this.remove()">
+                <a class="oh-tile" href="{{ $item['href'] }}">
+                    <span class="oh-tile__media oh-tile__media--{{ $p->color ?? 'pink' }}">
+                        @if ($p->image)
+                            <img src="{{ asset($p->image) }}" alt="" loading="lazy" onerror="this.remove()">
                         @endif
-                        <span class="oh-card__tag">{{ $hobby->short_name ?? $hobby->name }}</span>
-                    </a>
-                    <div class="oh-card__body">
-                        <h3 class="oh-card__title">{{ $project->title }}</h3>
-                        <p class="oh-card__meta">{{ $item['steps'] }} checkpoint &bull; sekitar {{ $item['hours'] }} jam</p>
-
-                        @if ($item['percent'] > 0)
-                            <div class="oh-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"
-                                 aria-valuenow="{{ $item['percent'] }}" aria-label="Progres {{ $hobby->name }}">
-                                <span style="width: {{ $item['percent'] }}%"></span>
-                            </div>
+                        <span class="oh-tile__tag">{{ $item['kind'] }}</span>
+                        @if ($item['premium'])
+                            <span class="oh-tile__plus" title="{{ $item['locked'] ? 'Buka dengan HobbyNet Plus' : 'Termasuk paket Plus-mu' }}">&#9733; Plus</span>
                         @endif
-
-                        <a class="oh-card__cta" href="{{ route('roadmap.show', $hobby->slug) }}">
-                            {{ $item['percent'] > 0 ? 'Lanjutkan roadmap' : 'Lihat roadmap' }}
-                        </a>
-                    </div>
-                </article>
+                    </span>
+                    <span class="oh-tile__hobby">{{ $item['hobby'] }} &bull; {{ $item['level'] }}</span>
+                    <strong class="oh-tile__title">{{ $p->title }}</strong>
+                    <span class="oh-tile__meta">{{ $item['steps'] }} langkah &bull; &plusmn;{{ $item['duration'] }}</span>
+                    @if ($item['percent'] > 0)
+                        <span class="oh-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ $item['percent'] }}" aria-label="Progres {{ $p->title }}">
+                            <span style="width: {{ $item['percent'] }}%"></span>
+                        </span>
+                    @endif
+                </a>
             </li>
         @endforeach
     </ul>

@@ -3,20 +3,20 @@
 @section('title', 'Projects & roadmaps')
 
 @section('content')
-<div class="ad-head">
+<div class="admin-head">
     <div>
         <h1>Projects &amp; roadmaps</h1>
         <p>A hobby's <strong>starter project</strong> becomes its guided roadmap. Other projects are browsable ideas.</p>
     </div>
-    <a href="{{ route('admin.projects.create') }}" class="ad-btn ad-btn--primary">@include('roadmap.partials.icon', ['name' => 'plus']) New project</a>
+    <a href="{{ route('admin.projects.create') }}" class="admin-btn admin-btn--primary">@include('roadmap.partials.icon', ['name' => 'plus']) New project</a>
 </div>
 
-<section class="ad-card">
+<section class="admin-card">
     @if ($projects->isEmpty())
-        <div class="ad-empty"><strong>No projects yet</strong>Create one and mark it as a hobby's starter project to give it a roadmap.</div>
+        <div class="admin-empty"><strong>No projects yet</strong>Create one and mark it as a hobby's starter project to give it a roadmap.</div>
     @else
-        <div class="ad-scroll">
-            <table class="ad-table">
+        <div class="admin-scroll">
+            <table class="admin-table">
                 <thead>
                     <tr><th>Project</th><th>Hobby</th><th>Level</th><th>Roadmap</th><th>Steps</th><th></th></tr>
                 </thead>
@@ -31,19 +31,19 @@
                         <td>{{ ucfirst($project->level) }}</td>
                         <td>
                             @if (! $project->is_starter)
-                                <span class="ad-pill">Not a starter</span>
+                                <span class="admin-pill">Not a starter</span>
                             @elseif ($project->roadmap_published)
-                                <span class="ad-pill ad-pill--green">Live</span>
+                                <span class="admin-pill admin-pill--green">Live</span>
                             @else
-                                <span class="ad-pill ad-pill--amber">Draft</span>
+                                <span class="admin-pill admin-pill--amber">Draft</span>
                             @endif
                         </td>
                         <td>{{ $project->is_starter ? ($stepCounts[$project->id] ?? 0) : '—' }}</td>
                         <td class="is-actions">
                             @if ($project->is_starter)
-                                <a href="{{ route('admin.projects.steps.index', $project) }}" class="ad-btn ad-btn--ghost ad-btn--sm">Steps</a>
+                                <a href="{{ route('admin.projects.steps.index', $project) }}" class="admin-btn admin-btn--ghost admin-btn--sm">Steps</a>
                             @endif
-                            <a href="{{ route('admin.projects.edit', $project) }}" class="ad-btn ad-btn--ghost ad-btn--sm">Edit</a>
+                            <a href="{{ route('admin.projects.edit', $project) }}" class="admin-btn admin-btn--ghost admin-btn--sm">Edit</a>
                         </td>
                     </tr>
                 @endforeach

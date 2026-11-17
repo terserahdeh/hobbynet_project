@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'HobbyNet')</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -10,6 +11,7 @@
     <link rel="stylesheet" href="{{ asset('css/home.css') }}">
     <link rel="stylesheet" href="{{ asset('css/polish.css') }}">
     <link rel="stylesheet" href="{{ asset('css/plus.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/community.css') }}">
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
     {{-- Tautan "Profil saya" di menu akun --}}
     <style>
@@ -33,6 +35,7 @@
             @auth
             <nav class="nav__links" aria-label="Navigasi utama">
                 <a href="{{ route('home') }}" @class(['is-active' => request()->routeIs('home')]) @if (request()->routeIs('home')) aria-current="page" @endif>Beranda</a>
+                <a href="{{ route('community.index') }}" @class(['is-active' => request()->routeIs('community.index','community.show')]) aria-label="Komunitas"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg> Komunitas</a>
                 {{-- Jelajahi tetap menyala saat membuka detail paket --}}
                 <a href="{{ route('explore') }}" @class(['is-active' => request()->routeIs('explore', 'search', 'packs.*')]) @if (request()->routeIs('explore', 'search', 'packs.*')) aria-current="page" @endif>Jelajahi</a>
                 <a href="{{ route('bookmarks') }}" @class(['is-active' => request()->routeIs('bookmarks')]) @if (request()->routeIs('bookmarks')) aria-current="page" @endif>Tersimpan</a>
@@ -57,6 +60,8 @@
             @endauth
 
             @auth
+            @php $unreadCommunity = \Illuminate\Support\Facades\DB::table('community_notifications')->where('user_id', auth()->id())->whereNull('read_at')->count(); @endphp
+            <a href="{{ route('community.notifications') }}" data-unread-url="{{ route('community.notifications.count') }}" class="hn-bell" aria-label="Notifikasi{{ $unreadCommunity ? ' ('.$unreadCommunity.' belum dibaca)' : '' }}" title="Notifikasi"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg><span class="hn-bell-count" data-unread-count @if(!$unreadCommunity) hidden @endif>{{ $unreadCommunity > 99 ? '99+' : $unreadCommunity }}</span></a>
             <a href="{{ route('plus') }}" class="nav__plus @if (auth()->user()->isPlus()) is-on @endif">{{ auth()->user()->isPlus() ? 'Plus ✦' : 'Upgrade' }}</a>
 
             <details class="account">
@@ -85,6 +90,7 @@
 
 
     <script src="{{ asset('js/polish.js') }}" defer></script>
+    @auth <script src="{{ asset('js/community.js') }}" defer></script> @endauth
     @stack('scripts')
 </body>
 </html>
