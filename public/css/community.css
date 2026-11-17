@@ -31,3 +31,175 @@ body{background:#faf8f4}.cm-wrap{max-width:690px;margin:38px auto 90px;padding:0
 .cm-filter-active{background:#667e58;border-color:#667e58;color:#fff}.cm-filter-active:hover{background:#526949;color:#fff}
 .cm-wrap>.cm-post{max-width:100%;margin-left:auto;margin-right:auto}
 @media(max-width:700px){.cm-wrap{padding:0 14px}.cm-filters{justify-content:flex-start;gap:8px}.cm-filter-link{font-size:12px;padding:8px 12px}}
+
+/* Aksi hapus postingan: hanya untuk pemilik karya */
+.cm-user{position:relative}
+.cm-owner-menu{margin-left:auto;position:relative;align-self:flex-start;z-index:3}
+.cm-owner-menu summary{list-style:none;cursor:pointer;width:36px;height:36px;display:grid;place-items:center;border-radius:10px;font-size:26px;line-height:1;color:#665a60;background:#f7f5f0}
+.cm-owner-menu summary::-webkit-details-marker{display:none}
+.cm-owner-menu summary:hover,.cm-owner-menu summary:focus-visible{background:#eaf0e4;outline-offset:2px}
+.cm-owner-menu form{position:absolute;right:0;top:41px;background:#fff;border:1px solid #eee1da;box-shadow:0 8px 28px #503f3920;border-radius:12px;padding:6px;min-width:165px;z-index:5}
+.cm-delete-button{background:transparent;border:0;color:#b0444c;font:700 13px Quicksand,sans-serif;padding:12px;cursor:pointer;width:100%;text-align:left;border-radius:8px}
+.cm-delete-button:hover{background:#fff0f0}
+.cm-status{background:#edf5e8;border:1px solid #cadbbb;color:#48613d;border-radius:12px;padding:14px 18px;margin:0 0 18px}
+
+
+/* MODAL HAPUS POSTINGAN HOBBYNET */
+
+.hobbynet-delete-modal {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    width: min(440px, calc(100% - 32px));
+    max-height: calc(100dvh - 32px);
+    padding: 0;
+    border: none;
+    border-radius: 26px;
+    background: #ffffff;
+    box-shadow: 0 20px 70px rgba(40, 25, 30, 0.18);
+    color: #483b42;
+    overflow-y: auto;
+}
+
+.hobbynet-delete-modal::backdrop {
+    background: rgba(42, 31, 38, 0.48);
+}
+
+.delete-modal-content {
+    padding: 36px 32px 30px;
+    text-align: center;
+}
+
+.delete-modal-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff0ef;
+    border-radius: 50%;
+    font-size: 28px;
+}
+
+.delete-modal-content h2 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 27px;
+    font-weight: 700;
+    margin: 0 0 14px;
+    color: #483b42;
+}
+
+.delete-modal-content p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #75676b;
+    margin: 0 0 12px;
+}
+
+.delete-modal-note {
+    font-size: 13px !important;
+    color: #9a8588 !important;
+}
+
+.delete-modal-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 26px;
+}
+
+.delete-modal-actions form {
+    margin: 0;
+}
+
+.delete-cancel-btn,
+.delete-confirm-btn {
+    border: none;
+    border-radius: 999px;
+    padding: 13px 26px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.delete-cancel-btn {
+    background: #f7f3f0;
+    color: #665a60;
+}
+
+.delete-confirm-btn {
+    background: #d65b63;
+    color: #ffffff;
+}
+
+.delete-cancel-btn:hover {
+    background: #ede4df;
+}
+
+.delete-confirm-btn:hover {
+    background: #bb454e;
+}
+
+@media (max-width: 480px) {
+    .delete-modal-content {
+        padding: 28px 20px;
+    }
+
+    .delete-modal-actions {
+        flex-wrap: wrap;
+    }
+}
+
+/* Dropdown tiga titik pada postingan komunitas */
+
+.cm-user {
+    position: relative;
+}
+
+.cm-owner-menu {
+    position: relative;
+    margin-left: auto;
+    flex-shrink: 0;
+    z-index: 10;
+}
+
+.cm-owner-menu summary {
+    list-style: none;
+    cursor: pointer;
+}
+
+.cm-owner-menu summary::-webkit-details-marker {
+    display: none;
+}
+
+.cm-owner-menu .cm-delete-button {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 100;
+    width: max-content;
+    min-width: 170px;
+    padding: 13px 18px;
+    border: 1px solid #f0e3df;
+    border-radius: 14px;
+    background: #ffffff;
+    color: #c94c55;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+    box-shadow: 0 10px 28px rgba(72, 59, 66, 0.12);
+}
+
+.cm-owner-menu .cm-delete-button:hover {
+    background: #fff3f2;
+    color: #ae3540;
+}
+
+.cm-post {
+    overflow: visible;
+}

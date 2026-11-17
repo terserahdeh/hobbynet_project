@@ -54,6 +54,19 @@ class CommunityController extends Controller {
   }
   return redirect()->route('community.show',$post)->with('status','Komentar terkirim.');
  }
+ /** Hapus karya dari feed komunitas tanpa menghapus progres proyek pribadi. */
+ public function destroy(Request $request, ProjectSubmission $post){
+  abort_unless((int) $post->user_id === (int) $request->user()->id, 403);
+  $this->publicPost($post);
+  DB::transaction(function () use ($post) {
+   DB::table('community_notifications')->where('project_submission_id', $post->id)->delete();
+   DB::table('community_comments')->where('project_submission_id', $post->id)->delete();
+   DB::table('community_likes')->where('project_submission_id', $post->id)->delete();
+   DB::table('community_saves')->where('project_submission_id', $post->id)->delete();
+   $post->update(['is_showcase' => false]);
+  });
+  return redirect()->route('community.index')->with('status', 'Postingan berhasil dihapus dari Komunitas. Hasil proyek pribadimu tetap tersimpan.');
+ }
  public function unreadCount(Request $request){return response()->json(['count'=>DB::table('community_notifications')->where('user_id',$request->user()->id)->whereNull('read_at')->count()]);}
  public function notifications(Request $request){$notifications=DB::table('community_notifications as n')->join('users as u','u.id','=','n.actor_id')->where('n.user_id',$request->user()->id)->select('n.*','u.name as actor_name')->latest('n.created_at')->paginate(20);return view('community.notifications',compact('notifications'));}
  public function readNotifications(Request $request){DB::table('community_notifications')->where('user_id',$request->user()->id)->whereNull('read_at')->update(['read_at'=>now()]);return back();}
