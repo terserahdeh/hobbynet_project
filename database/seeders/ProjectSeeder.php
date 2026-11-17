@@ -55,7 +55,7 @@ class ProjectSeeder extends Seeder
                 unset($data['skill']);
             }
 
-            $data['image'] = $images[$slug] ?? "images/projects/{$slug}.jpg";
+            $data['image'] = ProjectImageSeeder::forProject($slug) ?? "images/projects/{$slug}.jpg";
             $data['description'] = $descriptions[$slug] ?? $data['description'];
 
             Project::updateOrCreate(['slug' => $slug], $data);

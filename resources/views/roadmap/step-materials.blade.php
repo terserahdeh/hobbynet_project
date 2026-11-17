@@ -30,7 +30,7 @@
             <a href="{{ route('roadmap.show', $hobby->slug) }}" class="rm-topbar__close" aria-label="Kembali ke perjalananmu">@include('roadmap.partials.icon', ['name' => 'close'])</a>
             <div class="rm-topbar__title">
                 <strong>{{ $project->title }}</strong>
-                <span>Guided experience</span>
+                <span>Pengalaman Terpadu</span>
             </div>
         </div>
         <div class="rm-topbar__mid">

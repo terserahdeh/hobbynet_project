@@ -90,7 +90,10 @@ class RoadmapSubmissionController extends Controller
         );
 
         if (! $submit) {
-            return back()->with('status', 'Draft saved. Pick it up whenever you\'re ready.');
+            return back()->with('popup', [
+                'title' => 'Draft tersimpan',
+                'message' => 'Draft berhasil disimpan di profilmu. Kamu bisa mengunggah karyamu kapan saja.',
+            ]);
         }
 
         if ($result['badges']->isNotEmpty()) {

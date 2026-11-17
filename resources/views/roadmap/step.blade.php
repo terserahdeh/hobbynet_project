@@ -46,21 +46,21 @@
             <a href="{{ route('roadmap.show', $hobby->slug) }}" class="rm-topbar__close" aria-label="Back to your journey">@include('roadmap.partials.icon', ['name' => 'close'])</a>
             <div class="rm-topbar__title">
                 <strong>{{ $project->title }}</strong>
-                <span>Guided experience</span>
+                <span>Pengalaman Terpadu</span>
             </div>
         </div>
 
         <div class="rm-topbar__mid">
             <div class="rm-topbar__labels">
-                <span>Step {{ $step->position }} of {{ $summary['total'] }}</span>
-                <span>{{ $summary['percent'] }}% roadmap progress</span>
+                <span>Step {{ $step->position }} dari {{ $summary['total'] }}</span>
+                <span>{{ $summary['percent'] }}% progres roadmap</span>
             </div>
             <div class="rm-bar" role="progressbar" aria-valuenow="{{ $summary['percent'] }}" aria-valuemin="0" aria-valuemax="100" aria-label="Roadmap progress">
                 <span class="rm-bar__fill" style="width: {{ $summary['percent'] }}%"></span>
             </div>
         </div>
 
-        <div class="rm-topbar__right"><a href="{{ route('roadmap.show', $hobby->slug) }}">Save &amp; Exit</a></div>
+        <div class="rm-topbar__right"><a href="{{ route('roadmap.show', $hobby->slug) }}">Simpan &amp; Keluar</a></div>
     </header>
 
     <div class="rm-body">
@@ -93,28 +93,22 @@
 
                 @if ($step->encouragement)
                     <div class="rm-hint">
-                        <strong>@include('roadmap.partials.icon', ['name' => 'bulb']) You're doing great, {{ $firstName }}!</strong>
+                        <strong>@include('roadmap.partials.icon', ['name' => 'bulb']) Kamu hebat, {{ $firstName }}!</strong>
                         <p>{{ $step->encouragement }}</p>
-                        <small>Keep it up!</small>
-                    </div>
-                @endif
-                @if ($step->type === 'materials')
-                    @inject('packChecklist', 'App\Services\PackChecklist')
-                    <div style="margin-top: 24px;">
-                        @include('partials.pack-checklist', ['checklist' => $packChecklist->forProject($project, auth()->user())])
+                        <small>Terus semangat!</small>
                     </div>
                 @endif
             </aside>
 
             <div>
                 <main class="rm-card rm-step">
-                    <p class="rm-eyebrow">Instructional step</p>
+                    <p class="rm-eyebrow">Langkah Instruksi</p>
                     <h1>{{ $step->title }}</h1>
                     <p class="rm-step__meta">
-                        <span>@include('roadmap.partials.icon', ['name' => 'clock']) Estimated time: <b>{{ $step->estimated_minutes }} minutes</b></span>
+                        <span>@include('roadmap.partials.icon', ['name' => 'clock']) Estimasi waktu: <b>{{ $step->estimated_minutes }} menit</b></span>
                         @if ($step->objective)
                             <i class="rm-step__sep" aria-hidden="true"></i>
-                            <span>@include('roadmap.partials.icon', ['name' => 'target']) Objective: <b>{{ $step->objective }}</b></span>
+                            <span>@include('roadmap.partials.icon', ['name' => 'target']) Tujuan: <b>{{ $step->objective }}</b></span>
                         @endif
                     </p>
 
@@ -124,7 +118,7 @@
                                 <li class="rm-chip {{ $m->kind === 'material' ? 'rm-chip--material' : '' }}">
                                     <span class="rm-chip__icon">@include('roadmap.partials.icon', ['name' => $m->kind === 'tool' ? 'bulb' : 'plus'])</span>
                                     <span>
-                                        <small>{{ $m->kind === 'tool' ? 'Tool' : 'Material' }}{{ $m->is_optional ? ' (optional)' : '' }}</small>
+                                        <small>{{ $m->kind === 'tool' ? 'Alat' : 'Bahan' }}{{ $m->is_optional ? ' (opsional)' : '' }}</small>
                                         <strong>{{ $m->name }}@if ($m->spec) ({{ $m->spec }})@endif</strong>
                                     </span>
                                 </li>
@@ -164,7 +158,7 @@
 
                     @if ($items->isNotEmpty())
                         <section class="rm-checklist" aria-labelledby="rm-checklist-title">
-                            <h2 id="rm-checklist-title">Action Checklist</h2>
+                            <h2 id="rm-checklist-title">Checklist Aksi</h2>
                             <ul id="rm-checklist">
                                 @foreach ($items as $item)
                                     <li>
