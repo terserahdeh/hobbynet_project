@@ -70,6 +70,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/community', [CommunityController::class,'index'])->name('community.index');
     Route::get('/community/{post}', [CommunityController::class,'show'])->name('community.show');
+    Route::delete('/community/{post}', [CommunityController::class,'destroy'])->name('community.destroy');
     Route::post('/community/{post}/like', [CommunityController::class,'like'])->name('community.like')->middleware('throttle:60,1');
     Route::post('/community/{post}/save', [CommunityController::class,'save'])->name('community.save')->middleware('throttle:60,1');
     Route::post('/community/{post}/comments', [CommunityController::class,'comment'])->name('community.comment')->middleware('throttle:30,1');
