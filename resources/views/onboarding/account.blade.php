@@ -11,7 +11,7 @@
             Ceritakan sedikit tentang dirimu agar kami bisa menyesuaikan pengalamanmu.
         </p>
         <figure class="intro__photo">
-            <img src="{{ asset('images/onboarding-studio.jpg') }}"
+            <img src="{{ asset('images/onboarding-pic.png') }}"
                  alt="Sudut studio melukis dengan kuda-kuda, kuas, dan cat air di dekat jendela"
                  onerror="this.remove()">
         </figure>
