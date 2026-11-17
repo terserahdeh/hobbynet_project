@@ -10,13 +10,13 @@
 
     <header class="pk-head">
         <h1 class="pk-title">Tersimpan</h1>
-        <p class="pk-sub">Paket yang kamu simpan untuk nanti. Tidak perlu buru-buru, mulai saat kamu siap.</p>
+        <p class="pk-sub">Tempat menyimpan paket proyek yang menarik perhatianmu dari Beranda dan Jelajahi. Kapan pun siap, kamu bisa menemukannya lagi di sini.</p>
     </header>
 
     @if ($packs->isEmpty())
         <div class="empty pk-empty-gap">
-            <p>Belum ada yang disimpan. Tekan ikon penanda di kartu paket, atau “Simpan untuk Nanti” di halaman detail, dan hasilnya muncul di sini.</p>
-            <a class="btn btn--primary" href="{{ route('explore') }}">Jelajahi paket</a>
+            <p>Masih kosong, nih! Temukan proyek seru di Beranda atau Jelajahi, lalu tekan ikon simpan pada paket yang kamu suka. Semua pilihanmu akan tersimpan di sini, siap dicoba kapan saja.</p>
+            <a class="btn btn--primary pk-explore-cta" href="{{ route('explore') }}">Jelajahi paket</a>
         </div>
     @else
         <p class="pk-note">{{ $packs->count() }} paket tersimpan</p>

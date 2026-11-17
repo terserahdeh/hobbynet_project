@@ -27,6 +27,7 @@ use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Models\Project;
 use App\Http\Controllers\CommunityController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\EnsurePlusProjectAccess;
 
 // Selalu mulai dari landing page, termasuk untuk pengguna yang sudah login
 // (di landing mereka melihat tombol "Buka Beranda").
@@ -101,6 +102,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/my-works/course/{submission}', [CourseController::class, 'work'])->name('courses.work.show');
     Route::get('/my-works/course/{submission}/photos/{index}',[CourseController::class, 'photo'])->whereNumber('index')->name('courses.work.photo');
     Route::get('/my-works/roadmap/{submission}', [WorkController::class, 'show'])->name('roadmap.work.show');
+    Route::get('/projects/{project:slug}', [GuidedProjectController::class, 'show'])->middleware(EnsurePlusProjectAccess::class)->name('projects.show');
 
     // Coach AI + langganan Plus
     Route::post('/plus/subscribe', [PremiumController::class, 'subscribe'])->name('plus.subscribe');
