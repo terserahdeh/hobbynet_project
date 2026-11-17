@@ -96,4 +96,16 @@ class StarterPackController extends Controller
             ->pluck('starter_pack_id')
             ->all();
     }
+    
+    /** Centang / batalkan "aku sudah punya" untuk satu item. */
+    public function toggleOwned(Request $request, StarterPackItem $item, PackChecklist $checklist)
+    {
+        $owned = $checklist->toggle($request->user(), $item);
+
+        if ($request->expectsJson()) {
+            return response()->json(['owned' => $owned]);
+        }
+
+        return back();
+    }
 }
