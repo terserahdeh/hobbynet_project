@@ -11,7 +11,12 @@ class CommunityController extends Controller {
   DB::table('community_notifications')->insert(['user_id'=>$post->user_id,'actor_id'=>$request->user()->id,'project_submission_id'=>$post->id,'type'=>$type,'message'=>$message,'created_at'=>now(),'updated_at'=>now()]);
  }
  public function index(Request $request){
-  $posts=ProjectSubmission::with(['user','photos','project'])->withCount(['communityLikes','communityComments'])->where('status','submitted')->where('is_showcase',true)->whereHas('photos')->latest('submitted_at')->paginate(12);
+  $hobby=$request->query('hobby','');
+  $allowed=['crochet','painting','photography'];
+  if(!in_array($hobby,$allowed,true)) $hobby='';
+  $query=ProjectSubmission::with(['user','photos','project'])->withCount(['communityLikes','communityComments'])->where('status','submitted')->where('is_showcase',true)->whereHas('photos');
+  if($hobby!=='') $query->whereHas('project.hobby',function($q)use($hobby){$q->where('slug',$hobby);});
+  $posts=$query->orderByDesc('submitted_at')->orderByDesc('id')->paginate(15)->withQueryString();
   $ids=$posts->pluck('id');$uid=$request->user()->id;
   $liked=DB::table('community_likes')->where('user_id',$uid)->whereIn('project_submission_id',$ids)->pluck('project_submission_id')->all();
   $saved=DB::table('community_saves')->where('user_id',$uid)->whereIn('project_submission_id',$ids)->pluck('project_submission_id')->all();

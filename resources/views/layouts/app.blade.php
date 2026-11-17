@@ -36,7 +36,7 @@
             @auth
             <nav class="nav__links" aria-label="Navigasi utama">
                 <a href="{{ route('home') }}" @class(['is-active' => request()->routeIs('home')]) @if (request()->routeIs('home')) aria-current="page" @endif>Beranda</a>
-                <a href="{{ route('community.index') }}" @class(['is-active' => request()->routeIs('community.index','community.show')]) aria-label="Komunitas"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg> Komunitas</a>
+                <a href="{{ route('community.index') }}" @class(['is-active' => request()->routeIs('community.*')]) @if(request()->routeIs('community.*')) aria-current="page" @endif aria-label="Komunitas">Komunitas</a>
                 {{-- Jelajahi tetap menyala saat membuka detail paket --}}
                 <a href="{{ route('explore') }}" @class(['is-active' => request()->routeIs('explore', 'search', 'packs.*')]) @if (request()->routeIs('explore', 'search', 'packs.*')) aria-current="page" @endif>Jelajahi</a>
                 <a href="{{ route('bookmarks') }}" @class(['is-active' => request()->routeIs('bookmarks')]) @if (request()->routeIs('bookmarks')) aria-current="page" @endif>Tersimpan</a>

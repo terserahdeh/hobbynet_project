@@ -1616,6 +1616,73 @@
             </div>
         </section>
 
+        
+        <!-- PARTNERSHIP -->
+        <section class="partner-section" id="partnership"
+                style="padding:76px 0;background:#fff8f3">
+
+            <div class="container">
+                <div style="
+                    max-width:1000px;
+                    margin:auto;
+                    border-radius:32px;
+                    padding:clamp(28px,5vw,62px);
+                    background:linear-gradient(125deg,#e7f3e1,#ffe5ec 75%);
+                    display:flex;
+                    align-items:center;
+                    justify-content:space-between;
+                    flex-wrap:wrap;
+                    gap:26px;
+                    box-shadow:0 12px 36px rgba(80,55,75,.07);
+                ">
+
+                    <div style="flex:1 1 360px">
+                        <span style="font-size:12px;letter-spacing:2px;font-weight:800;color:#50774b">
+                            ✦ OPEN PARTNERSHIP
+                        </span>
+
+                        <h2 style="font-family:Fraunces,serif;font-size:clamp(27px,4vw,40px);line-height:1.25;margin:14px 0;color:#483b42">
+                            Yuk, tumbuhkan kreativitas bersama HobbyNet!
+                        </h2>
+
+                        <p style="color:#665a60;max-width:560px">
+                            Punya komunitas, brand, atau ide kolaborasi yang bisa
+                            bikin perjalanan hobi makin seru? Kami terbuka untuk
+                            kerja sama, dari kegiatan kreatif hingga dukungan
+                            perlengkapan. Ceritakan ide partnership-mu kepada
+                            tim HobbyNet!
+                        </p>
+                    </div>
+
+                    <div style="flex:0 1 240px;text-align:center">
+                        <a href="mailto:vaulinavara11@gmail.com?subject=Partnership%20HobbyNet"
+                        style="
+                            display:inline-block;
+                            background:#483b42;
+                            color:#ffffff;
+                            padding:15px 28px;
+                            border-radius:999px;
+                            font-weight:700;
+                            text-decoration:none;
+                            transition:0.3s;
+                        ">
+                            ✉️ Let's Collaborate
+                        </a>
+
+                        <p style="margin-top:14px;color:#665a60;font-size:14px">
+                            Have an idea? We'd love to hear from you!
+                        </p>
+
+                        <p style="margin-top:6px;color:#483b42;font-weight:600">
+                            hobbynet@gmail.com
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+
         <!-- =========================
              FINAL CALL TO ACTION
              ========================= -->
