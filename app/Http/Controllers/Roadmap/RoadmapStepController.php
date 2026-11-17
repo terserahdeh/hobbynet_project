@@ -91,16 +91,23 @@ class RoadmapStepController extends Controller
         $user = $request->user();
 
         if ($step->state !== 'completed') {
-            $required = $step->checklistItems()->pluck('id');
-            $checked = collect($this->roadmap->checkedItemIds($user, $step));
-
-            if ($required->diff($checked)->isNotEmpty()) {
-                throw ValidationException::withMessages([
-                    'checklist' => 'Tick off each item on the checklist when you\'re ready to move on.',
-                ]);
+            if ($step->type === 'materials') {
+                $step->load('materials');
+                $state = app(\App\Services\MaterialsChecklist::class)->forStep($step, $user);
+                $missing = ! $state['stats']['ready'];
+                $message = 'Tandai semua perlengkapan utama sebagai "Sudah punya" dulu.';
+            } else {
+                $required = $step->checklistItems()->pluck('id');
+                $checked = collect($this->roadmap->checkedItemIds($user, $step));
+                $missing = $required->diff($checked)->isNotEmpty();
+                $message = 'Tick off each item on the checklist when you\'re ready to move on.';
             }
 
-            $badges = $this->roadmap->completeStep($user, $step);
+            if ($missing) {
+                throw ValidationException::withMessages(['checklist' => $message]);
+            }
+
+            $badges = $this->roadmap->completeStep($user, $step);   // <- jangan sampai hilang
 
             if ($badges->isNotEmpty()) {
                 session()->flash('badges', $badges->pluck('name')->all());
