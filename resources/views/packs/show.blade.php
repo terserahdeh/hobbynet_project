@@ -118,8 +118,8 @@
                     </div>
                 </dl>
 
-                <a href="{{ route('courses.show', $pack) }}" class="btn btn--primary">
-                    {{ $pack->is_premium && !auth()->user()->isPlus() ? '★ Buka dengan Plus' : 'Aku Siap — Mulai Course' }} @include('packs._icon', ['name' => 'arrow-right'])
+                <a style="color:white" class="btn btn--primary" href="{{ route('courses.show', $pack) }}">
+                    {{ $pack->is_premium && !auth()->user()->isPlus() ? '★ Buka dengan Plus' : 'Aku Siap — Mulai Proyek' }} @include('packs._icon', ['name' => 'arrow-right'])
                 </a>
 
                 <form method="POST" action="{{ route('bookmarks.toggle', $pack) }}">
@@ -155,62 +155,80 @@
 <script>
 (function () {
     var root = document.querySelector('[data-pack]');
-    if (!root) return;
+    if (!root) { console.warn('Checklist: elemen [data-pack] tidak ditemukan.'); return; }
 
-    var key   = 'hobbynet:pack:' + root.dataset.pack + ':owned';
     var boxes = Array.prototype.slice.call(root.querySelectorAll('input[data-owned]'));
     var essentials = boxes.filter(function (b) { return b.dataset.essential === '1'; });
 
-    var elCount   = root.querySelector('[data-owned-count]');
-    var elPercent = root.querySelector('[data-percent]');
-    var elBar     = root.querySelector('[data-bar]');
-    var elBarWrap = root.querySelector('[data-bar-wrap]');
-    var elTotal   = root.querySelector('[data-total]');
-    var elSaved   = root.querySelector('[data-saved]');
-    var elRemain  = root.querySelector('[data-remain]');
+    var el = function (sel) { return root.querySelector(sel); };
+    var elCount = el('[data-owned-count]'), elPercent = el('[data-percent]'), elBar = el('[data-bar]'),
+        elBarWrap = el('[data-bar-wrap]'), elTotal = el('[data-total]'), elSaved = el('[data-saved]'),
+        elRemain = el('[data-remain]');
+
+    var tokenMeta = document.querySelector('meta[name="csrf-token"]');
+    var token = tokenMeta ? tokenMeta.content : '{{ csrf_token() }}';
 
     function rp(n) { return 'Rp ' + Number(n).toLocaleString('id-ID'); }
-
-    // Pulihkan centangan yang tersimpan di browser ini (hanya kenyamanan, bukan data penting).
-    try {
-        var stored = JSON.parse(localStorage.getItem(key) || '[]');
-        boxes.forEach(function (b) { if (stored.indexOf(b.value) > -1) b.checked = true; });
-    } catch (e) {}
+    function set(node, text) { if (node) node.textContent = text; }
 
     function update() {
         var owned = essentials.filter(function (b) { return b.checked; });
-        var total = essentials.reduce(function (s, b) { return s + Number(b.dataset.price); }, 0);
-        var saved = owned.reduce(function (s, b) { return s + Number(b.dataset.price); }, 0);
-        var pct   = essentials.length ? Math.round(owned.length / essentials.length * 100) : 0;
+        var total = essentials.reduce(function (s, b) { return s + Number(b.dataset.price || 0); }, 0);
+        var saved = owned.reduce(function (s, b) { return s + Number(b.dataset.price || 0); }, 0);
+        var pct = essentials.length ? Math.round(owned.length / essentials.length * 100) : 0;
 
-        elCount.textContent   = owned.length;
-        elPercent.textContent = pct + '%';
-        elBar.style.width     = pct + '%';
-        elBarWrap.setAttribute('aria-valuenow', pct);
-        elTotal.textContent   = rp(total);
-        elSaved.textContent   = '− ' + rp(saved);
-        elRemain.textContent  = rp(total - saved);
+        set(elCount, owned.length);
+        set(elPercent, pct + '%');
+        if (elBar) elBar.style.width = pct + '%';
+        if (elBarWrap) elBarWrap.setAttribute('aria-valuenow', pct);
+        set(elTotal, rp(total));
+        set(elSaved, '− ' + rp(saved));
+        set(elRemain, rp(total - saved));
 
-        boxes.forEach(function (b) { b.closest('.pk-item').classList.toggle('is-owned', b.checked); });
-
-        try {
-            localStorage.setItem(key, JSON.stringify(
-                boxes.filter(function (b) { return b.checked; }).map(function (b) { return b.value; })
-            ));
-        } catch (e) {}
+        boxes.forEach(function (b) {
+            var item = b.closest('.pk-item');
+            if (item) item.classList.toggle('is-owned', b.checked);
+        });
     }
 
-    boxes.forEach(function (b) { b.addEventListener('change', update); });
-    update();
+    boxes.forEach(function (b) {
+        b.addEventListener('change', function () {
+            var wanted = b.checked;
+            update();
 
-    // Salin tautan
-    var copyBtn  = root.querySelector('[data-copy]');
-    var copyDone = root.querySelector('[data-copy-done]');
+            if (!b.dataset.url) {
+                console.error('Checklist: data-url kosong. Cek packs/_item.blade.php.');
+                return;
+            }
+
+            fetch(b.dataset.url, {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json' },
+                credentials: 'same-origin'
+            })
+                .then(function (r) {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.json();
+                })
+                .then(function (d) { b.checked = d.owned; update(); })
+                .catch(function (err) {
+                    console.error('Gagal menyimpan centang:', b.dataset.url, err);
+                    b.checked = !wanted;
+                    update();
+                    alert('Centang belum tersimpan. Muat ulang halaman lalu coba lagi.');
+                });
+        });
+    });
+
+    update();
+    console.info('Checklist siap: ' + boxes.length + ' item.');
+
+    // Salin tautan paket
+    var copyBtn = el('[data-copy]'), copyDone = el('[data-copy-done]');
     if (copyBtn && navigator.clipboard) {
         copyBtn.addEventListener('click', function () {
             navigator.clipboard.writeText(window.location.href).then(function () {
-                copyDone.hidden = false;
-                setTimeout(function () { copyDone.hidden = true; }, 2500);
+                if (copyDone) { copyDone.hidden = false; setTimeout(function () { copyDone.hidden = true; }, 2500); }
             });
         });
     }

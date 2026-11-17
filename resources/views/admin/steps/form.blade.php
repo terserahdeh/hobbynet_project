@@ -5,6 +5,7 @@
 
     $materialRows = old('materials', $step->materials->map(fn ($m) => [
         'id' => $m->id, 'kind' => $m->kind, 'name' => $m->name, 'spec' => $m->spec, 'is_optional' => $m->is_optional,
+        'item_url' => $m->item_url, 'description' => $m->description, 'price' => $m->price, 'has_image' => !empty($m->image),
     ])->all()) ?: [['kind' => 'tool']];
 
     $instructionRows = old('instructions', $step->instructions->map(fn ($i) => [
@@ -22,13 +23,13 @@
 @section('title', $isNew ? 'Add step' : 'Edit ' . $step->title)
 
 @section('content')
-<nav class="ad-crumbs">
+<nav class="admin-crumbs">
     <a href="{{ route('admin.projects.index') }}">Projects &amp; roadmaps</a> /
     <a href="{{ route('admin.projects.steps.index', $project) }}">{{ $project->title }}</a> /
     {{ $isNew ? 'Add step' : $step->title }}
 </nav>
 
-<div class="ad-head">
+<div class="admin-head">
     <div>
         <h1>{{ $isNew ? 'Add a step' : 'Edit step' }}</h1>
         <p>Keep it small and encouraging. One clear thing to do at a time.</p>
@@ -36,7 +37,7 @@
 </div>
 
 @if ($learners && $project->roadmap_published && $learners['started'] > 0)
-    <div class="ad-flash ad-flash--warn">
+    <div class="admin-flash admin-flash--warn">
         {{ $learners['started'] }} {{ \Illuminate\Support\Str::plural('learner', $learners['started']) }} {{ $learners['started'] === 1 ? 'has' : 'have' }} started this roadmap. Their progress and ticked checklist items are kept when you edit.
     </div>
 @endif
@@ -47,40 +48,40 @@
     @unless ($isNew) @method('PUT') @endunless
 
     {{-- Basics --}}
-    <section class="ad-card ad-card__pad ad-form">
+    <section class="admin-card admin-card__pad admin-form">
         <h2>Basics</h2>
 
-        <div class="ad-field">
-            <label class="ad-label" for="title">Title</label>
-            <input id="title" name="title" class="ad-input @error('title') has-error @enderror" value="{{ old('title', $step->title) }}" maxlength="255" placeholder="Build Your Basic Skills" required>
-            @error('title') <p class="ad-error">{{ $message }}</p> @enderror
+        <div class="admin-field">
+            <label class="admin-label" for="title">Title</label>
+            <input id="title" name="title" class="admin-input @error('title') has-error @enderror" value="{{ old('title', $step->title) }}" maxlength="255" placeholder="Build Your Basic Skills" required>
+            @error('title') <p class="admin-error">{{ $message }}</p> @enderror
         </div>
 
-        <div class="ad-field">
-            <label class="ad-label" for="summary">Short description</label>
-            <input id="summary" name="summary" class="ad-input @error('summary') has-error @enderror" value="{{ old('summary', $step->summary) }}" maxlength="255" placeholder="Master the “single crochet” stitch and complete your first row." required>
-            <p class="ad-help">Shown on the roadmap overview. On the active step it reads “Today's goal: …”.</p>
-            @error('summary') <p class="ad-error">{{ $message }}</p> @enderror
+        <div class="admin-field">
+            <label class="admin-label" for="summary">Short description</label>
+            <input id="summary" name="summary" class="admin-input @error('summary') has-error @enderror" value="{{ old('summary', $step->summary) }}" maxlength="255" placeholder="Master the “single crochet” stitch and complete your first row." required>
+            <p class="admin-help">Shown on the roadmap overview. On the active step it reads “Today's goal: …”.</p>
+            @error('summary') <p class="admin-error">{{ $message }}</p> @enderror
         </div>
 
-        <div class="ad-grid3">
-            <div class="ad-field">
-                <label class="ad-label" for="type">Type</label>
-                <select id="type" name="type" class="ad-input @error('type') has-error @enderror">
+        <div class="admin-grid3">
+            <div class="admin-field">
+                <label class="admin-label" for="type">Type</label>
+                <select id="type" name="type" class="admin-input @error('type') has-error @enderror">
                     @foreach ($types as $value => $label)
                         <option value="{{ $value }}" @selected($currentType === $value)>{{ $label }}</option>
                     @endforeach
                 </select>
-                @error('type') <p class="ad-error">{{ $message }}</p> @enderror
+                @error('type') <p class="admin-error">{{ $message }}</p> @enderror
             </div>
-            <div class="ad-field">
-                <label class="ad-label" for="estimated_minutes">Time (minutes)</label>
-                <input id="estimated_minutes" name="estimated_minutes" type="number" min="1" max="600" class="ad-input @error('estimated_minutes') has-error @enderror" value="{{ old('estimated_minutes', $step->estimated_minutes ?? 15) }}" required>
-                @error('estimated_minutes') <p class="ad-error">{{ $message }}</p> @enderror
+            <div class="admin-field">
+                <label class="admin-label" for="estimated_minutes">Time (minutes)</label>
+                <input id="estimated_minutes" name="estimated_minutes" type="number" min="1" max="600" class="admin-input @error('estimated_minutes') has-error @enderror" value="{{ old('estimated_minutes', $step->estimated_minutes ?? 15) }}" required>
+                @error('estimated_minutes') <p class="admin-error">{{ $message }}</p> @enderror
             </div>
-            <div class="ad-field">
-                <label class="ad-label" for="badge_id">Badge on completion</label>
-                <select id="badge_id" name="badge_id" class="ad-input">
+            <div class="admin-field">
+                <label class="admin-label" for="badge_id">Badge on completion</label>
+                <select id="badge_id" name="badge_id" class="admin-input">
                     <option value="">No badge</option>
                     @foreach ($badges as $badge)
                         <option value="{{ $badge->id }}" @selected((string) old('badge_id', $step->badge_id) === (string) $badge->id)>{{ $badge->name }}</option>
@@ -89,35 +90,35 @@
             </div>
         </div>
 
-        <div class="ad-field" data-lesson-only>
-            <label class="ad-label" for="objective">Objective</label>
-            <input id="objective" name="objective" class="ad-input @error('objective') has-error @enderror" value="{{ old('objective', $step->objective) }}" maxlength="255" placeholder="Learn single crochet">
-            <p class="ad-help">Shown under the title as “Objective: …”.</p>
-            @error('objective') <p class="ad-error">{{ $message }}</p> @enderror
+        <div class="admin-field" data-lesson-only>
+            <label class="admin-label" for="objective">Objective</label>
+            <input id="objective" name="objective" class="admin-input @error('objective') has-error @enderror" value="{{ old('objective', $step->objective) }}" maxlength="255" placeholder="Learn single crochet">
+            <p class="admin-help">Shown under the title as “Objective: …”.</p>
+            @error('objective') <p class="admin-error">{{ $message }}</p> @enderror
         </div>
 
-        <div class="ad-field">
-            <label class="ad-label" for="encouragement">Encouragement note</label>
-            <textarea id="encouragement" name="encouragement" class="ad-input @error('encouragement') has-error @enderror" maxlength="1000" placeholder="Almost halfway there! The single crochet stitch is the heart of most projects.">{{ old('encouragement', $step->encouragement) }}</textarea>
-            <p class="ad-help" data-lesson-only>Appears in the pink card beside the step.</p>
-            <p class="ad-help" data-share-only>Appears as the quote under the upload form.</p>
-            @error('encouragement') <p class="ad-error">{{ $message }}</p> @enderror
+        <div class="admin-field">
+            <label class="admin-label" for="encouragement">Encouragement note</label>
+            <textarea id="encouragement" name="encouragement" class="admin-input @error('encouragement') has-error @enderror" maxlength="1000" placeholder="Almost halfway there! The single crochet stitch is the heart of most projects.">{{ old('encouragement', $step->encouragement) }}</textarea>
+            <p class="admin-help" data-lesson-only>Appears in the pink card beside the step.</p>
+            <p class="admin-help" data-share-only>Appears as the quote under the upload form.</p>
+            @error('encouragement') <p class="admin-error">{{ $message }}</p> @enderror
         </div>
 
-        <div class="ad-flash ad-flash--ok" data-share-only style="margin: 0;">
+        <div class="admin-flash admin-flash--ok" data-share-only style="margin: 0;">
             This is the final step. Learners see the “Look What You Made!” page, where they add photos and submit. It needs no instructions.
         </div>
     </section>
 
     {{-- Picture --}}
-    <section class="ad-card ad-card__pad ad-form" data-lesson-only>
+    <section class="admin-card admin-card__pad admin-form" data-lesson-only>
         <div>
             <h2>Demonstration picture</h2>
-            <p class="ad-card__sub">Shown beside the instructions so learners can see what to aim for.</p>
+            <p class="admin-card__sub">Shown beside the instructions so learners can see what to aim for.</p>
         </div>
 
-        <div class="ad-upload">
-            <div class="ad-thumb" id="image-preview">
+        <div class="admin-upload">
+            <div class="admin-thumb" id="image-preview">
                 @if ($step->image_url)
                     <img src="{{ $step->image_url }}" alt="Current picture">
                 @else
@@ -125,41 +126,41 @@
                 @endif
             </div>
 
-            <div class="ad-form" style="gap: 14px;">
-                <div class="ad-field">
-                    <label class="ad-label" for="image">{{ $step->image ? 'Replace picture' : 'Upload picture' }}</label>
-                    <input id="image" name="image" type="file" accept="image/jpeg,image/png,image/webp" class="ad-input @error('image') has-error @enderror">
-                    <p class="ad-help">JPG, PNG or WebP, up to 5 MB. A square-ish photo with the subject in the middle works best.</p>
-                    @error('image') <p class="ad-error">{{ $message }}</p> @enderror
+            <div class="admin-form" style="gap: 14px;">
+                <div class="admin-field">
+                    <label class="admin-label" for="image">{{ $step->image ? 'Replace picture' : 'Upload picture' }}</label>
+                    <input id="image" name="image" type="file" accept="image/jpeg,image/png,image/webp" class="admin-input @error('image') has-error @enderror">
+                    <p class="admin-help">JPG, PNG or WebP, up to 5 MB. A square-ish photo with the subject in the middle works best.</p>
+                    @error('image') <p class="admin-error">{{ $message }}</p> @enderror
                 </div>
 
-                <div class="ad-field">
-                    <label class="ad-label" for="image_caption">Caption</label>
-                    <input id="image_caption" name="image_caption" class="ad-input" value="{{ old('image_caption', $step->image_caption) }}" maxlength="120" placeholder="Visual Guide: Single Crochet Stitch">
-                    <p class="ad-help">Leave blank to use “Visual Guide: {step title}”.</p>
+                <div class="admin-field">
+                    <label class="admin-label" for="image_caption">Caption</label>
+                    <input id="image_caption" name="image_caption" class="admin-input" value="{{ old('image_caption', $step->image_caption) }}" maxlength="120" placeholder="Visual Guide: Single Crochet Stitch">
+                    <p class="admin-help">Leave blank to use “Visual Guide: {step title}”.</p>
                 </div>
 
                 @if ($step->image)
-                    <label class="ad-opt"><input type="checkbox" name="remove_image" value="1"> Remove the current picture</label>
+                    <label class="admin-opt"><input type="checkbox" name="remove_image" value="1"> Remove the current picture</label>
                 @endif
 
                 @if (! $step->image)
-                    <p class="ad-help">With no picture, learners see the built-in illustration for this step.</p>
+                    <p class="admin-help">With no picture, learners see the built-in illustration for this step.</p>
                 @endif
             </div>
         </div>
     </section>
 
     {{-- Materials --}}
-    <section class="ad-card ad-card__pad ad-form" data-lesson-only data-repeater data-next="{{ count($materialRows) + 100 }}">
-        <div class="ad-section-title">
+    <section class="admin-card admin-card__pad admin-form" data-lesson-only data-repeater data-next="{{ count($materialRows) + 100 }}">
+        <div class="admin-section-title">
             <div>
                 <h3>Tools &amp; materials</h3>
-                <p class="ad-help">What the learner needs for this step. Optional.</p>
+                <p class="admin-help">What the learner needs for this step. Optional.</p>
             </div>
-            <button type="button" class="ad-btn ad-btn--ghost ad-btn--sm" data-add>@include('roadmap.partials.icon', ['name' => 'plus']) Add</button>
+            <button type="button" class="admin-btn admin-btn--ghost admin-btn--sm" data-add>@include('roadmap.partials.icon', ['name' => 'plus']) Add</button>
         </div>
-        <div class="ad-rows" data-rows>
+        <div class="admin-rows" data-rows>
             @foreach ($materialRows as $i => $row)
                 @include('admin.steps.row', ['type' => 'material', 'i' => $i, 'row' => $row])
             @endforeach
@@ -168,16 +169,16 @@
     </section>
 
     {{-- Instructions --}}
-    <section class="ad-card ad-card__pad ad-form" data-lesson-only data-repeater data-next="{{ count($instructionRows) + 100 }}">
-        <div class="ad-section-title">
+    <section class="admin-card admin-card__pad admin-form" data-lesson-only data-repeater data-next="{{ count($instructionRows) + 100 }}">
+        <div class="admin-section-title">
             <div>
                 <h3>Instructions</h3>
-                <p class="ad-help">Numbered steps, in order. One action each.</p>
+                <p class="admin-help">Numbered steps, in order. One action each.</p>
             </div>
-            <button type="button" class="ad-btn ad-btn--ghost ad-btn--sm" data-add>@include('roadmap.partials.icon', ['name' => 'plus']) Add</button>
+            <button type="button" class="admin-btn admin-btn--ghost admin-btn--sm" data-add>@include('roadmap.partials.icon', ['name' => 'plus']) Add</button>
         </div>
-        @error('instructions') <p class="ad-error">{{ $message }}</p> @enderror
-        <div class="ad-rows" data-rows>
+        @error('instructions') <p class="admin-error">{{ $message }}</p> @enderror
+        <div class="admin-rows" data-rows>
             @foreach ($instructionRows as $i => $row)
                 @include('admin.steps.row', ['type' => 'instruction', 'i' => $i, 'row' => $row])
             @endforeach
@@ -186,15 +187,15 @@
     </section>
 
     {{-- Checklist --}}
-    <section class="ad-card ad-card__pad ad-form" data-lesson-only data-repeater data-next="{{ count($checklistRows) + 100 }}">
-        <div class="ad-section-title">
+    <section class="admin-card admin-card__pad admin-form" data-lesson-only data-repeater data-next="{{ count($checklistRows) + 100 }}">
+        <div class="admin-section-title">
             <div>
                 <h3>Action checklist</h3>
-                <p class="ad-help">Learners tick every item before “Mark as Complete” unlocks. Leave empty to let them continue straight away.</p>
+                <p class="admin-help">Learners tick every item before “Mark as Complete” unlocks. Leave empty to let them continue straight away.</p>
             </div>
-            <button type="button" class="ad-btn ad-btn--ghost ad-btn--sm" data-add>@include('roadmap.partials.icon', ['name' => 'plus']) Add</button>
+            <button type="button" class="admin-btn admin-btn--ghost admin-btn--sm" data-add>@include('roadmap.partials.icon', ['name' => 'plus']) Add</button>
         </div>
-        <div class="ad-rows" data-rows>
+        <div class="admin-rows" data-rows>
             @foreach ($checklistRows as $i => $row)
                 @include('admin.steps.row', ['type' => 'check', 'i' => $i, 'row' => $row])
             @endforeach
@@ -202,21 +203,21 @@
         <template>@include('admin.steps.row', ['type' => 'check', 'i' => '__I__', 'row' => []])</template>
     </section>
 
-    <div class="ad-card ad-card__pad">
-        <div class="ad-actions" style="padding-top: 0;">
-            <button type="submit" class="ad-btn ad-btn--primary">{{ $isNew ? 'Add step' : 'Save step' }}</button>
-            <a href="{{ route('admin.projects.steps.index', $project) }}" class="ad-btn ad-btn--ghost">Cancel</a>
+    <div class="admin-card admin-card__pad">
+        <div class="admin-actions" style="padding-top: 0;">
+            <button type="submit" class="admin-btn admin-btn--primary">{{ $isNew ? 'Add step' : 'Save step' }}</button>
+            <a href="{{ route('admin.projects.steps.index', $project) }}" class="admin-btn admin-btn--ghost">Cancel</a>
         </div>
     </div>
 </form>
 
 @unless ($isNew)
-    <div class="ad-danger">
+    <div class="admin-danger">
         <p><strong>Delete this step.</strong> Learners who finished it will lose that progress, and their percentage is recalculated.</p>
         <form method="POST" action="{{ route('admin.steps.destroy', $step) }}"
               onsubmit="return confirm('Delete {{ addslashes($step->title) }}? This cannot be undone.')">
             @csrf @method('DELETE')
-            <button type="submit" class="ad-btn ad-btn--danger">Delete step</button>
+            <button type="submit" class="admin-btn admin-btn--danger">Delete step</button>
         </form>
     </div>
 @endunless
@@ -285,6 +286,24 @@
                 preview.appendChild(img);
             });
         }
+        // Preview material images (including dynamically added rows).
+        form.addEventListener('change', function (e) {
+            if (!e.target.matches('[data-material-image]')) return;
+
+            var input = e.target;
+            var row = input.closest('[data-row]');
+            var preview = row.querySelector('.material-new-preview');
+            var img = preview.querySelector('img');
+
+            if (!input.files.length) {
+                preview.hidden = true;
+                img.removeAttribute('src');
+                return;
+            }
+
+            img.src = URL.createObjectURL(input.files[0]);
+            preview.hidden = false;
+        });
     })();
 </script>
 @endpush

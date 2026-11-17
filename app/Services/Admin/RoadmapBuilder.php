@@ -64,7 +64,20 @@ class RoadmapBuilder
                     'name' => trim($r['name']),
                     'spec' => filled($r['spec'] ?? null) ? trim($r['spec']) : null,
                     'is_optional' => (bool) ($r['is_optional'] ?? false),
+                    'item_url' => filled($r['item_url'] ?? null) ? trim($r['item_url']) : null,
+                    'description' => filled($r['description'] ?? null) ? trim($r['description']) : null,
+                    'price' => $r['price'] ?? null,
+                    'image' => isset($r['image']) && $r['image'] instanceof UploadedFile ? file_get_contents($r['image']->getRealPath()) : null,
                 ]);
+                if (isset($r['image']) && $r['image'] instanceof UploadedFile) {
+                    $attributes['image'] = file_get_contents($r['image']->getRealPath());
+                }
+
+                if (!empty($r['remove_image'])) {
+                    $attributes['image'] = null;
+                }
+
+                return $attributes;
 
                 $this->syncRows(StepInstruction::class, $step->id, $data['instructions'] ?? [], 'body', fn (array $r) => [
                     'body' => trim($r['body']),

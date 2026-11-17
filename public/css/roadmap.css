@@ -34,7 +34,7 @@
 
 .rm-body { padding: 36px 24px 0; }
 .rm-container { max-width: 880px; margin: 0 auto; }
-.rm-container--wide { max-width: 1120px; }
+.rm-container--wide { max-width: 1600px; }
 .rm-container--form { max-width: 772px; }
 .rm-container--celebrate { max-width: 800px; }
 .rm-center { text-align: center; }
@@ -259,7 +259,7 @@ a.rm-node--completed:hover { background: #F6F1E1; }
 .rm-chip small { display: block; font-size: 9px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--rm-muted); }
 .rm-chip strong { font-size: 16px; font-weight: 600; }
 
-.rm-split { display: grid; grid-template-columns: 1fr 300px; gap: 44px; margin-top: 44px; align-items: start; }
+.rm-split { display: grid; grid-template-columns: 1fr 1fr; gap: 44px; margin-top: 44px; align-items: start; }
 .rm-split--single { grid-template-columns: 1fr; }
 .rm-instr { display: grid; gap: 34px; }
 .rm-instr li { display: grid; grid-template-columns: 32px 1fr; gap: 16px; }

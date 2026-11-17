@@ -1,0 +1,22 @@
+.pc { display: grid; gap: 12px; color: #4F3F39; }
+.pc__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.pc__head h2 { margin: 0; font-size: 18px; }
+.pc__head span { font-size: 12px; font-weight: 600; color: #6B5851; }
+.pc__bar { height: 4px; border-radius: 999px; background: #F0EBE6; overflow: hidden; }
+.pc__bar span { display: block; height: 100%; background: #7E9A6B; }
+.pc__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.pc__item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; background: #FBF1EC; cursor: pointer; font-weight: 600; }
+.pc__item input { width: 18px; height: 18px; flex: none; accent-color: #7E9A6B; }
+.pc__item input:focus-visible { outline: 3px solid #C6D3F5; outline-offset: 2px; }
+.pc__name { flex: 1; min-width: 0; }
+.pc__name small { font-weight: 500; color: #6B5851; }
+.pc__price { font-size: 12.5px; white-space: nowrap; }
+.pc__item.is-owned { background: #EAF1E3; }
+.pc__item.is-owned .pc__name { text-decoration: line-through; text-decoration-color: rgba(79, 63, 57, .35); }
+.pc__item.is-owned .pc__price { color: #5C7A4A; }
+.pc__sum { margin: 0; font-size: 13.5px; }
+.pc__shop {
+    display: inline-flex; justify-content: center; align-items: center; height: 46px; padding: 0 22px;
+    border-radius: 999px; background: #705D56; color: #fff; font-weight: 700; text-decoration: none;
+}
+.pc__shop:hover { background: #4F3F39; }

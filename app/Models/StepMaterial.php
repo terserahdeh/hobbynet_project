@@ -7,11 +7,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class StepMaterial extends Model
 {
-    protected $fillable = ['roadmap_step_id', 'position', 'kind', 'name', 'spec', 'is_optional'];
+    protected $fillable = ['roadmap_step_id', 'position', 'kind', 'name', 'spec', 'is_optional', 
+                            'item_url', 'description', 'price', 'image', ];
 
     protected function casts(): array
     {
-        return ['is_optional' => 'boolean'];
+        return [
+            'is_optional' => 'boolean',
+            'price' => 'decimal:2',
+        ];
     }
 
     public function step(): BelongsTo

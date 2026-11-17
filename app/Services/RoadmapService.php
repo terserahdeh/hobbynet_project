@@ -31,7 +31,6 @@ class RoadmapService
         return self::LEVELS[$user->experience_level] ?? 'beginner';
     }
 
-    /** Starter yang punya langkah roadmap, level terdekat dengan pengguna. Null jika hobi belum punya starter. */
     public function findStarter(Hobby $hobby, ?User $user = null): ?Project
     {
         $level    = $user ? $this->levelFor($user) : 'beginner';
@@ -44,17 +43,63 @@ class RoadmapService
             $pool = $starters;
         }
 
-        return $pool
-            ->sortBy(fn (Project $p) => abs(
-                (self::LEVEL_ORDER[$p->level] ?? 0) - self::LEVEL_ORDER[$level]
-            ) * 100000 + $p->id)
-            ->first();
-    }
+    return $pool
+        ->sortBy(fn (Project $p) => abs(
+            (self::LEVEL_ORDER[$p->level] ?? 0) - self::LEVEL_ORDER[$level]
+        ) * 100000 + $p->id)
+        ->first();
+}
 
-    /** The starter project that powers a hobby's roadmap. */
+    /**
+     * Proyek yang ditampilkan halaman roadmap sebuah hobi.
+     * Biasanya roadmap utama (findStarter), kecuali pengguna sedang membuka roadmap lain
+     * dari Jelajahi / Hobi Lainnya (disimpan di session). ?main=1 kembali ke roadmap utama.
+     */
     public function starterProject(Hobby $hobby, ?User $user = null): Project
     {
+        $user ??= auth()->user();
+        $key = "roadmap_view.{$hobby->id}";
+
+        if (request()->boolean('main')) {
+            session()->forget($key);
+        }
+
+        if ($user && ($id = session($key))) {
+            $project = Project::where('id', $id)
+                ->where('hobby_id', $hobby->id)
+                ->where('is_starter', true)
+                ->first();
+
+            if ($project && RoadmapStep::where('project_id', $project->id)->exists()) {
+                return $project;
+            }
+
+            session()->forget($key);
+        }
+
         return $this->findStarter($hobby, $user) ?? abort(404);
+    }
+
+    /** Buka sebuah proyek roadmap (level/hobi mana pun) di halaman roadmap hobinya. */
+    public function openRoadmap(Project $project, User $user): void
+    {
+        $project->loadMissing('hobby');
+        $key = "roadmap_view.{$project->hobby_id}";
+
+        if ($this->findStarter($project->hobby, $user)?->id === $project->id) {
+            session()->forget($key);
+        } else {
+            session()->put($key, $project->id);
+        }
+    }
+
+    /** true = halaman roadmap sedang menampilkan roadmap selain roadmap utama pengguna. */
+    public function isViewingOther(Hobby $hobby, ?User $user = null): bool
+    {
+        $user ??= auth()->user();
+
+        return $user !== null
+            && $this->starterProject($hobby, $user)->id !== $this->findStarter($hobby, $user)?->id;
     }
 
     /** Hobbies the user picked during onboarding (for "Switch Hobby"). */

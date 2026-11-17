@@ -172,7 +172,7 @@ a { color: inherit; }
     border-radius: var(--radius-pill); border: 0; font: inherit; font-weight: 700; text-decoration: none; cursor: pointer;
     transition: background .15s, transform .1s;
 }
-.btn--primary { background: var(--cocoa-deep); color: #fff; box-shadow: 0 8px 18px rgba(79, 63, 57, .22); }
+.btn--primary { color:#fff; background: var(--cocoa-deep); box-shadow: 0 8px 18px rgba(79, 63, 57, .22); }
 .btn--primary:hover { background: #3E312C; }
 .btn--primary:active { transform: translateY(1px); }
 .btn--ghost { background: #fff; color: var(--cocoa-deep); border: 1.5px solid var(--line); }
@@ -185,7 +185,7 @@ a { color: inherit; }
 }
 
 /* Hobimu */
-.hgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.hgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
 .hcard { background: var(--card); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: 12px 12px 14px; }
 .hcard__media { display: block; aspect-ratio: 4 / 3; border-radius: var(--radius-md); overflow: hidden; }
 .hcard__title { font-size: 17px; margin: 16px 8px 4px; line-height: 1.25; }

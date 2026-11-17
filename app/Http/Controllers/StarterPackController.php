@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Models\RoadmapStep;
+use App\Models\StarterPackItem;
+use App\Services\PackChecklist;
 
 class StarterPackController extends Controller
 {
@@ -66,7 +69,24 @@ class StarterPackController extends Controller
             'pack'    => $starterPack,
             'project' => $starterPack->project,
             'isSaved' => in_array($starterPack->id, $this->savedIds()),
+            'ownedIds' => app(PackChecklist::class)->ownedIds(Auth::user(), $starterPack),
         ]);
+    }
+
+    /** "Mulai" dari Jelajahi: arahkan ke roadmap atau proyek berpemandu sesuai jenisnya. */
+    public function start(StarterPack $starterPack)
+    {
+        $project = $starterPack->project;
+        abort_if(! $project, 404);
+
+        // Belum punya langkah di sistem roadmap/proyek: pakai course lama.
+        if (! RoadmapStep::where('project_id', $project->id)->exists()) {
+            return redirect()->route('courses.legacy', $starterPack);
+        }
+
+        // projects.show meneruskan roadmap utama ke halaman roadmap,
+        // dan menampilkan pratinjau untuk proyek Plus.
+        return redirect()->route('projects.show', $project->slug);
     }
 
     private function savedIds(): array
@@ -75,5 +95,17 @@ class StarterPackController extends Controller
             ->where('user_id', Auth::id())
             ->pluck('starter_pack_id')
             ->all();
+    }
+    
+    /** Centang / batalkan "aku sudah punya" untuk satu item. */
+    public function toggleOwned(Request $request, StarterPackItem $item, PackChecklist $checklist)
+    {
+        $owned = $checklist->toggle($request->user(), $item);
+
+        if ($request->expectsJson()) {
+            return response()->json(['owned' => $owned]);
+        }
+
+        return back();
     }
 }

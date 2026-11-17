@@ -33,6 +33,17 @@ class RoadmapStepRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge(['remove_image' => $this->boolean('remove_image')]);
+
+        $materials = $this->input('materials', []);
+
+        foreach ($materials as $key => $material) {
+            $materials[$key]['remove_image'] = filter_var(
+                $material['remove_image'] ?? false,
+                FILTER_VALIDATE_BOOLEAN
+            );
+        }
+
+        $this->merge(['materials' => $materials]);
     }
 
     public function rules(): array
@@ -56,6 +67,11 @@ class RoadmapStepRequest extends FormRequest
             'materials.*.name' => ['nullable', 'string', 'max:255'],
             'materials.*.spec' => ['nullable', 'string', 'max:255'],
             'materials.*.is_optional' => ['nullable', 'boolean'],
+            'materials.*.item_url' => ['nullable', 'url', 'max:2048'],
+            'materials.*.description' => ['nullable', 'string'],
+            'materials.*.price' => ['nullable', 'numeric', 'min:0'],
+            'materials.*.image' => ['nullable', 'image', 'max:5120'],
+            'materials.*.remove_image' => ['nullable', 'boolean'],
 
             'instructions' => ['nullable', 'array', 'max:30'],
             'instructions.*.id' => ['nullable', 'integer'],
