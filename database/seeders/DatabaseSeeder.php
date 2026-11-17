@@ -20,7 +20,6 @@ class DatabaseSeeder extends Seeder
             ExplorePackSeeder::class,
             GuidedProjectSeeder::class,
             HobbySeeder::class,
-            StepMaterialSeeder::class,
             PremiumAccessSeeder::class,
             ProjectSeeder::class,
             ProjectVideoSeeder::class,
