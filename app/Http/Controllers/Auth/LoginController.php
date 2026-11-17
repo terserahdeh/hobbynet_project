@@ -38,10 +38,11 @@ class LoginController extends Controller
 
     public function destroy(Request $request): RedirectResponse
     {
-        Auth::logout();
+        Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('landing');
+        return redirect()->route('landing')
+            ->withHeaders(['Cache-Control' => 'no-store, no-cache, must-revalidate']);
     }
 }

@@ -71,10 +71,7 @@
                     <p class="account__mail">{{ auth()->user()->email }}</p>
                     <a class="account__link" href="{{ route('profile') }}">Profil saya</a>
                     <a class="account__link" href="{{ route('plus') }}">{{ auth()->user()->isPlus() ? 'Paket Plus aktif' : 'HobbyNet Plus' }}</a>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="account__out">Keluar</button>
-                    </form>
+                    <button type="button" class="account__out" data-logout-open>Keluar</button>
                 </div>
             </details>
             @else
@@ -83,6 +80,33 @@
             @endauth
         </div>
     </header>
+    
+    @auth
+    <dialog id="logout-dialog" class="hn-dialog" aria-labelledby="logout-title">
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <h2 id="logout-title">Keluar dari HobbyNet?</h2>
+            <p>Kamu perlu masuk lagi untuk melanjutkan progres belajarmu.</p>
+            <div class="hn-dialog__actions">
+                <button type="button" class="btn btn--ghost btn--sm" data-logout-cancel>Batal</button>
+                <button type="submit" class="btn btn--primary btn--sm">Ya, keluar</button>
+            </div>
+        </form>
+    </dialog>
+
+    <script>
+        (function () {
+            var dlg = document.getElementById('logout-dialog');
+            if (!dlg || !dlg.showModal) return;
+            document.querySelector('[data-logout-open]').addEventListener('click', function () {
+                var menu = this.closest('details'); if (menu) menu.removeAttribute('open');
+                dlg.showModal();
+            });
+            dlg.querySelector('[data-logout-cancel]').addEventListener('click', function () { dlg.close(); });
+            dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); }); // klik di luar kotak
+        })();
+    </script>
+    @endauth
 
     <main id="konten" class="page">
         @yield('content')

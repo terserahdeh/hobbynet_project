@@ -28,21 +28,21 @@
             <a href="{{ route('projects.show', $project->slug) }}" class="rm-topbar__close" aria-label="Back to project">@include('roadmap.partials.icon', ['name' => 'close'])</a>
             <div class="rm-topbar__title">
                 <strong>{{ $project->title }}</strong>
-                <span>Guided experience</span>
+                <span>Pengalaman Terpadu</span>
             </div>
         </div>
 
         <div class="rm-topbar__mid">
             <div class="rm-topbar__labels">
-                <span>Step {{ $step->position }} of {{ $summary['total'] }}</span>
-                <span>{{ $summary['percent'] }}% project progress</span>
+                <span>Step {{ $step->position }} dari {{ $summary['total'] }}</span>
+                <span>{{ $summary['percent'] }}% progres proyek</span>
             </div>
             <div class="rm-bar" role="progressbar" aria-valuenow="{{ $summary['percent'] }}" aria-valuemin="0" aria-valuemax="100" aria-label="Project progress">
                 <span class="rm-bar__fill" style="width: {{ $summary['percent'] }}%"></span>
             </div>
         </div>
 
-        <div class="rm-topbar__right"><a href="{{ route('projects.show', $project->slug) }}">Save &amp; Exit</a></div>
+        <div class="rm-topbar__right"><a href="{{ route('projects.show', $project->slug) }}">Simpan &amp; Keluar</a></div>
     </header>
 
     <div class="rm-body">
@@ -75,9 +75,9 @@
 
                 @if ($step->encouragement)
                     <div class="rm-hint">
-                        <strong>@include('roadmap.partials.icon', ['name' => 'bulb']) Almost there, {{ $firstName }}!</strong>
+                        <strong>@include('roadmap.partials.icon', ['name' => 'bulb']) Kamu hebat, {{ $firstName }}!</strong>
                         <p>{{ $step->encouragement }}</p>
-                        <small>Keep it up!</small>
+                        <small>Terus semangat!</small>
                     </div>
                 @endif
 
@@ -86,7 +86,7 @@
                     <div class="gp-bar gp-bar--light" role="progressbar" aria-valuenow="{{ $goalPercent }}" aria-valuemin="0" aria-valuemax="100" aria-label="Daily goal">
                         <span style="width: {{ $goalPercent }}%"></span>
                     </div>
-                    <small>Finish this step to move closer to your daily goal.</small>
+                    <small>Selesaikan langkah ini untuk semakin mendekati target harian Anda.</small>
                 </div>
             </aside>
 
@@ -95,25 +95,37 @@
                     <p class="rm-eyebrow">{{ $phase }}</p>
                     <h1>{{ $step->title }}</h1>
                     <p class="rm-step__meta">
-                        <span>@include('roadmap.partials.icon', ['name' => 'clock']) Estimated time: <b>{{ $step->estimated_minutes }} minutes</b></span>
+                        <span>@include('roadmap.partials.icon', ['name' => 'clock']) Estimasi waktu: <b>{{ $step->estimated_minutes }} menit</b></span>
                         @if ($step->objective)
                             <i class="rm-step__sep" aria-hidden="true"></i>
-                            <span>@include('roadmap.partials.icon', ['name' => 'target']) Objective: <b>{{ $step->objective }}</b></span>
+                            <span>@include('roadmap.partials.icon', ['name' => 'target']) Tujuan: <b>{{ $step->objective }}</b></span>
                         @endif
                     </p>
 
                     @if ($step->materials->isNotEmpty())
-                        <ul class="rm-chips">
-                            @foreach ($step->materials as $m)
-                                <li class="rm-chip {{ $m->kind === 'material' ? 'rm-chip--material' : '' }}">
-                                    <span class="rm-chip__icon">@include('roadmap.partials.icon', ['name' => $m->kind === 'tool' ? 'bulb' : 'plus'])</span>
-                                    <span>
-                                        <small>{{ $m->kind === 'tool' ? 'Tool' : 'Material' }}{{ $m->is_optional ? ' (optional)' : '' }}</small>
-                                        <strong>{{ $m->name }}@if ($m->spec) ({{ $m->spec }})@endif</strong>
-                                    </span>
-                                </li>
-                            @endforeach
-                        </ul>
+                        @php
+                            $groups = [
+                                'Alat'  => $step->materials->where('kind', 'tool'),
+                                'Bahan' => $step->materials->where('kind', '!=', 'tool'),
+                            ];
+                        @endphp
+
+                        @foreach ($groups as $label => $group)
+                            @if ($group->isNotEmpty())
+                                <h2 class="rm-chips__title">{{ $label }}</h2>
+                                <ul class="rm-chips" style="margin-top:8px !important">
+                                    @foreach ($group as $m)
+                                        <li class="rm-chip {{ $m->kind === 'material' ? 'rm-chip--material' : '' }}">
+                                            <span class="rm-chip__icon">@include('roadmap.partials.icon', ['name' => $m->kind === 'tool' ? 'bulb' : 'plus'])</span>
+                                            <span>
+                                                <small>{{ $m->is_optional ? ' (opsional)' : '' }}</small>
+                                                <strong>{{ $m->name }}@if ($m->spec) ({{ $m->spec }})@endif</strong>
+                                            </span>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                        @endforeach
                     @endif
 
                     <div class="rm-split {{ $hasVisual ? '' : 'rm-split--single' }}">
@@ -140,22 +152,22 @@
                         <aside class="gp-lockcard" aria-label="HobbyNet Plus">
                             <span class="gp-lockcard__icon" aria-hidden="true">&#9733;</span>
                             <div>
-                                <strong>You're viewing a preview</strong>
-                                <p>The rest of this step{{ $step->instructions->count() > 1 ? ' (' . ($step->instructions->count() - 1) . ' more instructions)' : '' }}, the video, the Pro Tip and the checklist are part of HobbyNet Plus.</p>
-                                <a class="gp-btn gp-btn--plus gp-btn--sm" href="{{ route('plus') }}">&#9733; Unlock with Plus</a>
+                                <strong>Anda sedang melihat pratinjau</strong>
+                                <p>Sisa langkah ini{{ $step->instructions->count() > 1 ? ' (' . ($step->instructions->count() - 1) . ' instruksi lagi)' : '' }}, video, Tips Pro, dan checklist adalah bagian dari HobbyNet Plus.</p>
+                                <a class="gp-btn gp-btn--plus gp-btn--sm" href="{{ route('plus') }}">&#9733; Buka dengan Plus</a>
                             </div>
                         </aside>
                     @else
                         @if ($step->tip)
                             <aside class="gp-tip" aria-label="Pro tip">
                                 <span class="gp-tip__icon">@include('roadmap.partials.icon', ['name' => 'bulb'])</span>
-                                <div><strong>Pro Tip</strong><p>{{ $step->tip }}</p></div>
+                                <div><strong>Tips</strong><p>{{ $step->tip }}</p></div>
                             </aside>
                         @endif
 
                         @if ($items->isNotEmpty())
                             <section class="rm-checklist" aria-labelledby="rm-checklist-title">
-                                <h2 id="rm-checklist-title">Action Checklist</h2>
+                                <h2 id="rm-checklist-title">Checklist Aksi</h2>
                                 <ul id="rm-checklist">
                                     @foreach ($items as $item)
                                         <li>

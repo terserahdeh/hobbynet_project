@@ -262,6 +262,12 @@ a { color: inherit; }
 .soon { max-width: 520px; margin: 40px auto; display: grid; gap: 16px; justify-items: start; }
 .soon p { color: var(--cocoa-soft); }
 
+.hn-dialog { border: 0; border-radius: 24px; padding: 28px; max-width: 380px; width: calc(100% - 32px); box-shadow: 0 20px 60px rgba(0,0,0,.2); }
+.hn-dialog::backdrop { background: rgba(60, 45, 40, .45); }
+.hn-dialog h2 { margin: 0 0 8px; font-size: 20px; }
+.hn-dialog p { margin: 0 0 20px; color: #705D56; }
+.hn-dialog__actions { display: flex; justify-content: flex-end; gap: 10px; }
+
 /* ---------- Responsif ---------- */
 @media (max-width: 960px) {
     .dash__head, .dash__grid { grid-template-columns: 1fr; }
