@@ -24,7 +24,7 @@
             <label class="check"><input type="checkbox" name="remember" value="1"> Ingat saya di perangkat ini</label>
             <button type="submit" class="btn btn--primary">Masuk</button>
         </form>
-        <div class="divider"><span>atau daftar dengan</span></div>
+        <div class="divider"><span>atau masuk dengan</span></div>
         
         @if (config('services.google.client_id'))
         <div class="social">
@@ -34,6 +34,7 @@
             </a>
         </div>
         @endif
+
         <p class="card__login">Belum punya akun? <a href="{{ route('onboarding.account') }}">Buat akun</a></p>
     </section>
 </div>

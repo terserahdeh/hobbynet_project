@@ -1,6 +1,6 @@
 @extends('layouts.onboarding', ['step' => 2])
 
-@section('title', 'Personalisasi · Hobby Enabler')
+@section('title', 'Personalisasi · HobbyNet')
 
 @push('head')
     <link rel="stylesheet" href="{{ asset('css/personalize.css') }}">
@@ -9,7 +9,7 @@
 @section('content')
 <div class="persona">
     <header class="persona__head">
-        <h1>Mari sesuaikan Hobby Enabler dengan tempomu.</h1>
+        <h1>Mari sesuaikan HobbyNet dengan tempomu.</h1>
         <p>Ceritakan sedikit latar belakangmu supaya kami bisa merekomendasikan titik awal terbaik.</p>
     </header>
 
@@ -68,11 +68,15 @@
                 <span class="q__num" aria-hidden="true">03</span>
                 Berapa anggaran proyekmu biasanya? <span class="q__opt">(opsional)</span>
             </legend>
+            <p class="q__hint">Perkiraan total bahan dan alat yang perlu dibeli untuk satu proyek.</p>
             <div class="opts opts--3">
-                @foreach (['budget' => 'Hemat', 'standard' => 'Standar', 'premium' => 'Premium'] as $value => $label)
+                @foreach (config('hobbynet.budget_tiers') as $value => $tier)
                     <label class="opt opt--budget">
                         <input type="radio" name="budget" value="{{ $value }}" @checked($budget === $value)>
-                        <span class="opt__body"><span class="opt__title">{{ $label }}</span></span>
+                        <span class="opt__body">
+                            <span class="opt__title">{{ $tier['label'] }}</span>
+                            <span class="opt__range">{{ $tier['range'] }}</span>
+                        </span>
                     </label>
                 @endforeach
             </div>

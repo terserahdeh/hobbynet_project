@@ -37,7 +37,7 @@ class ExplorePackSeeder extends Seeder
                 'level'            => $p['level'],
                 'duration_minutes' => $p['minutes'],
                 'learners_count'   => $p['learners'],
-                'image'            => 'images/projects/' . $slug . '.jpg',
+                'image'            => ProjectImageSeeder::forProject($slug) ?? 'images/projects/' . $slug . '.jpg',
                 'icon'             => $p['icon'],   // slug hobi, dipakai filter di Jelajahi
                 'color'            => $p['color'],
                 'is_starter'       => false,

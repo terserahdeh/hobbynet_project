@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             RoadmapLevelSeeder::class,
             RoadmapSeeder::class,
             StarterPackSeeder::class,
+            ProjectImageSeeder::class,
         ]);
         // firstOrCreate: aman dijalankan berulang (email unik).
         User::firstOrCreate(
