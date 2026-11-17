@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="{{ asset('css/polish.css') }}">
     <link rel="stylesheet" href="{{ asset('css/plus.css') }}">
     <link rel="stylesheet" href="{{ asset('css/community.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
     {{-- Tautan "Profil saya" di menu akun --}}
     <style>

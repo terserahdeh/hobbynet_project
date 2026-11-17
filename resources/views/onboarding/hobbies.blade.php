@@ -24,7 +24,7 @@
                             </span>
                             <span class="hobby__name">{{ $hobby->name }}</span>
                             <span class="hobby__tagline">{{ $hobby->tagline }}</span>
-                            <span class="hobby__project">Proyek pertama: {{ $hobby->first_project }}</span>
+                            {{-- <span class="hobby__project">Proyek pertama: {{ $hobby->first_project }}</span> --}}
                             <span class="hobby__check" aria-hidden="true">
                                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg>
                             </span>

@@ -2,7 +2,9 @@
 <li class="pk-item {{ $item->is_essential ? '' : 'pk-item--optional' }}">
     <label class="pk-check">
         <input type="checkbox" value="{{ $item->id }}" data-owned
-               data-essential="{{ $item->is_essential ? 1 : 0 }}" data-price="{{ $item->price }}">
+            data-essential="{{ $item->is_essential ? 1 : 0 }}" data-price="{{ $item->price }}"
+            data-url="{{ route('packs.items.owned', $item) }}"
+            @checked(in_array($item->id, $ownedIds ?? []))>
         <span class="pk-box" aria-hidden="true">@include('packs._icon', ['name' => 'check'])</span>
         <span class="sr-only">Aku sudah punya {{ $item->name }}</span>
     </label>
